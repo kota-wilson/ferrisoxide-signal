@@ -48,13 +48,13 @@ Owner Role: Community Engineering Lead
 
 - Issue #45 records report measurement schema acceptance criteria.
 - Branch `feature/m6-report-measurement-schema` implements stable measurement records, result links, exact golden JSON updates, and schema migration docs.
-- PR creation is pending; the PR body should use `Fixes #45`.
+- PR #50 is open with `Fixes #45`.
 - Follow-up community messaging should describe M6-003 as a report evidence schema migration, not annotated SVG, batch analysis, plugin runtime, GUI, DAQ, hardware validation, or certification evidence.
 
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, and M6-001 issue closure; pending PR evidence for M6-003.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, and M6-001 issue closure; pending merge evidence for M6-003.
 - Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, PR #48 merge evidence, and M6-003 branch evidence.
 - Residual risk: Community onboarding quality, plotting usability, downstream measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
