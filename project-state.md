@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Route accepted domain end-user design review findings into follow-up issues.
+Route remaining M1 and M3 backlog after completing simulated ADC quantization.
 
 ## Current Stage
 
-End-user design review is complete; M1-001, v0.2.0, and M3-RTOS-001 are already merged.
+ADC quantization implementation, documentation, and local validation are complete; PR #25 records release status for issue #24 and M1-003 issue #2.
 
 ## Open Risks
 
@@ -24,6 +24,8 @@ End-user design review is complete; M1-001, v0.2.0, and M3-RTOS-001 are already 
   Owner: Software Architect
 - Risk: Users may overread MVP validation evidence as hardware validation, RTOS readiness, or certification support.
   Owner: Project Coordinator / Documentation Engineer
+- Risk: ADC quantization settings may hide analog excursions when the configured input range or resolution is unrealistic.
+  Owner: Electrical Signal Integrity Engineer / Documentation Engineer
 
 ## Pending Decisions
 
@@ -42,18 +44,18 @@ End-user design review is complete; M1-001, v0.2.0, and M3-RTOS-001 are already 
 
 ## Next Responsible Role
 
-Role: Project Orchestrator
+Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Route accepted findings into follow-up issues for metadata, operator docs, filter assumptions, embedded target evidence, supply-chain scanning, and certification claim boundaries.
+Expected deliverable: Route remaining M1 issues #4 and #6 plus M3 issues #17-#19 while keeping hardware/DAQ/certification claims out of scope.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: Domain end-user design review complete.
+- Current milestone: ADC quantization transform complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Follow-up issue routing for accepted review findings.
+- Next gate: Remaining M1 and M3 backlog routing after PR #25.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -73,7 +75,7 @@ Expected deliverable: Route accepted findings into follow-up issues for metadata
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP and M3-RTOS-001 evidence.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, and WRA-RQ-018 ADC quantization evidence.
 
 ## Gate Decisions
 
@@ -122,6 +124,9 @@ Expected deliverable: Route accepted findings into follow-up issues for metadata
 | M3-RTOS-001 Community Gate | Pass | PR #21 body links issue #20 and follow-up issues #17-#19 | Project Coordinator |
 | M3-RTOS-001 Retrospective Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Project Orchestrator |
 | Domain End-User Review Gate | Pass | `docs/end-user-design-review.md`; PR #23 | Documentation Engineer |
+| ADC Quantization Implementation Gate | Pass | `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `docs/implementation-report.md` | Test Automation Engineer |
+| ADC Quantization Testing Gate | Pass | `docs/validation-log.md`; unit, config, CLI, and workspace tests passed | Release Engineer |
+| ADC Quantization Release Gate | Pass | PR #25 opened with required `rust` CI passing | Project Orchestrator |
 
 ## Update Rules
 
