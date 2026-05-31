@@ -873,3 +873,53 @@ Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --works
 Status: Pass.
 Known gaps: No hardware ADC model validation.
 Next recommended step: Documentation and final workspace validation.
+
+## M8-004 Rule Package Export Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing desktop rule package export command
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, or controller SDKs installed.
+- New third-party dependencies: None. The CLI depends on local `ferrisoxide-rule-schema` and approved workspace `serde_json`.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo tree -p ferrisoxide-cli` | Passed | Dependency tree shows local `ferrisoxide-rule-schema` plus approved existing CSV/TOML/Serde/JSON/Plotters dependencies. |
+| `cargo test -p ferrisoxide-cli` | Passed | 13 CLI tests passed, including exact export artifact comparison and overwrite refusal. |
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 120 tests passed across CLI, core, criteria integration, embedded, measurements, plot, rule schema, signal, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No warnings after refactoring the package builder input. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `ferrisoxide-cli::tests::exports_rule_package_artifacts_from_config_and_evidence` | Runs `export-rule-package`, compares `rules.toml`, `rules.json`, and `validation-report.json` exactly against expected artifacts, and validates the exported TOML package for the controller runtime target. |
+| `ferrisoxide-cli::tests::export_rule_package_refuses_to_overwrite_artifacts` | Pre-creates an output artifact and verifies the export command refuses to overwrite it. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M8-004.
+- Decision: Pass.
+- Reason: The CLI export command is covered by exact artifact tests, overwrite-safety tests, workspace tests, formatting, clippy, dependency tree inspection, and whitespace checks.
+- Residual risk: Manifest/checksum artifacts, binary package serialization, shared rule execution, no_std compatibility, and desktop-vs-embedded parity tests remain future M8 issues.
+- Owner for residual risk: Project Orchestrator / Core Software Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M8-004 desktop rule package export command.
+Files changed: `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-cli/Cargo.toml`, expected export artifacts under `tests/expected/rule-package-basic/`, README, docs, requirements, traceability, risk, dependency, validation, and project-state files.
+Checks run: `cargo tree -p ferrisoxide-cli`; `cargo test -p ferrisoxide-cli`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected PR, CI, merge, and issue closure pending.
+Known gaps: Manifest/checksum generation, shared rule execution, no_std compatibility, and parity tests remain separate M8 issues.
+Next recommended step: Open a protected-branch PR with `Fixes #69`, wait for required `rust` CI, merge, then proceed to M8-005 / issue #70.

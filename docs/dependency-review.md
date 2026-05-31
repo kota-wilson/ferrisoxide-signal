@@ -108,6 +108,17 @@ The M8-003 validator branch adds no new third-party crates. It promotes approved
 | Dependency tree | `cargo tree -p ferrisoxide-rule-schema` is recorded in `docs/m8-003-rule-package-validator-pipeline-report.md`. | Pass |
 | Future work boundary | Export remains #69; manifest/checksum generation remains #70; shared rule execution remains #73. | Pass |
 
+## M8-004 Rule Package Export Dependency Review
+
+The M8-004 export branch adds no new third-party crates. It adds a local dependency from `ferrisoxide-cli` to `ferrisoxide-rule-schema` and reuses approved workspace `serde_json` to render `rules.json`.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | `crates/ferrisoxide-cli/Cargo.toml` adds local `ferrisoxide-rule-schema` and approved `serde_json.workspace = true`. | Pass |
+| Scope boundary | The command writes desktop package artifacts only; it does not add GUI, DAQ, controller SDK, HAL, RTOS production integration, signing, checksum algorithms, binary serialization, hardware qualification, or certification claims. | Pass |
+| Dependency tree | `cargo tree -p ferrisoxide-cli` is recorded in `docs/m8-004-rule-package-export-pipeline-report.md`. | Pass |
+| Future work boundary | Manifest/checksum generation remains #70; shared rule execution remains #73; no_std compatibility remains #72. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -117,13 +128,13 @@ The M8-003 validator branch adds no new third-party crates. It promotes approved
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 - Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
-- Rule package drift risk: Medium; the schema crate, parse-tested examples, and validator reduce duplicated shapes, but engine, no_std, and parity tests are still required before runtime claims.
+- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, and export command reduce duplicated shapes, but engine, no_std, and parity tests are still required before runtime claims.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, and M8-003 validator work add no new third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, and M8-004 export work add no new third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

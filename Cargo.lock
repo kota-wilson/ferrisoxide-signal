@@ -53,6 +53,8 @@ version = "0.1.0"
 dependencies = [
  "ferrisoxide-core",
  "ferrisoxide-plot",
+ "ferrisoxide-rule-schema",
+ "serde_json",
  "toml",
 ]
 
