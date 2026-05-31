@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Start v0.4.0 by extracting reusable measurement primitives for M6-001 before expanding report evidence, annotated SVGs, or criteria DSL syntax.
+Continue v0.4.0 after merging M6-001; next work should address report evidence, annotated SVGs, criteria DSL documentation, or measurement validation fixtures.
 
 ## Current Stage
 
-The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with issues #43-#47. The M6-001 branch adds a local `no_std` `wra-measurements` crate and routes existing `wra-core` criteria evidence through reusable measurement primitives while preserving exact JSON report output. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, report schema migration, annotated SVG overlays, production readiness, and certification claims remain out of scope for this slice.
+The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with M6-001 merged by PR #48. Mainline includes a local `no_std` `wra-measurements` crate and routes existing `wra-core` criteria evidence through reusable measurement primitives while preserving exact JSON report output. Issue #43 is closed; issues #44-#47 remain open. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, report schema migration, annotated SVG overlays, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -69,7 +69,7 @@ The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, wi
 
 Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Run final M6 validation, open a protected-branch PR for issue #43, wait for required CI, then merge and record post-merge evidence.
+Expected deliverable: Choose and pipeline the next v0.4.0 issue, likely #45 report measurement schema or #44 annotated SVG evidence overlays.
 
 ## Orchestration Status
 
@@ -78,7 +78,7 @@ Expected deliverable: Run final M6 validation, open a protected-branch PR for is
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: `v0.4.0: Measurement & Evidence Engine`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`.
-- Next gate: M6 final validation and protected-branch PR for issue #43.
+- Next gate: v0.4.0 follow-up issue selection and requirements review for issues #44-#47.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, report schema migration, or annotated SVG overlays without a fresh issue/gate.
 
 ## Granularity Status
@@ -205,8 +205,8 @@ Expected deliverable: Run final M6 validation, open a protected-branch PR for is
 | M6 Documentation Gate | Pass | README, `docs/measurements.md`, `crates/wra-measurements/README.md` | Code Reviewer |
 | M6 Code Review Gate | Pass | `docs/code-review.md`, `docs/m6-measurement-engine-pipeline-report.md` | Evaluation Engineer |
 | M6 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
-| M6 Release Gate | Pass for PR creation | `docs/release-readiness.md` | GitHub Maintainer Specialist |
-| M6 Community Gate | Pending PR creation/CI | `docs/community-report.md` | Project Coordinator |
+| M6 Release Gate | Pass | PR #48 merged after required `rust` CI passed; merge commit `559c96151f6f1d9a99d3d399a0e6bd046bfe5f51` | GitHub Maintainer Specialist |
+| M6 Community Gate | Pass for M6-001 | Issue #43 closed; issues #44-#47 remain open under milestone #6 | Project Coordinator |
 
 ## Update Rules
 
