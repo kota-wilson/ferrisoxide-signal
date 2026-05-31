@@ -43,11 +43,34 @@
     ]
   },
   "overall_outcome": "fail",
+  "measurements": [
+    {
+      "id": "switch_contact_bounce_max_0p5ms_measurement",
+      "channel": "switch_v",
+      "method": "state_run_duration",
+      "measured_value": 0.001,
+      "unit": "s",
+      "sample_index": 4,
+      "timestamp": 0.004,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": "low",
+        "expected_state": "high",
+        "event_kind": "contact bounce",
+        "direction": null,
+        "selection": "longest"
+      }
+    }
+  ],
   "results": [
     {
       "criterion_id": "switch_contact_bounce_max_0p5ms",
       "outcome": "fail",
       "failed_criterion": "switch_contact_bounce_max_0p5ms",
+      "measurement_id": "switch_contact_bounce_max_0p5ms_measurement",
       "channel": "switch_v",
       "measured_value": 0.001,
       "required_value": 0.0005,

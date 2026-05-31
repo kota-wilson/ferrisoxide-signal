@@ -25,7 +25,7 @@ CSV
 | Measurement primitives | `crates/wra-measurements` | No CSV, TOML, plotting, reporting, file I/O, allocation, or third-party dependencies. |
 | Criteria decisions | `crates/wra-core/src/analysis.rs` | Calls `wra-measurements` and applies tolerances, operators, pass/fail, and evidence wording. |
 | Criteria definitions | `crates/wra-core/src/criteria.rs` | Re-exports `SignalState` and `EdgeDirection` so existing callers can keep using `wra_core::criteria`. |
-| Reports | `crates/wra-core/src/report.rs` | Unchanged in M6-001. Report schema expansion is tracked by issue #45. |
+| Reports | `crates/wra-core/src/report.rs` | M6-003 adds reusable measurement records and per-result `measurement_id` links. |
 | SVG evidence overlays | `crates/wra-plot` | Deferred to issue #44. |
 
 ## Supported Measurements
@@ -39,16 +39,24 @@ CSV
 | Rise time | `measure_rise_time` | Start/end index, start/end timestamp, duration. |
 | Fall time | `measure_fall_time` | Start/end index, start/end timestamp, duration. |
 
+## Report Evidence
+
+M6-003 separates measured evidence from criteria decisions in report output.
+
+- `measurements[]` contains reusable evidence records with stable report-local IDs.
+- `results[].measurement_id` references the measurement used by each criterion decision.
+- Criterion results keep `measured_value`, `required_value`, `tolerance_used`, sample index, timestamp, channel, and reason fields for compatibility with existing report readers.
+- `method_context` records threshold, state, edge, event-kind, and selection parameters needed to audit how each measurement was produced.
+
 ## Compatibility
 
-M6-001 preserves the existing CLI behavior and JSON report shape. The golden JSON tests continue to compare exact output.
+M6-001 preserved the existing CLI behavior and JSON report shape while extracting primitives. M6-003 intentionally migrates the JSON schema by adding `measurements[]` and `measurement_id` while preserving existing result fields. The golden JSON tests continue to compare exact output.
 
 The extraction intentionally preserves existing tie behavior for equal-duration longest runs: the later run is selected, matching the previous criteria evaluator and existing report evidence.
 
 ## Out Of Scope
 
 - New TOML DSL syntax.
-- Report `measurements` schema section.
 - Annotated SVG evidence overlays.
 - Batch analysis.
 - Plugin runtime.

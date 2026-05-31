@@ -3,7 +3,7 @@ use std::fs;
 use std::process::ExitCode;
 use std::time::Instant;
 
-use wra_core::analysis::evaluate_criteria_with_tolerances;
+use wra_core::analysis::evaluate_criteria_with_measurements;
 use wra_core::config::AnalysisConfig;
 use wra_core::csv::{SimpleCsvParser, WaveformParser};
 use wra_core::filter::apply_filter_chain;
@@ -88,8 +88,9 @@ fn run(args: Vec<String>) -> Result<String, String> {
         totals.transform_ms += elapsed_ms(transform_start);
 
         let criteria_start = Instant::now();
-        let results = evaluate_criteria_with_tolerances(&waveform, &criteria, config.tolerances)
-            .map_err(|error| format!("analysis failed: {error}"))?;
+        let evaluation =
+            evaluate_criteria_with_measurements(&waveform, &criteria, config.tolerances)
+                .map_err(|error| format!("analysis failed: {error}"))?;
         totals.criteria_ms += elapsed_ms(criteria_start);
 
         let report_start = Instant::now();
@@ -97,7 +98,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
             input_name: input_path.to_string(),
             waveform_metadata: waveform.metadata.clone(),
             evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
-            results,
+            measurements: evaluation.measurements,
+            results: evaluation.results,
         };
         let rendered = report
             .render_json_pretty()

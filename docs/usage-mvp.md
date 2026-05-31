@@ -23,9 +23,12 @@ Evidence Source: local_file_analysis
 Tolerance Policy: voltage=0.000000 V time=0.000000000 s
 Confidence Notes: software validation evidence only; not hardware qualification or certification evidence
 Overall: Pass
+Measurements:
+- input_min_voltage_measurement: method=minimum_sample channel=input_v measured=0.000000 V sample_index=0 timestamp=0.000000
+- input_max_voltage_measurement: method=maximum_sample channel=input_v measured=5.000000 V sample_index=4 timestamp=0.004000
 Criteria:
-- input_min_voltage: Pass channel=input_v measured=0.000000 V required=0.000000 V tolerance=0.000000 sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
-- input_max_voltage: Pass channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
+- input_min_voltage: Pass measurement_id=input_min_voltage_measurement channel=input_v measured=0.000000 V required=0.000000 V tolerance=0.000000 sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
+- input_max_voltage: Pass measurement_id=input_max_voltage_measurement channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
 ```
 
 Supported MVP filters:
@@ -43,7 +46,7 @@ cargo run --quiet --bin wra -- analyze \
   --format json
 ```
 
-The JSON report includes `waveform_metadata`, `evidence_context`, `overall_outcome`, and the same per-criterion evidence shown in the text report. The current criteria evidence is backed by reusable measurement primitives in `wra-measurements`, but the public report shape is unchanged in M6-001.
+The JSON report includes `waveform_metadata`, `evidence_context`, `overall_outcome`, reusable `measurements`, and per-criterion `results`. Each criterion result includes `measurement_id` so report consumers can link pass/fail decisions back to the measured evidence record.
 
 Explicit CLI criteria remain available for one-off checks:
 
@@ -81,8 +84,10 @@ Evidence Source: local_file_analysis
 Tolerance Policy: voltage=0.000000 V time=0.000000000 s
 Confidence Notes: software validation evidence only; not hardware qualification or certification evidence
 Overall: Pass
+Measurements:
+- input_max_after_adc_measurement: method=maximum_sample channel=input_v measured=5.000000 V sample_index=3 timestamp=0.003000
 Criteria:
-- input_max_after_adc: Pass channel=input_v measured=5.000000 V required=5.000000 V tolerance=0.000000 sample_index=3 timestamp=0.003000 reason=maximum observed voltage was 5.000000 V
+- input_max_after_adc: Pass measurement_id=input_max_after_adc_measurement channel=input_v measured=5.000000 V required=5.000000 V tolerance=0.000000 sample_index=3 timestamp=0.003000 reason=maximum observed voltage was 5.000000 V
 ```
 
 Richer CSV dialect support and stable numerical filter guarantees remain planned. See `docs/filter-behavior.md`, `docs/measurements.md`, and `docs/time-axis-and-tolerances.md` for current transform, measurement, and tolerance semantics.

@@ -1,4 +1,4 @@
-use wra_core::analysis::evaluate_criteria_with_tolerances;
+use wra_core::analysis::{evaluate_criteria_with_measurements, evaluate_criteria_with_tolerances};
 use wra_core::config::AnalysisConfig;
 use wra_core::csv::{SimpleCsvParser, WaveformParser};
 use wra_core::report::{AnalysisReport, ReportEvidenceContext};
@@ -13,13 +13,14 @@ fn render_report(input_name: &str, csv_input: &str, config_input: &str) -> Strin
         .with_metadata_context(&config.metadata)
         .with_tolerance_policy(config.tolerances);
     let criteria = config.criteria().expect("criteria should convert");
-    let results = evaluate_criteria_with_tolerances(&waveform, &criteria, config.tolerances)
+    let evaluation = evaluate_criteria_with_measurements(&waveform, &criteria, config.tolerances)
         .expect("criteria should evaluate");
     let report = AnalysisReport {
         input_name: input_name.to_string(),
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
-        results,
+        measurements: evaluation.measurements,
+        results: evaluation.results,
     };
 
     report.render_json_pretty().expect("json should render")

@@ -14,6 +14,7 @@ This document describes the MVP JSON report shape used by golden tests and valid
 | `waveform_metadata` | object | Source, unit, count, time-axis, lineage, and transform context for the analyzed waveform. |
 | `evidence_context` | object | Report-level engineering-validation context, evidence source, tolerance policy, and confidence notes. |
 | `overall_outcome` | `pass` or `fail` | `fail` when any criterion fails. |
+| `measurements` | array | Reusable measurement evidence records with stable IDs. |
 | `results` | array | Per-criterion evidence rows. |
 
 ## Waveform Metadata Fields
@@ -44,6 +45,35 @@ This document describes the MVP JSON report shape used by golden tests and valid
 | `tolerance_policy` | object | Report-level voltage/time tolerance policy applied to criteria evaluation. |
 | `confidence_notes` | array | Human-readable scope notes. Current notes explicitly say the report is not hardware qualification or certification evidence. |
 
+## Measurement Fields
+
+The `measurements` array separates measured signal evidence from pass/fail criteria decisions. Each criterion result that was evaluated from a measurement references one record by `measurement_id`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Stable report-local measurement ID. Current IDs use `{criterion_id}_measurement`. |
+| `channel` | string | Channel measured. |
+| `method` | string | Measurement method, such as `minimum_sample`, `maximum_sample`, `state_transition_count`, `state_run_duration`, or `edge_time`. |
+| `measured_value` | number | Observed value before criteria policy is applied. |
+| `unit` | string | Unit for the measured value. |
+| `sample_index` | integer | Evidence sample index. |
+| `timestamp` | number | Evidence timestamp in seconds. |
+| `method_context` | object | Method parameters needed to interpret the measurement. |
+
+## Measurement Method Context Fields
+
+| Field | Type | Meaning |
+|---|---|---|
+| `source` | string | Current source is `wra-measurements`. |
+| `threshold_v` | number or null | Threshold used for state-based measurements. |
+| `low_threshold_v` | number or null | Lower edge threshold for rise/fall measurements. |
+| `high_threshold_v` | number or null | Upper edge threshold for rise/fall measurements. |
+| `state` | string or null | Measured state such as `high` or `low` when applicable. |
+| `expected_state` | string or null | Expected steady state for transient-event style measurements. |
+| `event_kind` | string or null | Transient subtype, such as `dropout` or `contact bounce`, when applicable. |
+| `direction` | string or null | Edge direction, `rise` or `fall`, when applicable. |
+| `selection` | string or null | Run-selection policy, such as `shortest` or `longest`, when applicable. |
+
 ## Result Fields
 
 | Field | Type | Meaning |
@@ -51,6 +81,7 @@ This document describes the MVP JSON report shape used by golden tests and valid
 | `criterion_id` | string | Stable criterion identifier from config or CLI. |
 | `outcome` | `pass` or `fail` | Per-criterion result. |
 | `failed_criterion` | string or null | Criterion ID when failed, otherwise null. |
+| `measurement_id` | string | Stable ID of the measurement record used as evidence. |
 | `channel` | string | Channel evaluated. |
 | `measured_value` | number | Observed value used for the decision. |
 | `required_value` | number | Required value from config. |
@@ -63,3 +94,7 @@ This document describes the MVP JSON report shape used by golden tests and valid
 ## Stability
 
 Golden tests in `tests/golden/` compare JSON output exactly. Any intentional schema change should update this document, the golden files, and release notes together.
+
+## M6-003 Migration Note
+
+M6-003 adds the top-level `measurements` array and the per-result `measurement_id` field. Existing result fields remain present so older consumers can keep reading criterion-level pass/fail evidence while newer consumers can de-duplicate measurement evidence and render richer report/SVG annotations.

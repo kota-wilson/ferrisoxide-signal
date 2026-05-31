@@ -44,12 +44,19 @@ Owner Role: Community Engineering Lead
 - Issues #44-#47 remain open under milestone `v0.4.0: Measurement & Evidence Engine`.
 - Follow-up community messaging should describe M6-001 as internal measurement reuse and compatibility preservation, not a new report schema, annotated SVG feature, batch-analysis feature, plugin runtime, hardware validation, or certification claim.
 
+## M6-003 Report Measurement Schema Community Update
+
+- Issue #45 records report measurement schema acceptance criteria.
+- Branch `feature/m6-report-measurement-schema` implements stable measurement records, result links, exact golden JSON updates, and schema migration docs.
+- PR creation is pending; the PR body should use `Fixes #45`.
+- Follow-up community messaging should describe M6-003 as a report evidence schema migration, not annotated SVG, batch analysis, plugin runtime, GUI, DAQ, hardware validation, or certification evidence.
+
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, and M6-001 issue closure.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, and PR #48 merge evidence.
-- Residual risk: Community onboarding quality, plotting usability, measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, and M6-001 issue closure; pending PR evidence for M6-003.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, PR #48 merge evidence, and M6-003 branch evidence.
+- Residual risk: Community onboarding quality, plotting usability, downstream measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note

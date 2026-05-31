@@ -43,11 +43,74 @@
     ]
   },
   "overall_outcome": "pass",
+  "measurements": [
+    {
+      "id": "control_transition_count_measurement",
+      "channel": "control_v",
+      "method": "state_transition_count",
+      "measured_value": 4.0,
+      "unit": "transitions",
+      "sample_index": 2,
+      "timestamp": 0.002,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    },
+    {
+      "id": "control_high_pulse_width_measurement",
+      "channel": "control_v",
+      "method": "state_run_duration",
+      "measured_value": 0.002,
+      "unit": "s",
+      "sample_index": 7,
+      "timestamp": 0.007,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": "high",
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": "shortest"
+      }
+    },
+    {
+      "id": "control_stable_low_measurement",
+      "channel": "control_v",
+      "method": "state_run_duration",
+      "measured_value": 0.002,
+      "unit": "s",
+      "sample_index": 5,
+      "timestamp": 0.005,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": "low",
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": "longest"
+      }
+    }
+  ],
   "results": [
     {
       "criterion_id": "control_transition_count",
       "outcome": "pass",
       "failed_criterion": null,
+      "measurement_id": "control_transition_count_measurement",
       "channel": "control_v",
       "measured_value": 4.0,
       "required_value": 4.0,
@@ -61,6 +124,7 @@
       "criterion_id": "control_high_pulse_width",
       "outcome": "pass",
       "failed_criterion": null,
+      "measurement_id": "control_high_pulse_width_measurement",
       "channel": "control_v",
       "measured_value": 0.002,
       "required_value": 0.002,
@@ -74,6 +138,7 @@
       "criterion_id": "control_stable_low",
       "outcome": "pass",
       "failed_criterion": null,
+      "measurement_id": "control_stable_low_measurement",
       "channel": "control_v",
       "measured_value": 0.002,
       "required_value": 0.002,

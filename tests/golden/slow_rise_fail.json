@@ -43,11 +43,54 @@
     ]
   },
   "overall_outcome": "fail",
+  "measurements": [
+    {
+      "id": "signal_rise_time_max_3ms_measurement",
+      "channel": "signal_v",
+      "method": "edge_time",
+      "measured_value": 0.005,
+      "unit": "s",
+      "sample_index": 6,
+      "timestamp": 0.006,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": null,
+        "low_threshold_v": 0.5,
+        "high_threshold_v": 4.5,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": "rise",
+        "selection": null
+      }
+    },
+    {
+      "id": "signal_fall_time_max_3ms_measurement",
+      "channel": "signal_v",
+      "method": "edge_time",
+      "measured_value": 0.004,
+      "unit": "s",
+      "sample_index": 12,
+      "timestamp": 0.012,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": null,
+        "low_threshold_v": 0.5,
+        "high_threshold_v": 4.5,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": "fall",
+        "selection": null
+      }
+    }
+  ],
   "results": [
     {
       "criterion_id": "signal_rise_time_max_3ms",
       "outcome": "fail",
       "failed_criterion": "signal_rise_time_max_3ms",
+      "measurement_id": "signal_rise_time_max_3ms_measurement",
       "channel": "signal_v",
       "measured_value": 0.005,
       "required_value": 0.003,
@@ -61,6 +104,7 @@
       "criterion_id": "signal_fall_time_max_3ms",
       "outcome": "fail",
       "failed_criterion": "signal_fall_time_max_3ms",
+      "measurement_id": "signal_fall_time_max_3ms_measurement",
       "channel": "signal_v",
       "measured_value": 0.004,
       "required_value": 0.003,

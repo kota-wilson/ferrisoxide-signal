@@ -51,6 +51,16 @@ No blocking code-review findings for the M6 measurement-engine extraction. Revie
 - Golden JSON reports pass unchanged, which protects evidence values and tie behavior.
 - No new third-party dependency or unsafe Rust is added.
 
+## M6-003 Report Measurement Schema Update
+
+No blocking code-review findings for the M6-003 report measurement schema branch. Review notes:
+
+- Existing `evaluate_criteria` and `evaluate_criteria_with_tolerances` APIs remain available for callers that only need results.
+- New `evaluate_criteria_with_measurements` returns both measurement records and criteria results without duplicating criteria scans.
+- `AnalysisReport` owns a `measurements` vector and renders it before criteria results in text and JSON.
+- `AnalysisResult.measurement_id` gives a stable report-local link back to measurement evidence.
+- Exact golden JSON reports were intentionally updated and continue to compare output exactly.
+
 ## Review Notes
 
 | Area | Result |
@@ -64,13 +74,14 @@ No blocking code-review findings for the M6 measurement-engine extraction. Revie
 | M5 plotting | Pass: optional SVG plotting is isolated, tested, and documented. |
 | M3 RTOS follow-up | Pass: adapter/prototype work is isolated, no_std, tested, and documented. |
 | M6 measurement extraction | Pass: measurement primitives are isolated, tested, and report-compatible. |
+| M6-003 report schema | Pass: measurement records and result links are tested, documented, and golden-protected. |
 
 ## Gate Decision
 
 - Gate: Code Review Gate.
 - Decision: Pass.
-- Reason: No blocking defects found and validation is green for the current MVP, M4 validation work, M5 plotting slice, M3 RTOS adapter/prototype slice, and M6 measurement extraction slice.
-- Residual risk: CLI parsing is still hand-rolled; a future CLI parser crate could improve UX after review. Measurement schema migration, visual regression, target execution, and RTOS SDK validation are not yet automated.
+- Reason: No blocking defects found and validation is green for the current MVP, M4 validation work, M5 plotting slice, M3 RTOS adapter/prototype slice, M6 measurement extraction slice, and M6-003 report schema branch.
+- Residual risk: CLI parsing is still hand-rolled; a future CLI parser crate could improve UX after review. Downstream schema migration feedback, visual regression, target execution, and RTOS SDK validation are not yet automated.
 - Next owner: Evaluation Engineer.
 
 ## Hand-Off Note
@@ -80,5 +91,5 @@ Goal: Review MVP code for the initial public publication gate.
 Files changed: `docs/code-review.md`
 Checks run: Code inspection plus validation evidence review.
 Status: Pass.
-Known gaps: More negative-path tests, measurement schema migration tests, visual regression tests, target execution tests, RTOS SDK validation, and CLI UX polish are future work.
+Known gaps: More negative-path tests, downstream schema migration feedback, visual regression tests, target execution tests, RTOS SDK validation, and CLI UX polish are future work.
 Next recommended step: Evaluation.
