@@ -118,11 +118,11 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 
 ## M6-003 Report Measurement Schema Release Update
 
-- PR: pending.
+- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/50`
 - Issue: #45, `M6-003 Add report measurement schema and golden JSON updates`
 - Milestone: `v0.4.0: Measurement & Evidence Engine`
 - Scope: report measurement records, result `measurement_id` links, exact golden JSON updates, and schema docs.
-- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR and required `rust` CI pending.
+- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR #50 required `rust` CI pending.
 - Dependency evidence: no new third-party dependencies; report schema changes use existing Serde/JSON support.
 - Deferred issues: #44 annotated SVG overlays, #46 criteria DSL direction, and #47 measurement validation fixtures.
 

@@ -8,7 +8,7 @@ Milestone: `v0.4.0: Measurement & Evidence Engine`
 
 Primary issue: #45, `M6-003 Add report measurement schema and golden JSON updates`
 
-PR: pending
+PR: #50, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/50`
 
 Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch analysis, plugin runtime, GUI, DAQ integration, RTOS expansion, hardware qualification, production performance claims, and certification evidence.
 
@@ -150,7 +150,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 
 - Owner role: Release Engineer
 - Artifact: pending PR and protected `rust` CI.
-- Evidence: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR creation and CI are pending.
+- Evidence: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR #50 is open and protected CI is pending.
 - Gate: Release Gate.
 - Decision: Pending.
 - Residual risk: the branch is not released until PR checks pass and the PR is merged.
@@ -162,7 +162,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 - Artifact: issue #45 and milestone #6.
 - Evidence: PR body should link `Fixes #45` and list validation commands.
 - Gate: Community Gate.
-- Decision: Pending PR creation.
+- Decision: Pending PR merge.
 - Residual risk: external user feedback is not yet available.
 - Next owner: Project Coordinator.
 
@@ -182,6 +182,6 @@ Role: Project Orchestrator / Core Software Engineer
 Goal: Add the M6-003 report measurement schema for issue #45.
 Files changed: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, exact golden JSON reports, validation reports, README, docs, requirements, traceability, risk, and project state.
 Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`. Remaining check: protected GitHub CI after PR creation.
-Status: Local implementation, documentation, and validation complete; PR pending.
+Status: Local implementation, documentation, and validation complete; PR #50 open.
 Known gaps: Issues #44, #46, and #47 remain open; M6-003 still needs PR/CI/merge evidence.
 Next recommended step: Run final validation, open the PR, wait for required CI, merge, then record post-merge evidence.
