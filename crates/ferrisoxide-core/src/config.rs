@@ -1,6 +1,11 @@
 use serde::Deserialize;
 
-use crate::criteria::{Criterion, EdgeDirection, SignalState, TransientEventKind};
+pub use crate::criteria::{CriterionMeasurementKind, CriterionOperator};
+
+use crate::criteria::{
+    Criterion, EdgeDirection, MeasurementRequirement, MeasurementSpec, RunSelectionConfig,
+    SignalState, TransientEventKind,
+};
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
 use crate::filter::{AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter};
@@ -153,78 +158,6 @@ pub enum CriterionConfigShape {
     Dsl,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CriterionOperator {
-    LessThan,
-    LessThanOrEqual,
-    GreaterThan,
-    GreaterThanOrEqual,
-    EqualTo,
-}
-
-impl CriterionOperator {
-    pub fn from_config(value: &str) -> Option<Self> {
-        match value {
-            "less_than" => Some(Self::LessThan),
-            "less_than_or_equal" => Some(Self::LessThanOrEqual),
-            "greater_than" => Some(Self::GreaterThan),
-            "greater_than_or_equal" => Some(Self::GreaterThanOrEqual),
-            "equal_to" => Some(Self::EqualTo),
-            _ => None,
-        }
-    }
-
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::LessThan => "less_than",
-            Self::LessThanOrEqual => "less_than_or_equal",
-            Self::GreaterThan => "greater_than",
-            Self::GreaterThanOrEqual => "greater_than_or_equal",
-            Self::EqualTo => "equal_to",
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CriterionMeasurementKind {
-    MinimumSample,
-    MaximumSample,
-    StateTransitionCount,
-    PulseWidth,
-    StableStateDuration,
-    TransientEventDuration,
-    RiseTime,
-    FallTime,
-}
-
-impl CriterionMeasurementKind {
-    pub fn from_config(value: &str) -> Option<Self> {
-        match value {
-            "minimum_sample" => Some(Self::MinimumSample),
-            "maximum_sample" => Some(Self::MaximumSample),
-            "state_transition_count" => Some(Self::StateTransitionCount),
-            "pulse_width" => Some(Self::PulseWidth),
-            "stable_state_duration" => Some(Self::StableStateDuration),
-            "transient_event_duration" => Some(Self::TransientEventDuration),
-            "rise_time" => Some(Self::RiseTime),
-            "fall_time" => Some(Self::FallTime),
-            _ => None,
-        }
-    }
-
-    fn requirement_unit(self) -> &'static str {
-        match self {
-            Self::MinimumSample | Self::MaximumSample => "V",
-            Self::StateTransitionCount => "count",
-            Self::PulseWidth
-            | Self::StableStateDuration
-            | Self::TransientEventDuration
-            | Self::RiseTime
-            | Self::FallTime => "s",
-        }
-    }
-}
-
 impl CriterionConfig {
     pub fn shape(&self) -> Result<CriterionConfigShape> {
         self.validate_schema()
@@ -300,13 +233,7 @@ impl CriterionConfig {
     fn to_criterion(&self) -> Result<Criterion> {
         let kind = match self.validate_schema()? {
             CriterionConfigShape::Legacy => self.kind.as_deref().expect("legacy type validated"),
-            CriterionConfigShape::Dsl => {
-                return Err(WaveformError::NotImplemented {
-                    feature:
-                        "criteria DSL evaluation is not implemented yet; use legacy criteria fields until M7-003"
-                            .to_string(),
-                });
-            }
+            CriterionConfigShape::Dsl => return self.to_measurement_criterion(),
         };
 
         match kind {
@@ -370,6 +297,39 @@ impl CriterionConfig {
                 reason: format!("unsupported criterion type `{kind}`"),
             }),
         }
+    }
+
+    fn to_measurement_criterion(&self) -> Result<Criterion> {
+        let measurement = self
+            .measurement
+            .as_ref()
+            .expect("DSL measurement section validated");
+        let requirement = self
+            .requirement
+            .as_ref()
+            .expect("DSL requirement section validated");
+        let measurement_kind = CriterionMeasurementKind::from_config(&measurement.kind)
+            .expect("DSL measurement kind validated");
+        let operator = CriterionOperator::from_config(
+            requirement
+                .operator
+                .as_deref()
+                .expect("DSL operator validated"),
+        )
+        .expect("DSL operator validated");
+
+        let measurement = measurement.to_measurement_spec(&self.id, measurement_kind, operator)?;
+        let requirement = MeasurementRequirement {
+            operator,
+            value: requirement.value.expect("DSL requirement value validated"),
+        };
+
+        Ok(Criterion::measurement(
+            self.id.clone(),
+            self.channel.clone(),
+            measurement,
+            requirement,
+        ))
     }
 
     fn has_legacy_specific_fields(&self) -> bool {
@@ -467,6 +427,139 @@ impl CriterionMeasurementConfig {
         )?;
 
         Ok(measurement_kind)
+    }
+
+    fn to_measurement_spec(
+        &self,
+        criterion_id: &str,
+        measurement_kind: CriterionMeasurementKind,
+        operator: CriterionOperator,
+    ) -> Result<MeasurementSpec> {
+        match measurement_kind {
+            CriterionMeasurementKind::MinimumSample => Ok(MeasurementSpec::MinimumSample),
+            CriterionMeasurementKind::MaximumSample => Ok(MeasurementSpec::MaximumSample),
+            CriterionMeasurementKind::StateTransitionCount => {
+                Ok(MeasurementSpec::StateTransitionCount {
+                    threshold_v: self.required_threshold_value(criterion_id, "threshold")?,
+                })
+            }
+            CriterionMeasurementKind::PulseWidth => Ok(MeasurementSpec::PulseWidth {
+                state: self.required_state(criterion_id, "state")?,
+                threshold_v: self.required_threshold_value(criterion_id, "threshold")?,
+                selection: self.pulse_width_selection(criterion_id, operator)?,
+            }),
+            CriterionMeasurementKind::StableStateDuration => {
+                self.validate_optional_selection(criterion_id, "longest")?;
+                Ok(MeasurementSpec::StableStateDuration {
+                    state: self.required_state(criterion_id, "state")?,
+                    threshold_v: self.required_threshold_value(criterion_id, "threshold")?,
+                })
+            }
+            CriterionMeasurementKind::TransientEventDuration => {
+                self.validate_optional_selection(criterion_id, "longest")?;
+                Ok(MeasurementSpec::TransientEventDuration {
+                    event_kind: self.transient_event_kind(criterion_id)?,
+                    expected_state: self.required_state(criterion_id, "expected_state")?,
+                    threshold_v: self.required_threshold_value(criterion_id, "threshold")?,
+                })
+            }
+            CriterionMeasurementKind::RiseTime => Ok(MeasurementSpec::RiseTime {
+                low_threshold_v: self.required_threshold_value(criterion_id, "low_threshold")?,
+                high_threshold_v: self.required_threshold_value(criterion_id, "high_threshold")?,
+            }),
+            CriterionMeasurementKind::FallTime => Ok(MeasurementSpec::FallTime {
+                low_threshold_v: self.required_threshold_value(criterion_id, "low_threshold")?,
+                high_threshold_v: self.required_threshold_value(criterion_id, "high_threshold")?,
+            }),
+        }
+    }
+
+    fn required_threshold_value(&self, criterion_id: &str, field: &str) -> Result<f64> {
+        let value = match field {
+            "threshold" => self.threshold.as_ref(),
+            "low_threshold" => self.low_threshold.as_ref(),
+            "high_threshold" => self.high_threshold.as_ref(),
+            _ => None,
+        }
+        .ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("criteria.{criterion_id}.measurement.{field}"),
+            reason: "field is required for this measurement type".to_string(),
+        })?;
+
+        Ok(value.value)
+    }
+
+    fn required_state(&self, criterion_id: &str, field: &str) -> Result<SignalState> {
+        let value = match field {
+            "state" => self.state.as_deref(),
+            "expected_state" => self.expected_state.as_deref(),
+            _ => None,
+        }
+        .ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("criteria.{criterion_id}.measurement.{field}"),
+            reason: "field is required for this measurement type".to_string(),
+        })?;
+
+        SignalState::from_config(value).ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("criteria.{criterion_id}.measurement.{field}"),
+            reason: format!("expected `high` or `low`, got `{value}`"),
+        })
+    }
+
+    fn pulse_width_selection(
+        &self,
+        criterion_id: &str,
+        operator: CriterionOperator,
+    ) -> Result<RunSelectionConfig> {
+        if let Some(selection) = self.selection.as_deref() {
+            return RunSelectionConfig::from_config(selection).ok_or_else(|| {
+                WaveformError::InvalidParameter {
+                    name: format!("criteria.{criterion_id}.measurement.selection"),
+                    reason: format!("expected `shortest` or `longest`, got `{selection}`"),
+                }
+            });
+        }
+
+        match operator {
+            CriterionOperator::GreaterThan | CriterionOperator::GreaterThanOrEqual => {
+                Ok(RunSelectionConfig::Shortest)
+            }
+            CriterionOperator::LessThan | CriterionOperator::LessThanOrEqual => {
+                Ok(RunSelectionConfig::Longest)
+            }
+            CriterionOperator::EqualTo => Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{criterion_id}.measurement.selection"),
+                reason:
+                    "field is required for equal_to pulse_width criteria; use `shortest` or `longest`"
+                        .to_string(),
+            }),
+        }
+    }
+
+    fn validate_optional_selection(&self, criterion_id: &str, expected: &str) -> Result<()> {
+        let Some(selection) = self.selection.as_deref() else {
+            return Ok(());
+        };
+
+        if selection == expected {
+            Ok(())
+        } else {
+            Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{criterion_id}.measurement.selection"),
+                reason: format!("expected `{expected}`, got `{selection}`"),
+            })
+        }
+    }
+
+    fn transient_event_kind(&self, criterion_id: &str) -> Result<TransientEventKind> {
+        let value = self.event_kind.as_deref().unwrap_or("transient_event");
+
+        TransientEventKind::from_config(value).ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("criteria.{criterion_id}.measurement.event_kind"),
+            reason: format!(
+                "expected transient_event, spurious_transition, contact_bounce, dropout, noise_induced_transition, or threshold_crossing_event; got `{value}`"
+            ),
+        })
     }
 }
 
@@ -945,7 +1038,7 @@ unit = "V"
     }
 
     #[test]
-    fn dsl_criteria_do_not_convert_to_runtime_until_evaluation_issue() {
+    fn converts_dsl_criteria_to_measurement_runtime_criteria() {
         let toml = r#"
 [input]
 time_column = "time"
@@ -968,9 +1061,22 @@ unit = "s"
 
         let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
 
+        let criteria = config.criteria().expect("DSL criteria should convert");
+
+        assert_eq!(criteria.len(), 1);
         assert!(matches!(
-            config.criteria(),
-            Err(WaveformError::NotImplemented { .. })
+            &criteria[0].check,
+            crate::criteria::CriterionCheck::Measurement {
+                measurement: MeasurementSpec::RiseTime {
+                    low_threshold_v: 0.5,
+                    high_threshold_v: 4.5,
+                },
+                requirement: MeasurementRequirement {
+                    operator: CriterionOperator::LessThanOrEqual,
+                    value: 0.005,
+                },
+                ..
+            }
         ));
     }
 

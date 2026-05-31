@@ -22,6 +22,46 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M7-003 DSL Criteria Evaluation Branch
+
+Current as of the M7-003 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-core` | Passed | 51 core unit tests, 11 criteria-engine integration tests, 1 CSV fixture integration test, and doctests passed after adding DSL runtime evaluation. |
+| `cargo fmt` | Passed | Rust sources formatted after the criteria/config/analysis edits. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 97 tests passed: 10 CLI, 51 core, 11 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added Or Updated
+
+| Test | Coverage |
+|---|---|
+| `config::tests::converts_dsl_criteria_to_measurement_runtime_criteria` | Confirms a DSL criterion converts into the runtime measurement-backed criteria path. |
+| `analysis::tests::dsl_measurement_criteria_apply_explicit_operator_semantics` | Confirms strict and inclusive DSL operators produce different pass/fail outcomes while preserving evidence fields. |
+| `dsl_criteria_evaluate_through_measurement_records` | Exercises all supported DSL measurement types through `evaluate_criteria_with_measurements` and verifies measurement records, result links, and evidence fields. |
+| Existing golden JSON integration tests | Confirm legacy configs and existing reports remain unchanged. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M7-003.
+- Decision: Pass locally.
+- Reason: Formatting, focused core tests, workspace tests, clippy, and whitespace checks pass; legacy golden JSON reports still match exactly while DSL criteria now evaluate through measurement records.
+- Residual risk: Protected GitHub CI is pending until PR creation; parity golden fixture expansion remains #58.
+- Owner for residual risk: GitHub Maintainer Specialist / Test Automation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate DSL runtime criteria evaluation for issue #57.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo test -p ferrisoxide-core`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: #58 parity golden tests, #59 invalid-config matrix, and #60/#61 user-facing docs remain open.
+Next recommended step: Open the M7-003 PR with `Fixes #57`.
+
 ## BRAND-002 FerrisOxide Signal Rename Branch
 
 Current as of the BRAND-002 rename branch on 2026-05-31.

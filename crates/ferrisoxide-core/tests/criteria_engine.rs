@@ -186,3 +186,173 @@ fn validation_measurement_engine_known_answer_matches_expected_report() {
         include_str!("../../../validation/reports/measurement_engine_known_answer.json").trim_end()
     );
 }
+
+#[test]
+fn dsl_criteria_evaluate_through_measurement_records() {
+    let config: AnalysisConfig = toml::from_str(
+        r#"
+[input]
+time_column = "time_s"
+channels = ["control_v", "supply_v", "rise_v", "fall_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0005
+
+[[criteria]]
+id = "dsl_control_min"
+channel = "control_v"
+
+[criteria.measurement]
+type = "minimum_sample"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.0
+unit = "V"
+
+[[criteria]]
+id = "dsl_supply_max"
+channel = "supply_v"
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 5.0
+unit = "V"
+
+[[criteria]]
+id = "dsl_control_transition_count"
+channel = "control_v"
+
+[criteria.measurement]
+type = "state_transition_count"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "equal_to"
+value = 4
+unit = "count"
+
+[[criteria]]
+id = "dsl_control_high_pulse_width"
+channel = "control_v"
+
+[criteria.measurement]
+type = "pulse_width"
+threshold = { value = 2.5, unit = "V" }
+state = "high"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.0015
+unit = "s"
+
+[[criteria]]
+id = "dsl_control_stable_low"
+channel = "control_v"
+
+[criteria.measurement]
+type = "stable_state_duration"
+threshold = { value = 2.5, unit = "V" }
+state = "low"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.002
+unit = "s"
+
+[[criteria]]
+id = "dsl_supply_dropout"
+channel = "supply_v"
+
+[criteria.measurement]
+type = "transient_event_duration"
+threshold = { value = 2.5, unit = "V" }
+expected_state = "high"
+event_kind = "dropout"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0015
+unit = "s"
+
+[[criteria]]
+id = "dsl_rise_time"
+channel = "rise_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0015
+unit = "s"
+
+[[criteria]]
+id = "dsl_fall_time"
+channel = "fall_v"
+
+[criteria.measurement]
+type = "fall_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0015
+unit = "s"
+"#,
+    )
+    .expect("DSL config should parse");
+    let parser = SimpleCsvParser;
+    let waveform = parser
+        .parse_str(
+            include_str!("../../../validation/measurement_engine/known_answer_measurements.csv"),
+            &config.csv_options(),
+        )
+        .expect("waveform should parse");
+    let criteria = config.criteria().expect("DSL criteria should convert");
+    let evaluation = evaluate_criteria_with_measurements(&waveform, &criteria, config.tolerances)
+        .expect("DSL criteria should evaluate");
+
+    assert_eq!(evaluation.results.len(), 8);
+    assert_eq!(evaluation.measurements.len(), 8);
+    for result in &evaluation.results {
+        assert_eq!(result.failed_criterion, None);
+        assert_eq!(
+            result.measurement_id,
+            format!("{}_measurement", result.criterion_id)
+        );
+    }
+
+    let methods = evaluation
+        .measurements
+        .iter()
+        .map(|measurement| measurement.method.as_str())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        methods,
+        vec![
+            "minimum_sample",
+            "maximum_sample",
+            "state_transition_count",
+            "state_run_duration",
+            "state_run_duration",
+            "state_run_duration",
+            "edge_time",
+            "edge_time",
+        ]
+    );
+    assert_eq!(evaluation.results[2].measured_value, 4.0);
+    assert_eq!(evaluation.results[2].required_value, 4.0);
+    assert_eq!(evaluation.results[2].sample_index, 2);
+    assert_eq!(evaluation.results[2].timestamp, 0.002);
+    assert_eq!(evaluation.results[2].channel, "control_v");
+}
