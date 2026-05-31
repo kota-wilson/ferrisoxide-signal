@@ -17,12 +17,18 @@ Owner Role: Community Engineering Lead
 - Good first public issues should focus on malformed CSV fixtures, config schema documentation, and filter validation examples.
 - No external contributors or issue traffic yet.
 
+## M4 Community Update
+
+- PR #36 merged and closed M4 issues #27-#34.
+- Milestone `M4: Signal Accuracy and Validation` is closed.
+- Follow-up community messaging should continue to frame validation fixtures as software validation aids, not hardware qualification or certification evidence.
+
 ## Gate Decision
 
 - Gate: Community Gate.
 - Decision: Pass for initial publication.
-- Reason: Public repository exists with templates, contribution docs, CI, and clear scope.
-- Residual risk: Community onboarding quality is untested until first issue/PR.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, and M4 issue/milestone closure evidence.
+- Residual risk: Community onboarding quality is untested until an external issue/PR.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note

@@ -179,32 +179,32 @@ Out of scope: GUI, DAQ integration, RTOS adapter expansion, Zephyr integration, 
 
 ## Release Stage
 
-- Artifact: PR to `main` with issue-closing keywords and CI evidence.
-- Evidence: To be completed after branch push and PR creation.
+- Artifact: PR #36 to `main` with issue-closing keywords and CI evidence.
+- Evidence: PR #36 merged on 2026-05-31 at `a0d381556ff5f5d044f230217b335b73b3b57608`; required `rust` CI passed in 28 seconds.
 - Gate: Release Gate.
-- Decision: Pending.
-- Reason: Release requires protected-branch CI and merge operation.
-- Residual risk: CI or branch protection may block merge.
+- Decision: Pass.
+- Reason: Protected-branch CI passed and the PR merged by rebase into `main`.
+- Residual risk: No tagged release has been published; this remains repository-mainline evidence only.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community Stage
 
 - Artifact: PR body, issue links, and milestone closure status.
-- Evidence: PR body will include `Fixes #27`, `Fixes #28`, `Fixes #29`, `Fixes #30`, `Fixes #31`, `Fixes #32`, `Fixes #33`, and `Fixes #34`.
+- Evidence: PR #36 included `Fixes #27`, `Fixes #28`, `Fixes #29`, `Fixes #30`, `Fixes #31`, `Fixes #32`, `Fixes #33`, and `Fixes #34`; issues #27-#34 are closed; M4 milestone #4 is closed with 8 closed issues and 0 open issues.
 - Gate: Community Gate.
-- Decision: Pending.
-- Reason: Community evidence depends on PR creation and merge.
-- Residual risk: External reviewer requirements may remain.
+- Decision: Pass.
+- Reason: GitHub issue and milestone state now reflect the completed M4 work.
+- Residual risk: External contributor feedback is still unavailable.
 - Next owner: Project Coordinator.
 
 ## Retrospective Stage
 
 - Artifact: This report and final handoff.
-- Evidence: M4 completed without new dependencies or scope expansion.
+- Evidence: M4 completed without new dependencies or scope expansion; release/community closure recorded after PR #36 merge.
 - Gate: Retrospective Gate.
-- Decision: Pass pending PR outcome.
+- Decision: Pass.
 - Reason: Lessons and residual risks are recorded before release.
-- Residual risk: Post-merge CI state must still be checked.
+- Residual risk: Future work still needs external capture validation before stronger claims.
 - Next owner: Project Orchestrator.
 
 ## Hand-Off Note
@@ -213,6 +213,6 @@ Role: Project Orchestrator
 Goal: Send open M4 issues through the full pipeline and prepare them for PR review.
 Files changed: Core Rust modules, CLI benchmark binary, validation fixtures/reports, tests, docs, requirements, traceability, and project-state artifacts.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`; validation CLI smoke commands; invalid tolerance config command; `sh scripts/benchmark-large-csv.sh 100000 3`
-Status: In progress pending PR creation, CI, and merge.
+Status: Complete for M4 mainline merge and milestone closure.
 Known gaps: No hardware validation, DAQ integration, RTOS adapter expansion, tool qualification, certification evidence, or production performance guarantee.
-Next recommended step: Run final validation suite, push branch, open PR, and verify CI.
+Next recommended step: Start the next milestone only after deciding the next validation depth, not by expanding GUI/DAQ/RTOS scope.

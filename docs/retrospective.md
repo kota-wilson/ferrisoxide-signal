@@ -14,6 +14,7 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - Dependency approval happened before adding crates.
 - The MVP reached a public GitHub repository with passing CI.
 - Traceability and gate artifacts were updated as the project moved forward.
+- M4 closed eight validation issues without adding dependencies or expanding into GUI, DAQ, RTOS, or certification scope.
 
 ## What To Improve
 
@@ -21,12 +22,13 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - Add malformed CSV/config fixtures earlier.
 - Create a config schema reference before widening the config format.
 - Consider replacing hand-rolled CLI parsing after dependency review.
+- Decide whether the next validation milestone should add external capture corpora, stronger filter-response checks, or schema hardening before adding new user interfaces.
 
 ## Gate Decision
 
 - Gate: Retrospective Gate.
 - Decision: Pass.
-- Reason: Lessons and next actions are recorded.
+- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome.
 - Residual risk: Remaining follow-up issues still need prioritization and implementation.
 - Next owner: Community Engineering Lead.
 
@@ -38,4 +40,4 @@ Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
 Known gaps: Open backlog remains in GitHub issues.
-Next recommended step: Route remaining M1 and M3 issues through focused PRs.
+Next recommended step: Decide the next validation milestone before broadening product scope.

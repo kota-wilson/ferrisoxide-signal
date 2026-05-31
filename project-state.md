@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Prepare the M4 signal accuracy and validation branch for PR review, CI, and merge.
+M4 signal accuracy and validation is merged; prepare the next validation milestone decision.
 
 ## Current Stage
 
-The repository now includes an M4 signal accuracy and validation branch addressing issues #27-#34. The branch adds known-answer validation data, time-axis validation, configurable tolerances, report evidence context, validation metadata, filter equation docs, environmental validation examples, and repeatable large-CSV benchmark tooling. RTOS/Zephyr work remains parked.
+The repository now includes merged M4 signal accuracy and validation work addressing issues #27-#34. The mainline includes known-answer validation data, time-axis validation, configurable tolerances, report evidence context, validation metadata, filter equation docs, environmental validation examples, and repeatable large-CSV benchmark tooling. M4 milestone #4 is closed. RTOS/Zephyr work remains parked.
 
 ## Open Risks
 
@@ -52,7 +52,7 @@ The repository now includes an M4 signal accuracy and validation branch addressi
 
 Role: Project Coordinator / GitHub Maintainer Specialist
 
-Expected deliverable: Open the M4 validation PR, verify protected-branch CI, and merge if branch protection allows.
+Expected deliverable: Decide the next validation milestone before broadening GUI, DAQ, RTOS, or certification-adjacent scope.
 
 ## Orchestration Status
 
@@ -61,7 +61,7 @@ Expected deliverable: Open the M4 validation PR, verify protected-branch CI, and
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: M4 signal accuracy and validation.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Protected-branch PR and CI for M4 issues #27-#34.
+- Next gate: Next-milestone planning gate.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -147,8 +147,8 @@ Expected deliverable: Open the M4 validation PR, verify protected-branch CI, and
 | M4 Documentation Gate | Pass | `docs/documentation-review.md`, README, report schema, validation docs | Code Reviewer |
 | M4 Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m4-signal-validation-pipeline-report.md` | Evaluation Engineer |
 | M4 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
-| M4 Release Gate | Pending | PR and protected-branch CI pending | GitHub Maintainer Specialist |
-| M4 Community Gate | Pending | PR body, issue closure, and milestone closure pending | Project Coordinator |
+| M4 Release Gate | Pass | PR #36 merged after required `rust` CI passed; merge commit `a0d381556ff5f5d044f230217b335b73b3b57608` | GitHub Maintainer Specialist |
+| M4 Community Gate | Pass | Issues #27-#34 closed; M4 milestone #4 closed with 8 closed issues and 0 open issues | Project Coordinator |
 
 ## Update Rules
 
