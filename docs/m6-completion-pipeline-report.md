@@ -14,6 +14,8 @@ Primary issues:
 
 PR: #52, `Complete M6 evidence and validation work`
 
+Merge commit: `dd9c4bf39a5866f8a2cf903247db2ca0ded6a2b9`
+
 Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime, batch analysis, RTOS expansion, hardware qualification, production performance claims, and certification evidence.
 
 ## Research
@@ -72,8 +74,8 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/validation-log.md`, exact JSON report, and SVG smoke output.
 - Evidence: `cargo test --workspace` passed with 84 tests; annotated SVG CLI smoke wrote `/private/tmp/wra-dropout-evidence.svg` and contained expected status, threshold, and failed-marker labels.
 - Gate: Testing Gate.
-- Decision: Pass locally.
-- Residual risk: protected-branch CI remains pending after PR creation.
+- Decision: Pass.
+- Residual risk: protected-branch CI passed for PR #52; visual regression automation remains future work.
 - Next owner: Verification and Validation Engineer.
 
 ## Verification And Validation
@@ -83,7 +85,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Verification: code/tests/docs map to all acceptance criteria for #44, #46, and #47.
 - Validation: measurement evidence is deterministic and local, with explicit notes that it is not hardware qualification, DAQ validation, or certification evidence.
 - Gate: V&V Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: external capture corpora remain future work.
 - Next owner: QA Engineer.
 
@@ -93,7 +95,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/qa-review.md`.
 - Evidence: no blocking defects found in local unit tests, exact report test, annotated SVG smoke, and documentation review.
 - Gate: QA Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: visual-output usability has not been reviewed by external users.
 - Next owner: Security Engineer.
 
@@ -103,7 +105,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/security-review.md`.
 - Evidence: no new third-party dependencies, unsafe Rust, network, credential, file-surface expansion beyond existing local CSV/config/SVG paths, plugin runtime, DAQ integration, SDK, HAL, or FFI.
 - Gate: Security Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: future plugin or GUI work needs a new security model.
 - Next owner: Performance Engineer.
 
@@ -113,7 +115,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/performance-review.md`.
 - Evidence: overlays add report-derived annotations to 2D SVG output only; no large-plot, batch, DAQ, or real-time performance claim is made.
 - Gate: Performance Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: large annotated plots need later benchmarking before performance claims.
 - Next owner: Documentation Engineer.
 
@@ -123,7 +125,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: README, `docs/plotting.md`, `docs/criteria-dsl.md`, `docs/measurements.md`, validation READMEs, requirements, traceability, risk, and project state.
 - Evidence: docs explain overlay commands, DSL direction, validation fixture expected values, compatibility, limitations, and non-goals.
 - Gate: Documentation Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: richer visual examples and Markdown link automation remain future work.
 - Next owner: Code Reviewer.
 
@@ -133,7 +135,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/code-review.md`.
 - Findings: no blocking findings; overlays reuse measurement evidence rather than recalculating plot-only evidence; DSL work is documentation-only; validation fixture is exact-report tested.
 - Gate: Code Review Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: future DSL parser work requires focused review.
 - Next owner: Evaluation Engineer.
 
@@ -143,27 +145,27 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/evaluation-report.md`.
 - Result: issues #44, #46, and #47 map to concrete code, docs, tests, fixtures, traceability, risk, and validation without expanding into excluded scope.
 - Gate: Evaluation Gate.
-- Decision: Pass locally.
-- Residual risk: milestone closure waits for PR, CI, merge, and issue closure.
+- Decision: Pass.
+- Residual risk: next milestone scope remains undefined until a fresh planning gate.
 - Next owner: Release Engineer.
 
 ## Release
 
 - Owner role: Release Engineer
 - Artifact: `docs/release-readiness.md`.
-- Evidence: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; PR #52 is open and protected `rust` CI is pending.
+- Evidence: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; PR #52 required `rust` CI passed in 27 seconds and merged at `dd9c4bf39a5866f8a2cf903247db2ca0ded6a2b9`.
 - Gate: Release Gate.
-- Decision: Pending CI/merge.
-- Residual risk: branch work is not released until CI passes and the PR is merged.
+- Decision: Pass.
+- Residual risk: this is mainline repository evidence, not a tagged product release.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community
 
 - Owner role: Community Engineering Lead
 - Artifact: `docs/community-report.md`.
-- Evidence: PR #52 body closes #44, #46, and #47 on merge. If merged, milestone #6 should have no remaining open issues.
+- Evidence: PR #52 closed #44, #46, and #47; milestone #6 is closed with 5 closed issues and 0 open issues; the repository issue list is empty.
 - Gate: Community Gate.
-- Decision: Pending merge.
+- Decision: Pass.
 - Residual risk: external user feedback is not yet available.
 - Next owner: Project Coordinator.
 
@@ -173,7 +175,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 - Artifact: `docs/retrospective.md`.
 - Lesson: once report measurement IDs exist, SVG evidence should reference them instead of creating a parallel evidence system.
 - Gate: Retrospective Gate.
-- Decision: Pending post-merge evidence.
+- Decision: Pass.
 - Residual risk: visual regression and external usability review remain future work.
 - Next owner: Project Orchestrator.
 
@@ -182,7 +184,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 Role: Project Orchestrator / Core Software Engineer
 Goal: Complete remaining M6 issues #44, #46, and #47.
 Files changed: plotting, CLI, validation fixtures/reports, criteria DSL docs, README, docs, requirements, traceability, risk, and project state.
-Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; annotated SVG CLI smoke; `git diff --check`. Remaining check: protected GitHub CI for PR #52.
-Status: Local implementation, documentation, and validation complete; PR #52 open.
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; annotated SVG CLI smoke; `git diff --check`; PR #52 required `rust` CI.
+Status: Complete; PR #52 merged, issues #44/#46/#47 closed, milestone #6 closed, and repository issue list empty.
 Known gaps: External visual review, visual regression automation, external capture corpora, and future DSL parser implementation remain out of scope.
-Next recommended step: Wait for required CI on PR #52, merge, and verify issue/milestone closure.
+Next recommended step: Define the next milestone through the pipeline before opening new scope.
