@@ -119,16 +119,20 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 ## M6-003 Report Measurement Schema Release Update
 
 - PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/50`
+- Merge commit: `f7e21695f501890669d591d0d7cbc9b731a541bb`
+- Merge method: rebase / fast-forward mainline.
+- Required check: `rust`, passed in 31 seconds.
 - Issue: #45, `M6-003 Add report measurement schema and golden JSON updates`
 - Milestone: `v0.4.0: Measurement & Evidence Engine`
+- Milestone status: open with issues #44, #46, and #47 remaining.
 - Scope: report measurement records, result `measurement_id` links, exact golden JSON updates, and schema docs.
-- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR #50 required `rust` CI pending.
+- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR #50 required `rust` CI passed.
 - Dependency evidence: no new third-party dependencies; report schema changes use existing Serde/JSON support.
 - Deferred issues: #44 annotated SVG overlays, #46 criteria DSL direction, and #47 measurement validation fixtures.
 
 Gate: Release Gate for M6-003.
-Decision: Pending PR/CI/merge.
-Residual risk: This is branch evidence until protected-branch CI passes and the PR is merged.
+Decision: Pass.
+Residual risk: This is mainline repository evidence, not a tagged product release, annotated SVG evidence, hardware validation, or certification artifact.
 
 ## Hand-Off Note
 
