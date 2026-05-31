@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Accepted for in-repository identifiers through BRAND-002 / issue #98. Repository-host rename, GitHub organization creation, crates.io publishing or reservation, domain registration, trademark clearance, and logo work remain separate gates.
+Status: Accepted and implemented for in-repository identifiers through BRAND-002 / issue #98 and PR #99. Repository host renamed to `kota-wilson/ferrisoxide-signal`. GitHub organization creation, crates.io publishing or reservation, domain registration, trademark clearance, and logo work remain separate gates.
 
 ## Context
 
@@ -87,6 +87,6 @@ Role: Product Architect / GitHub Maintainer Specialist
 Goal: Adopt FerrisOxide Signal as the in-repository identity while preserving audit traceability.
 Files changed: `decisions/ADR-006-ferrisoxide-signal-identity-adoption.md`.
 Checks run: `cargo metadata --format-version 1 --no-deps`; `cargo clean`; `cargo fmt --check`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; CLI analyze smoke; CLI plot smoke; SVG overlay scan; benchmark smoke; `git diff --check`; identifier scan.
-Status: Accepted and locally validated for implementation through issue #98; protected-branch PR pending.
+Status: Accepted and implemented through issue #98 / PR #99; repository-host rename complete.
 Known gaps: External organization, domain, crates.io, trademark, visual identity, and legal-suitability checks remain separate gates.
-Next recommended step: Open the protected-branch PR, merge through protected `main`, then perform the repository-host rename if approved.
+Next recommended step: Return to M7-003 / issue #57 unless a new external namespace/legal gate is explicitly opened.
