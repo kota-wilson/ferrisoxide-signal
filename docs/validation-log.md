@@ -22,6 +22,50 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `wra-measurements`, `wra-signal`, `wra-embedded`, `wra-plot`, `wra-core`, and `wra-cli`.
 
+## M6 Report Measurement Schema Branch
+
+Current as of the M6-003 report measurement schema branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt` | Passed | Rust sources formatted after report schema edits. |
+| `cargo test --workspace` | Passed | 81 tests passed: 9 CLI, 39 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-measurements`, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo fmt --check` | Passed | Formatting remained clean after final edits. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added Or Updated
+
+| Test | Coverage |
+|---|---|
+| `analysis::tests::returns_measurements_with_stable_result_links` | Criteria evaluation returns stable measurement IDs and links result evidence to the measurement record. |
+| `report::tests::renders_text_report` | Text output includes a `Measurements:` section and result `measurement_id`. |
+| `report::tests::renders_json_report` | JSON output includes top-level `measurements` and per-result `measurement_id`. |
+| CLI JSON/text tests | CLI report output exposes measurements and measurement IDs. |
+| Exact golden JSON tests | Golden files under `tests/golden/` and `validation/reports/` include the new schema exactly. |
+
+### Compatibility Evidence
+
+M6-003 intentionally changes the JSON schema by adding `measurements[]` and `results[].measurement_id`, while preserving existing criterion result fields, report confidence notes, and pass/fail evidence. Exact golden JSON comparisons verify the new schema.
+
+### Gate Decision
+
+- Gate: Testing Gate for M6-003.
+- Decision: Pass locally.
+- Reason: Formatting, unit, CLI, exact golden JSON, workspace, clippy, and whitespace checks validate stable measurement records and criteria references.
+- Residual risk: Consumers that assumed evidence existed only in `results` need the migration note in `docs/report-schema.md`.
+- Owner for residual risk: Documentation Engineer / Core Software Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate report measurement schema migration.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally.
+Known gaps: Annotated SVG overlays, criteria DSL direction, and measurement validation fixture expansion remain in issues #44, #46, and #47.
+Next recommended step: Run final validation and open PR.
+
 ## M6 Measurement Engine Branch
 
 Current as of the M6 measurement-engine branch on 2026-05-31.

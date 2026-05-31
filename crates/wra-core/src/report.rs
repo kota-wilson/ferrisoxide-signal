@@ -1,4 +1,4 @@
-use crate::analysis::{AnalysisResult, Outcome};
+use crate::analysis::{AnalysisResult, MeasurementRecord, Outcome};
 use crate::error::{Result, WaveformError};
 use crate::model::{TolerancePolicy, WaveformMetadata};
 use serde::Serialize;
@@ -8,6 +8,7 @@ pub struct AnalysisReport {
     pub input_name: String,
     pub waveform_metadata: WaveformMetadata,
     pub evidence_context: ReportEvidenceContext,
+    pub measurements: Vec<MeasurementRecord>,
     pub results: Vec<AnalysisResult>,
 }
 
@@ -97,13 +98,29 @@ impl AnalysisReport {
             ));
         }
         output.push_str(&format!("Overall: {:?}\n", self.overall_outcome()));
+        output.push_str("Measurements:\n");
+
+        for measurement in &self.measurements {
+            output.push_str(&format!(
+                "- {}: method={} channel={} measured={:.6} {} sample_index={} timestamp={:.6}\n",
+                measurement.id,
+                measurement.method,
+                measurement.channel,
+                measurement.measured_value,
+                measurement.unit,
+                measurement.sample_index,
+                measurement.timestamp
+            ));
+        }
+
         output.push_str("Criteria:\n");
 
         for result in &self.results {
             output.push_str(&format!(
-                "- {}: {:?} channel={} measured={:.6} {} required={:.6} {} tolerance={:.6} sample_index={} timestamp={:.6} reason={}\n",
+                "- {}: {:?} measurement_id={} channel={} measured={:.6} {} required={:.6} {} tolerance={:.6} sample_index={} timestamp={:.6} reason={}\n",
                 result.criterion_id,
                 result.outcome,
+                result.measurement_id,
                 result.channel,
                 result.measured_value,
                 result.unit,
@@ -125,6 +142,7 @@ impl AnalysisReport {
             waveform_metadata: &self.waveform_metadata,
             evidence_context: &self.evidence_context,
             overall_outcome: self.overall_outcome(),
+            measurements: &self.measurements,
             results: &self.results,
         };
         serde_json::to_string_pretty(&document).map_err(|error| {
@@ -141,6 +159,7 @@ struct JsonReport<'a> {
     waveform_metadata: &'a WaveformMetadata,
     evidence_context: &'a ReportEvidenceContext,
     overall_outcome: Outcome,
+    measurements: &'a [MeasurementRecord],
     results: &'a [AnalysisResult],
 }
 
@@ -158,16 +177,31 @@ mod tests {
         .metadata
     }
 
+    fn measurement() -> MeasurementRecord {
+        MeasurementRecord {
+            id: "max_measurement".to_string(),
+            channel: "input_v".to_string(),
+            method: "maximum_sample".to_string(),
+            measured_value: 5.0,
+            unit: "V".to_string(),
+            sample_index: 1,
+            timestamp: 0.001,
+            method_context: Default::default(),
+        }
+    }
+
     #[test]
     fn renders_text_report() {
         let report = AnalysisReport {
             input_name: "fixture.csv".to_string(),
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
+            measurements: vec![measurement()],
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
                 failed_criterion: None,
+                measurement_id: "max_measurement".to_string(),
                 channel: "input_v".to_string(),
                 measured_value: 5.0,
                 required_value: 5.5,
@@ -187,6 +221,8 @@ mod tests {
         assert!(rendered.contains("Validation Profile: engineering_validation"));
         assert!(rendered.contains("Tolerance Policy: voltage=0.000000 V time=0.000000000 s"));
         assert!(rendered.contains("Overall: Pass"));
+        assert!(rendered.contains("Measurements:"));
+        assert!(rendered.contains("max_measurement"));
         assert!(rendered.contains("max"));
     }
 
@@ -196,10 +232,12 @@ mod tests {
             input_name: "fixture.csv".to_string(),
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
+            measurements: vec![measurement()],
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
                 failed_criterion: None,
+                measurement_id: "max_measurement".to_string(),
                 channel: "input_v".to_string(),
                 measured_value: 5.0,
                 required_value: 5.5,
@@ -218,6 +256,8 @@ mod tests {
         assert!(rendered.contains("\"tolerance_policy\""));
         assert!(rendered.contains("\"sample_count\": 2"));
         assert!(rendered.contains("\"overall_outcome\": \"pass\""));
+        assert!(rendered.contains("\"measurements\""));
+        assert!(rendered.contains("\"measurement_id\": \"max_measurement\""));
         assert!(rendered.contains("\"criterion_id\": \"max\""));
     }
 }

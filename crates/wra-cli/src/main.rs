@@ -2,7 +2,7 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 
-use wra_core::analysis::evaluate_criteria_with_tolerances;
+use wra_core::analysis::evaluate_criteria_with_measurements;
 use wra_core::config::AnalysisConfig;
 use wra_core::criteria::Criterion;
 use wra_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
@@ -94,13 +94,14 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
     waveform = apply_filter_chain(&waveform, &filters)
         .map_err(|error| format!("filter pipeline failed: {error}"))?;
 
-    let results = evaluate_criteria_with_tolerances(&waveform, &criteria, tolerances)
+    let evaluation = evaluate_criteria_with_measurements(&waveform, &criteria, tolerances)
         .map_err(|error| format!("analysis failed: {error}"))?;
     let report = AnalysisReport {
         input_name: input_path.to_string(),
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(tolerances),
-        results,
+        measurements: evaluation.measurements,
+        results: evaluation.results,
     };
 
     render_report(&report, output_format)
@@ -399,6 +400,7 @@ mod tests {
 
         assert!(output.contains("Waveform Analysis Report"));
         assert!(output.contains("Overall: Pass"));
+        assert!(output.contains("Measurements:"));
         assert!(output.contains("max_voltage_input_v"));
     }
 
@@ -445,6 +447,8 @@ mod tests {
         .expect("analysis should run");
 
         assert!(output.contains("\"overall_outcome\": \"pass\""));
+        assert!(output.contains("\"measurements\""));
+        assert!(output.contains("\"measurement_id\""));
         assert!(output.contains("\"criterion_id\": \"input_max_voltage\""));
     }
 

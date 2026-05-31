@@ -21,6 +21,7 @@ pub struct AnalysisResult {
     pub criterion_id: String,
     pub outcome: Outcome,
     pub failed_criterion: Option<String>,
+    pub measurement_id: String,
     pub channel: String,
     pub measured_value: f64,
     pub required_value: f64,
@@ -29,6 +30,53 @@ pub struct AnalysisResult {
     pub sample_index: usize,
     pub timestamp: f64,
     pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct MeasurementRecord {
+    pub id: String,
+    pub channel: String,
+    pub method: String,
+    pub measured_value: f64,
+    pub unit: String,
+    pub sample_index: usize,
+    pub timestamp: f64,
+    pub method_context: MeasurementMethodContext,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct MeasurementMethodContext {
+    pub source: String,
+    pub threshold_v: Option<f64>,
+    pub low_threshold_v: Option<f64>,
+    pub high_threshold_v: Option<f64>,
+    pub state: Option<String>,
+    pub expected_state: Option<String>,
+    pub event_kind: Option<String>,
+    pub direction: Option<String>,
+    pub selection: Option<String>,
+}
+
+impl Default for MeasurementMethodContext {
+    fn default() -> Self {
+        Self {
+            source: "wra-measurements".to_string(),
+            threshold_v: None,
+            low_threshold_v: None,
+            high_threshold_v: None,
+            state: None,
+            expected_state: None,
+            event_kind: None,
+            direction: None,
+            selection: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CriteriaEvaluation {
+    pub results: Vec<AnalysisResult>,
+    pub measurements: Vec<MeasurementRecord>,
 }
 
 pub fn evaluate_criteria(
@@ -43,12 +91,30 @@ pub fn evaluate_criteria_with_tolerances(
     criteria: &[Criterion],
     tolerances: TolerancePolicy,
 ) -> Result<Vec<AnalysisResult>> {
+    Ok(evaluate_criteria_with_measurements(waveform, criteria, tolerances)?.results)
+}
+
+pub fn evaluate_criteria_with_measurements(
+    waveform: &Waveform,
+    criteria: &[Criterion],
+    tolerances: TolerancePolicy,
+) -> Result<CriteriaEvaluation> {
     tolerances.validate()?;
     validate_time_axis_for_criteria(waveform, criteria)?;
-    criteria
+    let evaluated = criteria
         .iter()
         .map(|criterion| evaluate_criterion(waveform, criterion, tolerances))
-        .collect()
+        .collect::<Result<Vec<_>>>()?;
+    Ok(CriteriaEvaluation {
+        results: evaluated
+            .iter()
+            .map(|evaluation| evaluation.result.clone())
+            .collect(),
+        measurements: evaluated
+            .into_iter()
+            .map(|evaluation| evaluation.measurement)
+            .collect(),
+    })
 }
 
 fn validate_time_axis_for_criteria(waveform: &Waveform, criteria: &[Criterion]) -> Result<()> {
@@ -87,7 +153,7 @@ fn evaluate_criterion(
     waveform: &Waveform,
     criterion: &Criterion,
     tolerances: TolerancePolicy,
-) -> Result<AnalysisResult> {
+) -> Result<EvaluatedCriterion> {
     let channel =
         waveform
             .channel(criterion.channel())
@@ -115,6 +181,8 @@ fn evaluate_criterion(
                     sample_index: measurement.sample_index,
                     timestamp: measurement.timestamp,
                     reason: format!("minimum observed voltage was {:.6} V", measurement.value),
+                    method: "minimum_sample",
+                    method_context: MeasurementMethodContext::default(),
                 },
             ))
         }
@@ -137,6 +205,8 @@ fn evaluate_criterion(
                     sample_index: measurement.sample_index,
                     timestamp: measurement.timestamp,
                     reason: format!("maximum observed voltage was {:.6} V", measurement.value),
+                    method: "maximum_sample",
+                    method_context: MeasurementMethodContext::default(),
                 },
             ))
         }
@@ -240,19 +310,43 @@ fn evaluate_criterion(
     }
 }
 
-fn result(criterion: &Criterion, outcome: Outcome, evidence: Evidence) -> AnalysisResult {
-    AnalysisResult {
+#[derive(Debug, Clone, PartialEq)]
+struct EvaluatedCriterion {
+    result: AnalysisResult,
+    measurement: MeasurementRecord,
+}
+
+fn result(criterion: &Criterion, outcome: Outcome, evidence: Evidence) -> EvaluatedCriterion {
+    let measurement_id = format!("{}_measurement", criterion.id);
+    let measured_value = round_evidence(evidence.measured_value);
+    let timestamp = round_evidence(evidence.timestamp);
+    let result = AnalysisResult {
         criterion_id: criterion.id.clone(),
         outcome,
         failed_criterion: (outcome == Outcome::Fail).then(|| criterion.id.clone()),
+        measurement_id: measurement_id.clone(),
         channel: criterion.channel().to_string(),
-        measured_value: round_evidence(evidence.measured_value),
+        measured_value,
         required_value: round_evidence(evidence.required_value),
         tolerance_used: round_evidence(evidence.tolerance_used),
         unit: evidence.unit.to_string(),
         sample_index: evidence.sample_index,
-        timestamp: round_evidence(evidence.timestamp),
+        timestamp,
         reason: evidence.reason,
+    };
+    let measurement = MeasurementRecord {
+        id: measurement_id,
+        channel: criterion.channel().to_string(),
+        method: evidence.method.to_string(),
+        measured_value,
+        unit: evidence.unit.to_string(),
+        sample_index: evidence.sample_index,
+        timestamp,
+        method_context: evidence.method_context,
+    };
+    EvaluatedCriterion {
+        result,
+        measurement,
     }
 }
 
@@ -264,6 +358,8 @@ struct Evidence {
     sample_index: usize,
     timestamp: f64,
     reason: String,
+    method: &'static str,
+    method_context: MeasurementMethodContext,
 }
 
 fn round_evidence(value: f64) -> f64 {
@@ -274,6 +370,55 @@ fn round_evidence(value: f64) -> f64 {
     }
 }
 
+fn threshold_context(threshold_v: f64) -> MeasurementMethodContext {
+    MeasurementMethodContext {
+        threshold_v: Some(round_evidence(threshold_v)),
+        ..MeasurementMethodContext::default()
+    }
+}
+
+fn state_run_context(
+    threshold_v: f64,
+    state: SignalState,
+    selection: &'static str,
+) -> MeasurementMethodContext {
+    MeasurementMethodContext {
+        threshold_v: Some(round_evidence(threshold_v)),
+        state: Some(state.as_str().to_string()),
+        selection: Some(selection.to_string()),
+        ..MeasurementMethodContext::default()
+    }
+}
+
+fn transient_context(
+    threshold_v: f64,
+    transient_state: SignalState,
+    expected_state: SignalState,
+    event_kind: &str,
+) -> MeasurementMethodContext {
+    MeasurementMethodContext {
+        threshold_v: Some(round_evidence(threshold_v)),
+        state: Some(transient_state.as_str().to_string()),
+        expected_state: Some(expected_state.as_str().to_string()),
+        event_kind: Some(event_kind.to_string()),
+        selection: Some("longest".to_string()),
+        ..MeasurementMethodContext::default()
+    }
+}
+
+fn edge_context(
+    low_threshold_v: f64,
+    high_threshold_v: f64,
+    direction: EdgeDirection,
+) -> MeasurementMethodContext {
+    MeasurementMethodContext {
+        low_threshold_v: Some(round_evidence(low_threshold_v)),
+        high_threshold_v: Some(round_evidence(high_threshold_v)),
+        direction: Some(direction.as_str().to_string()),
+        ..MeasurementMethodContext::default()
+    }
+}
+
 fn evaluate_state_transitions(
     waveform: &Waveform,
     channel: &Channel,
@@ -281,7 +426,7 @@ fn evaluate_state_transitions(
     threshold_v: f64,
     expected_count: usize,
     tolerances: TolerancePolicy,
-) -> Result<AnalysisResult> {
+) -> Result<EvaluatedCriterion> {
     let transitions = count_state_transitions(
         &waveform.time,
         &channel.samples,
@@ -309,6 +454,8 @@ fn evaluate_state_transitions(
             sample_index,
             timestamp,
             reason: format!("observed {measured} state transitions at {threshold_v:.6} V"),
+            method: "state_transition_count",
+            method_context: threshold_context(threshold_v),
         },
     ))
 }
@@ -327,7 +474,7 @@ fn evaluate_pulse_width(
     criterion: &Criterion,
     spec: PulseWidthSpec,
     tolerances: TolerancePolicy,
-) -> Result<AnalysisResult> {
+) -> Result<EvaluatedCriterion> {
     if spec.min_width_s.is_none() && spec.max_width_s.is_none() {
         return Err(WaveformError::InvalidParameter {
             name: "criteria.pulse_width".to_string(),
@@ -374,6 +521,16 @@ fn evaluate_pulse_width(
                 sample_index: 0,
                 timestamp: waveform.time[0],
                 reason: format!("no {} pulse was observed", spec.state.as_str()),
+                method: "state_run_duration",
+                method_context: state_run_context(
+                    spec.threshold_v,
+                    spec.state,
+                    if spec.min_width_s.is_some() {
+                        "shortest"
+                    } else {
+                        "longest"
+                    },
+                ),
             },
         ));
     }
@@ -396,6 +553,8 @@ fn evaluate_pulse_width(
                         spec.state.as_str(),
                         shortest.duration_s
                     ),
+                    method: "state_run_duration",
+                    method_context: state_run_context(spec.threshold_v, spec.state, "shortest"),
                 },
             ));
         }
@@ -419,6 +578,8 @@ fn evaluate_pulse_width(
                         spec.state.as_str(),
                         longest.duration_s
                     ),
+                    method: "state_run_duration",
+                    method_context: state_run_context(spec.threshold_v, spec.state, "longest"),
                 },
             ));
         }
@@ -442,6 +603,16 @@ fn evaluate_pulse_width(
                 spec.state.as_str(),
                 measured.duration_s
             ),
+            method: "state_run_duration",
+            method_context: state_run_context(
+                spec.threshold_v,
+                spec.state,
+                if spec.min_width_s.is_some() {
+                    "shortest"
+                } else {
+                    "longest"
+                },
+            ),
         },
     ))
 }
@@ -460,7 +631,7 @@ fn evaluate_transient_duration(
     criterion: &Criterion,
     spec: TransientDurationSpec<'_>,
     tolerances: TolerancePolicy,
-) -> Result<AnalysisResult> {
+) -> Result<EvaluatedCriterion> {
     let transient_state = opposite_state(spec.expected_state);
     let longest = state_run_extremum(
         &waveform.time,
@@ -497,6 +668,13 @@ fn evaluate_transient_duration(
                 spec.event_kind,
                 measured
             ),
+            method: "state_run_duration",
+            method_context: transient_context(
+                spec.threshold_v,
+                transient_state,
+                spec.expected_state,
+                spec.event_kind,
+            ),
         },
     ))
 }
@@ -509,7 +687,7 @@ fn evaluate_stable_state_duration(
     threshold_v: f64,
     min_duration_s: f64,
     tolerances: TolerancePolicy,
-) -> Result<AnalysisResult> {
+) -> Result<EvaluatedCriterion> {
     let longest = state_run_extremum(
         &waveform.time,
         &channel.samples,
@@ -543,6 +721,8 @@ fn evaluate_stable_state_duration(
                 state.as_str(),
                 measured
             ),
+            method: "state_run_duration",
+            method_context: state_run_context(threshold_v, state, "longest"),
         },
     ))
 }
@@ -561,7 +741,7 @@ fn evaluate_rise_fall_time(
     criterion: &Criterion,
     spec: RiseFallTimeSpec,
     tolerances: TolerancePolicy,
-) -> Result<AnalysisResult> {
+) -> Result<EvaluatedCriterion> {
     if spec.low_threshold_v >= spec.high_threshold_v {
         return Err(WaveformError::InvalidParameter {
             name: "criteria.low_threshold_v".to_string(),
@@ -625,6 +805,12 @@ fn evaluate_rise_fall_time(
             } else {
                 format!("{} transition was not observed", spec.direction.as_str())
             },
+            method: "edge_time",
+            method_context: edge_context(
+                spec.low_threshold_v,
+                spec.high_threshold_v,
+                spec.direction,
+            ),
         },
     ))
 }
@@ -689,6 +875,23 @@ mod tests {
         assert_eq!(results[0].timestamp, 0.2);
         assert_eq!(results[0].channel, "input_v");
         assert_eq!(results[0].failed_criterion, Some("max".to_string()));
+    }
+
+    #[test]
+    fn returns_measurements_with_stable_result_links() {
+        let evaluation = evaluate_criteria_with_measurements(
+            &waveform(),
+            &[Criterion::maximum_voltage("max", "input_v", 5.5)],
+            TolerancePolicy::default(),
+        )
+        .expect("criteria should evaluate");
+
+        assert_eq!(evaluation.results.len(), 1);
+        assert_eq!(evaluation.measurements.len(), 1);
+        assert_eq!(evaluation.results[0].measurement_id, "max_measurement");
+        assert_eq!(evaluation.measurements[0].id, "max_measurement");
+        assert_eq!(evaluation.measurements[0].method, "maximum_sample");
+        assert_eq!(evaluation.measurements[0].measured_value, 5.0);
     }
 
     #[test]

@@ -6,7 +6,7 @@ The first MVP is a CLI and core library slice. It focuses on CSV waveform loadin
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `wra-measurements`, while the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `wra-signal`, `wra-measurements`, and `wra-embedded`.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `wra-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `wra-signal`, `wra-measurements`, and `wra-embedded`.
 
 ## MVP Scope
 
@@ -18,7 +18,7 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 - Reuse measurement primitives for extrema, state-transition counts, pulse widths, transient durations, stable-state durations, and rise/fall times.
 - Define pass/fail criteria for voltage limits, state transitions, pulse width, transient event duration, stable-state duration, and rise/fall time with optional voltage/time tolerances.
 - Run analysis from a CLI.
-- Produce text and JSON reports with pass/fail evidence, tolerance evidence, and engineering-validation context.
+- Produce text and JSON reports with reusable measurement evidence, pass/fail evidence, tolerance evidence, and engineering-validation context.
 - Render optional desktop SVG plots for 2D waveform views and 3D views with a configured third-axis column.
 - Include tests and example data.
 - Keep embedded signal-analysis primitives separate from desktop CSV, CLI, and report paths.
@@ -93,12 +93,15 @@ Evidence Source: local_file_analysis
 Tolerance Policy: voltage=0.000000 V time=0.000000000 s
 Confidence Notes: software validation evidence only; not hardware qualification or certification evidence
 Overall: Pass
+Measurements:
+- input_min_voltage_measurement: method=minimum_sample channel=input_v measured=0.000000 V sample_index=0 timestamp=0.000000
+- input_max_voltage_measurement: method=maximum_sample channel=input_v measured=5.000000 V sample_index=4 timestamp=0.004000
 Criteria:
-- input_min_voltage: Pass channel=input_v measured=0.000000 V required=0.000000 V tolerance=0.000000 sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
-- input_max_voltage: Pass channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
+- input_min_voltage: Pass measurement_id=input_min_voltage_measurement channel=input_v measured=0.000000 V required=0.000000 V tolerance=0.000000 sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
+- input_max_voltage: Pass measurement_id=input_max_voltage_measurement channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
 ```
 
-JSON output is also available and includes the same waveform metadata:
+JSON output is also available and includes the same waveform metadata plus reusable measurement evidence:
 
 ```bash
 cargo run --quiet --bin wra -- analyze \
@@ -161,11 +164,54 @@ Expected JSON output:
     ]
   },
   "overall_outcome": "pass",
+  "measurements": [
+    {
+      "id": "input_min_voltage_measurement",
+      "channel": "input_v",
+      "method": "minimum_sample",
+      "measured_value": 0.0,
+      "unit": "V",
+      "sample_index": 0,
+      "timestamp": 0.0,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": null,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    },
+    {
+      "id": "input_max_voltage_measurement",
+      "channel": "input_v",
+      "method": "maximum_sample",
+      "measured_value": 5.0,
+      "unit": "V",
+      "sample_index": 4,
+      "timestamp": 0.004,
+      "method_context": {
+        "source": "wra-measurements",
+        "threshold_v": null,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    }
+  ],
   "results": [
     {
       "criterion_id": "input_min_voltage",
       "outcome": "pass",
       "failed_criterion": null,
+      "measurement_id": "input_min_voltage_measurement",
       "channel": "input_v",
       "measured_value": 0.0,
       "required_value": 0.0,
@@ -179,6 +225,7 @@ Expected JSON output:
       "criterion_id": "input_max_voltage",
       "outcome": "pass",
       "failed_criterion": null,
+      "measurement_id": "input_max_voltage_measurement",
       "channel": "input_v",
       "measured_value": 5.0,
       "required_value": 5.5,

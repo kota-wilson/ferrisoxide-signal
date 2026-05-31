@@ -453,3 +453,55 @@ Checks run: See `docs/validation-log.md`.
 Status: Pass; ready for testing, V&V, and protected-branch PR.
 Known gaps: Report measurement schema, annotated SVG overlays, criteria DSL refinement, and broader measurement validation fixtures remain tracked by issues #44-#47.
 Next recommended step: Testing Gate for M6 measurement extraction.
+
+## M6-003 Report Measurement Schema Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- GitHub issue #45, `M6-003 Add report measurement schema and golden JSON updates`.
+- Milestone #6, `v0.4.0: Measurement & Evidence Engine`.
+- Existing `wra-measurements` criteria integration and exact golden JSON reports.
+
+### Work Performed
+
+- What: Added reusable report measurement records and linked criteria results to those records.
+- Where: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, exact golden JSON reports, validation reports, README, usage docs, report schema docs, requirements, risk, traceability, and project state.
+- How: Added `MeasurementRecord`, `MeasurementMethodContext`, and `CriteriaEvaluation`; introduced `evaluate_criteria_with_measurements`; preserved existing result-only evaluation APIs; added `measurements` to `AnalysisReport`; added `measurement_id` to `AnalysisResult`; regenerated exact JSON reports.
+- Why: Reports need measurement evidence that can be reused by downstream report consumers and future annotated SVG overlays without burying all measured context inside pass/fail decisions.
+
+### Behavior Added
+
+- JSON reports include top-level `measurements`.
+- Text reports include a `Measurements:` section.
+- Criteria results include `measurement_id`.
+- Measurement records include method, method context, measured value, unit, channel, sample index, and timestamp.
+- Confidence notes and existing result fields remain present.
+
+### Out Of Scope Preserved
+
+- No annotated SVG overlays in M6-003.
+- No new criteria DSL syntax in M6-003.
+- No batch analysis, plugin runtime, GUI, DAQ, RTOS expansion, hardware qualification, or certification claim.
+- No third-party dependency added.
+
+### Gate Decision
+
+- Gate: M6-003 Implementation Gate.
+- Decision: Pass.
+- Reason: Issue #45 has focused report schema code, exact golden updates, docs, risk, traceability, and compatibility-preserving result fields.
+- Residual risk: Downstream consumers may need schema migration guidance; future SVG evidence should reuse measurement IDs.
+- Owner for residual risk: Documentation Engineer / Core Software Engineer.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Add report measurement schema and golden JSON updates.
+Files changed: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, golden JSON reports, validation reports, README, docs, requirements, risk, traceability, and project state.
+Checks run: See `docs/validation-log.md`.
+Status: Pass locally; ready for final checks, PR, CI, and merge.
+Known gaps: Annotated SVG overlays, criteria DSL direction, and measurement validation fixtures remain tracked by issues #44, #46, and #47.
+Next recommended step: Final validation and protected-branch PR for issue #45.

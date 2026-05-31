@@ -116,6 +116,20 @@ Gate: Release Gate for M6-001.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release, report schema migration, annotated SVG evidence, hardware validation, or certification artifact.
 
+## M6-003 Report Measurement Schema Release Update
+
+- PR: pending.
+- Issue: #45, `M6-003 Add report measurement schema and golden JSON updates`
+- Milestone: `v0.4.0: Measurement & Evidence Engine`
+- Scope: report measurement records, result `measurement_id` links, exact golden JSON updates, and schema docs.
+- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR and required `rust` CI pending.
+- Dependency evidence: no new third-party dependencies; report schema changes use existing Serde/JSON support.
+- Deferred issues: #44 annotated SVG overlays, #46 criteria DSL direction, and #47 measurement validation fixtures.
+
+Gate: Release Gate for M6-003.
+Decision: Pending PR/CI/merge.
+Residual risk: This is branch evidence until protected-branch CI passes and the PR is merged.
+
 ## Hand-Off Note
 
 Role: Release Engineer / GitHub Maintainer Specialist

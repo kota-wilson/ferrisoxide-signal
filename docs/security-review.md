@@ -55,6 +55,15 @@ No blocking security issues found for the M6 measurement-engine extraction:
 - No unsafe Rust, FFI, credentials, network access, shell execution, file I/O, parser surface, plotting backend, DAQ integration, RTOS SDK, HAL, or plugin runtime was added.
 - Existing CLI file-handling behavior is unchanged.
 
+## M6-003 Report Measurement Schema Update
+
+No blocking security issues found for the M6-003 report measurement schema branch:
+
+- No new third-party dependencies.
+- No unsafe Rust, FFI, credentials, network access, shell execution, parser surface, plotting backend, DAQ integration, RTOS SDK, HAL, or plugin runtime was added.
+- Report serialization continues to use existing Serde/JSON support.
+- CLI file-handling behavior is unchanged; only report data shape changes.
+
 ## Evidence
 
 | Area | Evidence | Result |
@@ -72,12 +81,13 @@ No blocking security issues found for the M6 measurement-engine extraction:
 | M3 embedded file surface | No embedded file I/O, SDK, HAL, FFI, network, or credential handling added | Pass |
 | M6 measurement dependency surface | `cargo tree -p wra-measurements` shows only `wra-measurements` | Pass |
 | M6 product surface | No new file, network, unsafe, FFI, plotting, DAQ, RTOS, or plugin surface added | Pass |
+| M6-003 report schema surface | No new dependencies or file/network/unsafe/plugin/runtime surface | Pass |
 
 ## Gate Decision
 
 - Gate: Security Gate.
 - Decision: Pass.
-- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, M4 adds no new dependency/network/unsafe surface, M5 confines Plotters to an SVG-only plotting crate, M3 follow-up work adds no external embedded dependency, unsafe FFI, SDK, or HAL surface, and M6 measurement extraction adds only a local no-dependency crate.
+- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, M4 adds no new dependency/network/unsafe surface, M5 confines Plotters to an SVG-only plotting crate, M3 follow-up work adds no external embedded dependency, unsafe FFI, SDK, or HAL surface, M6 measurement extraction adds only a local no-dependency crate, and M6-003 changes report structure without adding security-sensitive surfaces.
 - Residual risk: Formal dependency license/security scanning is not automated yet; future plotting backends, plugin runtimes, or RTOS SDK integrations could expand native dependency surface.
 - Next owner: Performance Engineer.
 
