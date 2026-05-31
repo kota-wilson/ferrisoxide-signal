@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 Issue: #98, `BRAND-002 Adopt FerrisOxide Signal in-repository identity`
 
-Status: Locally validated; protected-branch PR and repository-host rename pending.
+Status: Implemented and merged through PR #99. Repository host renamed to `kota-wilson/ferrisoxide-signal`.
 
 ## Summary
 
@@ -22,7 +22,7 @@ BRAND-002 moves FerrisOxide from proposal-stage brand architecture to the adopte
 | Traceability | Requirement mapping | `traceability-matrix.md` | Pass |
 | Implementation | Source/docs rename | `Cargo.toml`, `Cargo.lock`, `crates/ferrisoxide-*`, README, docs, scripts, fixtures | Pass |
 | Testing | Local validation | `docs/validation-log.md` BRAND-002 section | Pass |
-| Release | PR and CI | Protected-branch PR and required `rust` CI | Pending |
+| Release | PR, CI, and repository-host rename | PR #99 merged after required `rust` CI passed; `gh repo view kota-wilson/ferrisoxide-signal` verified the new URL; issue #98 closed. | Pass |
 
 ## Rename Boundary
 
@@ -69,12 +69,23 @@ git diff --check
 
 Identifier scan: remaining findings are intentional historical references in ADR-005/BRAND-001 and the ADR-006 no-alias note. Stable `WRA-*` traceability IDs are intentionally preserved.
 
+Release verification:
+
+```sh
+gh pr checks 99 --watch
+gh pr merge 99 --rebase --delete-branch
+gh repo rename ferrisoxide-signal -R kota-wilson/waveform-reconstructor-analyzer --yes
+git remote set-url origin https://github.com/kota-wilson/ferrisoxide-signal.git
+gh repo view kota-wilson/ferrisoxide-signal --json nameWithOwner,url
+gh issue view 98 --json state,url
+```
+
 ## Hand-Off Note
 
 Role: Product Architect / GitHub Maintainer Specialist / Core Software Engineer
 Goal: Adopt FerrisOxide Signal as the in-repository product identity.
-Files changed: Rename branch in progress.
+Files changed: `Cargo.toml`, `Cargo.lock`, `crates/ferrisoxide-*`, README, docs, scripts, examples, validation reports, ADR-006, and project state files.
 Checks run: `cargo metadata --format-version 1 --no-deps`; `cargo clean`; `cargo fmt --check`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; CLI analyze smoke; CLI plot smoke; SVG overlay scan; benchmark smoke; `git diff --check`; identifier scan.
-Status: Pass locally; protected-branch PR and repository-host rename pending.
+Status: Complete for in-repository identity and repository-host rename; PR #99 merged and issue #98 closed.
 Known gaps: External namespace, trademark, crates.io, domain, logo, and legal-suitability checks remain future gates.
-Next recommended step: Open the protected-branch PR, merge after required CI passes, and then complete repository-host rename if approved.
+Next recommended step: Return to M7-003 / issue #57 unless a new brand namespace/legal gate is explicitly opened.
