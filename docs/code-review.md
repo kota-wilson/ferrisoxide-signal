@@ -61,6 +61,16 @@ No blocking code-review findings for the M6-003 report measurement schema branch
 - `AnalysisResult.measurement_id` gives a stable report-local link back to measurement evidence.
 - Exact golden JSON reports were intentionally updated and continue to compare output exactly.
 
+## M6 Completion Update
+
+No blocking code-review findings for the M6 completion branch. Review notes:
+
+- `EvidenceOverlay` is derived from existing `AnalysisResult` and `MeasurementRecord` values.
+- `wra plot --config` reuses the same config/filter/criteria evaluation path as analysis before rendering annotations.
+- The criteria DSL work is documentation-only and does not alter runtime TOML parsing.
+- The measurement-engine fixture is exact-report tested and documents expected values independently.
+- No new third-party dependency or unsafe Rust is added.
+
 ## Review Notes
 
 | Area | Result |
@@ -75,12 +85,13 @@ No blocking code-review findings for the M6-003 report measurement schema branch
 | M3 RTOS follow-up | Pass: adapter/prototype work is isolated, no_std, tested, and documented. |
 | M6 measurement extraction | Pass: measurement primitives are isolated, tested, and report-compatible. |
 | M6-003 report schema | Pass: measurement records and result links are tested, documented, and golden-protected. |
+| M6 completion | Pass: overlays, DSL docs, and measurement fixtures are tested, documented, and scope-controlled. |
 
 ## Gate Decision
 
 - Gate: Code Review Gate.
 - Decision: Pass.
-- Reason: No blocking defects found and validation is green for the current MVP, M4 validation work, M5 plotting slice, M3 RTOS adapter/prototype slice, M6 measurement extraction slice, and M6-003 report schema branch.
+- Reason: No blocking defects found and validation is green for the current MVP, M4 validation work, M5 plotting slice, M3 RTOS adapter/prototype slice, M6 measurement extraction slice, M6-003 report schema branch, and M6 completion branch.
 - Residual risk: CLI parsing is still hand-rolled; a future CLI parser crate could improve UX after review. Downstream schema migration feedback, visual regression, target execution, and RTOS SDK validation are not yet automated.
 - Next owner: Evaluation Engineer.
 

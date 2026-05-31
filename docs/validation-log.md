@@ -22,6 +22,46 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `wra-measurements`, `wra-signal`, `wra-embedded`, `wra-plot`, `wra-core`, and `wra-cli`.
 
+## M6 Completion Branch
+
+Current as of the M6 completion branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt` | Passed | Rust sources formatted after annotated SVG and validation fixture edits. |
+| `cargo test --workspace` | Passed | 84 tests passed: 10 CLI, 39 core, 10 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-measurements`, 6 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo run -q -p wra-cli --bin wra -- plot --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --output /private/tmp/wra-dropout-evidence.svg --title "Dropout Evidence"` | Passed | Wrote a 19,405-byte annotated SVG with evidence status, threshold label, and failed-criterion label. |
+| `rg -n "Evidence status\|FAIL supply_dropout\|threshold 2.500000" /private/tmp/wra-dropout-evidence.svg` | Passed | Confirmed expected SVG overlay labels. |
+| `cargo fmt --check` | Passed | Formatting remained clean after final edits. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `wra_plot::tests::renders_evidence_overlays_on_2d_svg` | SVG output includes evidence status, threshold label, and failed-criterion label. |
+| `wra_cli::tests::renders_2d_plot_with_configured_evidence_overlays` | `wra plot --config` renders annotated SVG output through the CLI. |
+| `validation_measurement_engine_known_answer_matches_expected_report` | Known-answer measurement fixture matches exact JSON output. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M6 completion.
+- Decision: Pass locally.
+- Reason: Formatting, unit, CLI, exact JSON, workspace, clippy, whitespace, and SVG smoke tests validate issues #44, #46, and #47 acceptance criteria.
+- Residual risk: Visual regression automation and external capture corpora remain future work.
+- Owner for residual risk: Verification and Validation Engineer / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate the remaining M6 evidence-overlay, DSL documentation, and measurement-fixture work.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; annotated SVG CLI smoke; `git diff --check`.
+Status: Pass locally.
+Known gaps: Protected GitHub CI is pending until PR creation.
+Next recommended step: Run final validation and open PR.
+
 ## M6 Report Measurement Schema Branch
 
 Current as of the M6-003 report measurement schema branch on 2026-05-31.

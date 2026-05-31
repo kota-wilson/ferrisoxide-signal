@@ -116,3 +116,14 @@ cargo run --quiet --bin wra -- plot \
 ```
 
 Plotting is desktop SVG output only. It does not add GUI, DAQ, embedded plotting, or certification scope.
+
+Render a 2D SVG plot with criteria evidence overlays:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input tests/fixtures/dropout_event.csv \
+  --config tests/configs/transient-event-dropout-fail.toml \
+  --output dropout-evidence.svg
+```
+
+Evidence overlays show pass/fail status, threshold lines, and failed-criterion markers using the same measurement evidence as JSON reports. Overlays are currently 2D only.

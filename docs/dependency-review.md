@@ -63,6 +63,16 @@ The M6 measurement-engine extraction adds no new third-party crates.
 | Measurement crate | `crates/wra-measurements/Cargo.toml` has no dependency entries. | Pass |
 | Core dependency | `crates/wra-core/Cargo.toml` depends on local `wra-measurements`. | Pass |
 | Dependency tree | `cargo tree -p wra-measurements` shows only `wra-measurements`. | Pass |
+
+## M6 Completion Dependency Review
+
+The M6 completion branch adds no new third-party crates. Annotated SVG overlays reuse the existing `wra-plot` Plotters SVG dependency, criteria DSL work is documentation-only, and measurement validation fixtures use existing workspace test and JSON report paths.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | No new dependency entries in workspace Cargo manifests. | Pass |
+| Plotting backend | Evidence overlays reuse existing SVG line/text/marker rendering in `wra-plot`. | Pass |
+| Runtime surface | No GUI, bitmap, web, DAQ, plugin, RTOS SDK, HAL, or FFI dependency added. | Pass |
 | Scope boundary | No parser, plotting, report, file I/O, DAQ, RTOS SDK, HAL, or plugin dependency is added. | Pass |
 
 ## Risk Assessment
@@ -79,7 +89,7 @@ The M6 measurement-engine extraction adds no new third-party crates.
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up and M6 measurement-engine work add no third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, and M6 completion work add no third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

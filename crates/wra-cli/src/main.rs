@@ -11,7 +11,7 @@ use wra_core::filter::{
 };
 use wra_core::model::{MetadataContext, TolerancePolicy};
 use wra_core::report::{AnalysisReport, ReportEvidenceContext};
-use wra_plot::{render_svg, PlotOptions};
+use wra_plot::{evidence_overlays, render_svg, PlotOptions};
 
 fn main() -> ExitCode {
     match run(env::args().skip(1).collect()) {
@@ -110,39 +110,87 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
 fn run_plot(args: &[String]) -> Result<String, String> {
     let input_path = value_after(args, "--input").ok_or("missing --input <path>")?;
     let output_path = value_after(args, "--output").ok_or("missing --output <svg>")?;
-    let time_column = value_after(args, "--time-column").unwrap_or("time");
-    let channel_columns = parse_channel_list(
-        value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?,
-    )?;
     let z_column = value_after(args, "--z-column").map(str::to_string);
     let title = value_after(args, "--title").unwrap_or("Waveform Plot");
     let width = parse_optional_u32(args, "--width", 1024)?;
     let height = parse_optional_u32(args, "--height", 760)?;
-
-    let mut parser_channels = channel_columns.clone();
-    if let Some(z_column) = &z_column {
-        if !parser_channels.iter().any(|channel| channel == z_column) {
-            parser_channels.push(z_column.clone());
-        }
-    }
+    let config = load_config(args)?;
 
     let input = fs::read_to_string(input_path)
         .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
-    let parser = SimpleCsvParser;
-    let waveform = parser
-        .parse_str(&input, &CsvParseOptions::new(time_column, parser_channels))
-        .map_err(|error| format!("failed to parse waveform: {error}"))?
-        .with_source_name(input_path.to_string());
+
+    let (waveform, channel_columns, overlays) = match config {
+        Some(config) => {
+            let channel_columns = match value_after(args, "--channels") {
+                Some(channels) => parse_channel_list(channels)?,
+                None => config.input.channels.clone(),
+            };
+            let mut csv_options = config.csv_options();
+            include_channels(&mut csv_options.channel_columns, &channel_columns);
+            if let Some(z_column) = &z_column {
+                include_channels(
+                    &mut csv_options.channel_columns,
+                    std::slice::from_ref(z_column),
+                );
+            }
+
+            let parser = SimpleCsvParser;
+            let mut waveform = parser
+                .parse_str(&input, &csv_options)
+                .map_err(|error| format!("failed to parse waveform: {error}"))?
+                .with_source_name(input_path.to_string())
+                .with_metadata_context(&config.metadata)
+                .with_tolerance_policy(config.tolerances);
+            let filters = config
+                .filters()
+                .map_err(|error| format!("invalid config filters: {error}"))?;
+            waveform = apply_filter_chain(&waveform, &filters)
+                .map_err(|error| format!("filter pipeline failed: {error}"))?;
+            let criteria = config
+                .criteria()
+                .map_err(|error| format!("invalid config criteria: {error}"))?;
+            let evaluation =
+                evaluate_criteria_with_measurements(&waveform, &criteria, config.tolerances)
+                    .map_err(|error| format!("analysis failed: {error}"))?;
+            let overlays = evidence_overlays(&evaluation.measurements, &evaluation.results);
+            (waveform, channel_columns, overlays)
+        }
+        None => {
+            let time_column = value_after(args, "--time-column").unwrap_or("time");
+            let channel_columns = parse_channel_list(
+                value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?,
+            )?;
+            let mut parser_channels = channel_columns.clone();
+            if let Some(z_column) = &z_column {
+                include_channels(&mut parser_channels, std::slice::from_ref(z_column));
+            }
+            let parser = SimpleCsvParser;
+            let waveform = parser
+                .parse_str(&input, &CsvParseOptions::new(time_column, parser_channels))
+                .map_err(|error| format!("failed to parse waveform: {error}"))?
+                .with_source_name(input_path.to_string());
+            (waveform, channel_columns, Vec::new())
+        }
+    };
 
     let mut options = PlotOptions::new(output_path, channel_columns);
     options.title = title.to_string();
     options.z_channel = z_column;
+    options.evidence_overlays = overlays;
     options.width = width;
     options.height = height;
 
     render_svg(&waveform, &options).map_err(|error| format!("failed to render plot: {error}"))?;
 
     Ok(format!("Plot written to {output_path}"))
+}
+
+fn include_channels(columns: &mut Vec<String>, required: &[String]) {
+    for channel in required {
+        if !columns.iter().any(|existing| existing == channel) {
+            columns.push(channel.clone());
+        }
+    }
 }
 
 fn value_after<'a>(args: &'a [String], flag: &str) -> Option<&'a str> {
@@ -323,10 +371,11 @@ fn help() -> String {
         "  wra analyze --input <csv> --config examples/basic-config.toml --format text",
         "  wra analyze --input <csv> --time-column time --channels input_v --moving-average 3 --low-pass 25 --adc-quantize 12:0.0:5.0 --min input_v:0.0 --max input_v:5.5 --format json",
         "  wra plot --input <csv> --time-column time --channels input_v --output waveform.svg",
+        "  wra plot --input <csv> --config examples/basic-config.toml --output annotated.svg",
         "  wra plot --input <csv> --time-column time --channels input_v --z-column temp_c --output waveform-3d.svg",
         "",
         "ADC quantization syntax: --adc-quantize bits:min_v:max_v",
-        "Plot output is SVG. Use --z-column for an optional third axis.",
+        "Plot output is SVG. Use --config to add 2D criteria evidence overlays; use --z-column for an optional third axis.",
         "Formats: text, json",
     ]
     .join("\n")
@@ -478,6 +527,32 @@ mod tests {
         assert!(svg.contains("<svg"));
         assert!(svg.contains("input_v"));
         assert!(svg.contains("output_v"));
+        let _ = fs::remove_file(output_path);
+    }
+
+    #[test]
+    fn renders_2d_plot_with_configured_evidence_overlays() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../tests/fixtures/dropout_event.csv");
+        let config_path =
+            format!("{manifest_dir}/../../tests/configs/transient-event-dropout-fail.toml");
+        let output_path = unique_plot_path("plot-evidence");
+
+        run(vec![
+            "plot".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--output".to_string(),
+            output_path.clone(),
+        ])
+        .expect("annotated plot should render");
+
+        let svg = fs::read_to_string(&output_path).expect("svg should be written");
+        assert!(svg.contains("Evidence status: FAIL"));
+        assert!(svg.contains("supply_dropout_max_1ms threshold 2.500000 V"));
+        assert!(svg.contains("FAIL supply_dropout_max_1ms sample_index=3"));
         let _ = fs::remove_file(output_path);
     }
 

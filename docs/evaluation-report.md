@@ -18,13 +18,14 @@ Owner Role: Evaluation Engineer
 | M3 follow-up issue fit | Pass | Issues #17-#19 map to QEMU proof, `wra-embedded`, Zephyr feasibility docs, tests, and risk controls. |
 | M6 issue fit | Pass | Issue #43 maps to `wra-measurements`, `wra-core` criteria integration, exact golden JSON compatibility tests, docs, dependency review, and risk controls. |
 | M6-003 issue fit | Pass | Issue #45 maps to report measurement records, result `measurement_id` links, exact golden JSON updates, schema docs, risk controls, and pipeline evidence. |
+| M6 completion issue fit | Pass | Issues #44, #46, and #47 map to annotated SVG overlays, criteria DSL direction docs, measurement validation fixtures, exact tests, traceability, and risk controls. |
 
 ## Gate Decision
 
 - Gate: Evaluation Gate.
 - Decision: Pass.
-- Reason: MVP, M4 validation work, M5 plotting, M3 embedded follow-up work, M6 measurement extraction, and M6-003 report schema work satisfy the approved scope and have evidence for major claims without overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
-- Residual risk: Product maturity remains early; future issues should target parser coverage, downstream report-schema feedback, external capture validation, signal-processing validation depth, annotated SVG evidence review, visual regression coverage, target execution, and RTOS SDK validation.
+- Reason: MVP, M4 validation work, M5 plotting, M3 embedded follow-up work, M6 measurement extraction, M6-003 report schema work, and M6 completion work satisfy the approved scope and have evidence for major claims without overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
+- Residual risk: Product maturity remains early; future issues should target parser coverage, downstream report-schema feedback, external capture validation, signal-processing validation depth, external SVG evidence review, visual regression coverage, target execution, and RTOS SDK validation.
 - Next owner: Release Engineer / Community Engineering Lead.
 
 ## Hand-Off Note

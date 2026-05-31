@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Continue v0.4.0 after merging M6-003; next work should address annotated SVG evidence overlays, criteria DSL direction, or measurement validation fixtures.
+Complete remaining v0.4.0 issues #44, #46, and #47 through a protected-branch PR.
 
 ## Current Stage
 
-The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with M6-001 merged by PR #48 and M6-003 merged by PR #50. Mainline includes top-level report `measurements`, per-result `measurement_id`, schema docs, exact golden JSON updates, and focused measurement-link tests for issue #45. Issues #43 and #45 are closed; issues #44, #46, and #47 remain open. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with M6-001 merged by PR #48, M6-003 merged by PR #50, and remaining M6 issues #44, #46, and #47 implemented on branch `feature/m6-complete-evidence-work`. The branch adds 2D SVG evidence overlays, criteria DSL direction docs, measurement-engine known-answer fixtures, exact report validation, and pipeline evidence. Issues #43 and #45 are closed; issues #44, #46, and #47 remain open until PR/merge evidence closes them. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -42,6 +42,10 @@ The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, wi
   Owner: Verification and Validation Engineer / Core Software Engineer
 - Risk: Report schema migration may break consumers that assumed all evidence lived only in results.
   Owner: Documentation Engineer / Core Software Engineer
+- Risk: Annotated SVG evidence may be overread as complete engineering proof instead of visual software evidence.
+  Owner: Documentation Engineer / Verification and Validation Engineer
+- Risk: Criteria DSL expansion may introduce ambiguous operators or unit parsing.
+  Owner: Software Architect / Core Software Engineer
 
 ## Pending Decisions
 
@@ -71,7 +75,7 @@ The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, wi
 
 Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Choose and pipeline the next v0.4.0 issue, likely #44 annotated SVG evidence overlays or #47 measurement validation fixtures.
+Expected deliverable: Open and validate the M6 completion PR for issues #44, #46, and #47.
 
 ## Orchestration Status
 
@@ -80,7 +84,7 @@ Expected deliverable: Choose and pipeline the next v0.4.0 issue, likely #44 anno
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: `v0.4.0: Measurement & Evidence Engine`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`.
-- Next gate: v0.4.0 follow-up issue selection and requirements review for issues #44, #46, and #47.
+- Next gate: Final local validation, PR creation, and protected-branch CI for issues #44, #46, and #47.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, criteria DSL implementation, or annotated SVG overlays without a fresh issue/gate.
 
 ## Granularity Status
@@ -100,7 +104,7 @@ Expected deliverable: Choose and pipeline the next v0.4.0 issue, likely #44 anno
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, and M6 requirements WRA-RQ-031 through WRA-RQ-032.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, and M6 requirements WRA-RQ-031 through WRA-RQ-035.
 
 ## Gate Decisions
 
@@ -216,6 +220,12 @@ Expected deliverable: Choose and pipeline the next v0.4.0 issue, likely #44 anno
 | M6-003 V&V Gate | Pass | `docs/m6-report-measurement-schema-pipeline-report.md`, WRA-RQ-032 traceability | QA Engineer |
 | M6-003 Release Gate | Pass | PR #50 merged after required `rust` CI passed; merge commit `f7e21695f501890669d591d0d7cbc9b731a541bb` | GitHub Maintainer Specialist |
 | M6-003 Community Gate | Pass | Issue #45 closed; issues #44, #46, and #47 remain open under milestone #6 | Project Coordinator |
+| M6 Completion Requirements Gate | Pass | `requirements.md` WRA-RQ-033 through WRA-RQ-035; issues #44, #46, and #47 | Software Architect |
+| M6 Completion Architecture Gate | Pass | `docs/architecture.md`, `docs/plotting.md`, `docs/criteria-dsl.md`, `docs/m6-completion-pipeline-report.md` | Abstraction Review Engineer |
+| M6 Completion Implementation Gate | Pass | `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `validation/measurement_engine/`, docs | Test Automation Engineer |
+| M6 Completion Testing Gate | Pass locally | Workspace tests, annotated SVG CLI smoke, exact measurement-engine report test | Verification and Validation Engineer |
+| M6 Completion V&V Gate | Pass locally | `docs/m6-completion-pipeline-report.md`, WRA-RQ-033 through WRA-RQ-035 traceability | QA Engineer |
+| M6 Completion Release Gate | Pending | PR creation and required `rust` CI are pending | GitHub Maintainer Specialist |
 
 ## Update Rules
 

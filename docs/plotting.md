@@ -26,6 +26,27 @@ The output uses:
 - Y axis: one or more configured signal channels.
 - Output format: SVG.
 
+## 2D Evidence Overlays
+
+Use `--config` with `wra plot` to render measurement-backed evidence on a 2D SVG plot:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input tests/fixtures/dropout_event.csv \
+  --config tests/configs/transient-event-dropout-fail.toml \
+  --output dropout-evidence.svg \
+  --title "Dropout Evidence"
+```
+
+Evidence overlays currently render:
+
+- Overall evidence status, `PASS` or `FAIL`.
+- Voltage threshold lines when criteria or measurement context include thresholds.
+- Failed-criterion markers at the evidence sample.
+- Labels containing criterion ID, sample index, timestamp, channel, measured value, and required value.
+
+The overlay path reuses `wra-core` criteria evaluation and report measurement IDs. It does not recalculate separate plotting-only measurements.
+
 ## 3D Waveform Plot With Third Axis
 
 Use `--z-column` when a CSV includes an auxiliary axis such as temperature, pressure, sweep position, or another synchronized measurement:
@@ -64,5 +85,6 @@ This deliberately excludes bitmap encoders, GUI backends, GIF animation, and int
 - Local file input and output only.
 - No automatic directory creation for output paths.
 - No resampling or interpolation.
+- Evidence overlays are currently 2D only.
 - No camera controls, hover labels, or interactive UI.
 - No claims about hardware behavior, environmental qualification, or certification use.

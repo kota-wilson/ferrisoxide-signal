@@ -19,6 +19,7 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - M3 follow-up work added embedded adapter and prototype artifacts without installing SDKs, adding HALs, or claiming production RTOS readiness.
 - M6 measurement extraction used existing golden JSON tests as a strong regression guard against subtle evidence drift.
 - M6-003 used the measurement layer to separate reusable report evidence from criteria decisions without expanding into SVG, DSL, batch, GUI, DAQ, or certification scope.
+- M6 completion reused report measurement IDs for SVG evidence, documented DSL direction before implementing syntax, and added known-answer measurement fixtures.
 
 ## What To Improve
 
@@ -28,6 +29,7 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - Consider replacing hand-rolled CLI parsing after dependency review.
 - Decide whether the next validation milestone should add external capture corpora, stronger filter-response checks, or schema hardening before adding new user interfaces.
 - Reuse `measurement_id` in annotated SVG evidence instead of recalculating independent evidence markers.
+- Add visual regression automation before expanding beyond simple 2D evidence labels.
 - Add visual regression or rendered-output review before broadening plotting beyond SVG line charts.
 - Add target execution and SDK validation only after a fresh environment/toolchain gate.
 
@@ -35,7 +37,7 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 
 - Gate: Retrospective Gate.
 - Decision: Pass.
-- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome, M5 plotting scope control, M3 embedded prototype scope control, M6 measurement regression-guard lesson, and M6-003 report-schema migration lesson.
+- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome, M5 plotting scope control, M3 embedded prototype scope control, M6 measurement regression-guard lesson, M6-003 report-schema migration lesson, and M6 completion overlay/fixture lesson.
 - Residual risk: Remaining follow-up issues still need prioritization and implementation.
 - Next owner: Community Engineering Lead.
 
@@ -46,5 +48,5 @@ Goal: Capture lessons from project creation through public publication.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
-Known gaps: Annotated SVG evidence still lacks visual regression, criteria DSL direction is still open, and embedded work still lacks target execution or SDK validation.
-Next recommended step: Complete the remaining M6 evidence/DSL/validation issues before adding new visualization backends, interactive plotting scope, RTOS SDKs, HALs, or target CI.
+Known gaps: Annotated SVG evidence still lacks visual regression, the criteria DSL parser remains unimplemented, and embedded work still lacks target execution or SDK validation.
+Next recommended step: Close M6 after PR/CI/merge, then choose the next milestone before adding new visualization backends, interactive plotting scope, RTOS SDKs, HALs, or target CI.

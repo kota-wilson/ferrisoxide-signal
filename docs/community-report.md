@@ -52,11 +52,18 @@ Owner Role: Community Engineering Lead
 - Issues #44, #46, and #47 remain open under milestone `v0.4.0: Measurement & Evidence Engine`.
 - Follow-up community messaging should describe M6-003 as a report evidence schema migration, not annotated SVG, batch analysis, plugin runtime, GUI, DAQ, hardware validation, or certification evidence.
 
+## M6 Completion Community Update
+
+- Branch `feature/m6-complete-evidence-work` implements issues #44, #46, and #47.
+- PR creation is pending; the PR body should close #44, #46, and #47.
+- If merged, milestone `v0.4.0: Measurement & Evidence Engine` should have no remaining open issues.
+- Follow-up community messaging should describe this as SVG evidence overlays, DSL direction documentation, and software known-answer validation, not GUI, DAQ, plugin runtime, hardware validation, or certification evidence.
+
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, M6-001 issue closure, and M6-003 issue closure.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, PR #48 merge evidence, and PR #50 merge evidence.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, M6-001 issue closure, and M6-003 issue closure; M6 completion pending PR evidence.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, PR #48 merge evidence, PR #50 merge evidence, and M6 completion branch evidence.
 - Residual risk: Community onboarding quality, plotting usability, downstream measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
