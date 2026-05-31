@@ -10,6 +10,8 @@ Branch: `feature/m3-rtos-001-wra-signal`
 
 GitHub issue: #20, `M3-RTOS-001 Extract no_std signal primitives`
 
+Pull request: #21, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21`
+
 ## Research
 
 Owner Role: Open Source Research Engineer
@@ -137,18 +139,18 @@ Owner Role: Evaluation Engineer
 
 - Decision: Pass.
 - Evidence: Definition of Done items are represented by implementation, validation, traceability, documentation, and project-state updates.
-- Reason: M3-RTOS-001 is ready for PR review and does not exceed approved scope.
-- Residual risk: Protected branch review remains external.
+- Reason: M3-RTOS-001 is ready for protected-branch CI and does not exceed approved scope.
+- Residual risk: GitHub Actions may still find integration issues after rebase.
 - Next owner: Release Engineer.
 
 ## Release
 
 Owner Role: Release Engineer / GitHub Maintainer Specialist
 
-- Decision: Pass for PR creation; merge blocked pending required review.
-- Evidence: Feature branch `feature/m3-rtos-001-wra-signal`; intended PR title `Add no_std signal primitives crate`; issue link #20.
+- Decision: Pass for PR creation; merge pending protected-branch CI.
+- Evidence: Feature branch `feature/m3-rtos-001-wra-signal`; PR #21 titled `Add no_std signal primitives crate`; issue link #20.
 - Reason: The branch is reviewable and local validation is green.
-- Residual risk: GitHub Actions and required approving review must pass before merge.
+- Residual risk: GitHub Actions must pass before merge.
 - Next owner: Community Engineering Lead.
 
 ## Community
@@ -156,7 +158,7 @@ Owner Role: Release Engineer / GitHub Maintainer Specialist
 Owner Role: Community Engineering Lead
 
 - Decision: Pass for opening a maintainer-facing PR.
-- Evidence: PR body should link issue #20, list checks, and call out deferred issues #17-#19.
+- Evidence: PR #21 links issue #20, lists local checks, and calls out deferred issues #17-#19.
 - Reason: The PR communicates scope and avoids claiming RTOS integration.
 - Residual risk: Maintainer review may request API changes.
 - Next owner: Project Coordinator.
@@ -177,6 +179,6 @@ Role: Project Orchestrator
 Goal: Complete M3-RTOS-001 through PR creation.
 Files changed: `crates/wra-signal/`, `embedded/`, `docs/embedded-roadmap.md`, `docs/m3-rtos-001-pipeline-report.md`, `docs/implementation-report.md`, `docs/validation-log.md`, `README.md`, `CHANGELOG.md`, `requirements.md`, `traceability-matrix.md`, `project-state.md`, `Cargo.toml`, `Cargo.lock`
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-signal`; terminology scan for informal event wording
-Status: Ready for PR creation.
+Status: PR #21 opened; merge pending protected-branch CI.
 Known gaps: ARM64 QEMU, RTOS adapter abstraction, and Zephyr feasibility are tracked by follow-up M3 issues.
-Next recommended step: Push branch and open PR for issue #20.
+Next recommended step: Monitor CI and merge after required checks pass.

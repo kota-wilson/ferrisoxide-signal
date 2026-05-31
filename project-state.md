@@ -116,6 +116,9 @@ Expected deliverable: Complete PR #21 rebase, rerun CI, and merge the M3-RTOS-00
 | M3-RTOS-001 Documentation Gate | Pass | `README.md`, `CHANGELOG.md`, `docs/embedded-roadmap.md`, `crates/wra-signal/README.md` | Code Reviewer |
 | M3-RTOS-001 Code Review Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Evaluation Engineer |
 | M3-RTOS-001 Evaluation Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Release Engineer |
+| M3-RTOS-001 Release Gate | Pass | PR #21 opened: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21` | Community Engineering Lead |
+| M3-RTOS-001 Community Gate | Pass | PR #21 body links issue #20 and follow-up issues #17-#19 | Project Coordinator |
+| M3-RTOS-001 Retrospective Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Project Orchestrator |
 
 ## Update Rules
 
