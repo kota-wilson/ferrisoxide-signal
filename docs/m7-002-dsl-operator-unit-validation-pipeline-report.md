@@ -8,7 +8,9 @@ Milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`
 
 Issue: #56, `M7-002 Implement DSL operator and explicit-unit validation`
 
-Status: Local implementation complete; PR/CI/merge pending.
+Pull request: #65, `Add M7 DSL operator and unit validation`
+
+Status: PR #65 open; protected CI and merge pending.
 
 ## Scope
 
@@ -184,7 +186,7 @@ Out of scope:
 
 - Owner role: Release Engineer
 - Artifact: Local validation evidence.
-- Evidence: Full local validation passed; protected `rust` CI is pending.
+- Evidence: Full local validation passed; PR #65 is open and protected `rust` CI is pending.
 - Gate: Release Gate.
 - Decision: Pending PR/CI/merge.
 - Residual risk: Branch work is not released until PR CI passes and the PR is merged.
@@ -193,10 +195,10 @@ Out of scope:
 ## Community
 
 - Owner role: Community Engineering Lead
-- Artifact: Future PR body.
-- Evidence: PR body should close issue #56 only.
+- Artifact: PR #65 body.
+- Evidence: PR #65 includes `Fixes #56` and leaves issues #57 through #61 open.
 - Gate: Community Gate.
-- Decision: Pending PR creation.
+- Decision: Pass for PR creation; pending merge.
 - Residual risk: Issues #57 through #61 remain open.
 - Next owner: Project Coordinator.
 
@@ -216,6 +218,6 @@ Role: Core Software Engineer
 Goal: Complete M7-002 / issue #56.
 Files changed: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, invalid DSL config fixtures, requirements, traceability, project state, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Local implementation complete; PR/CI/merge pending.
+Status: PR #65 open; protected CI and merge pending.
 Known gaps: Runtime DSL evaluation, parity golden tests, full invalid matrix, and user-facing docs remain in issues #57 through #61.
-Next recommended step: Open PR, wait for required CI, and merge issue #56.
+Next recommended step: Wait for required CI and merge issue #56.
