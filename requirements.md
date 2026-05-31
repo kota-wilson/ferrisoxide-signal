@@ -50,6 +50,16 @@
 | WRA-RQ-048 | The project shall use one shared rule execution engine for desktop and embedded-compatible paths. | v0.6.0 / issue #73 | High | Desktop/CLI and embedded-compatible runtime tests execute through the same rule-engine semantics instead of duplicating criteria behavior. | Software Architect / Core Software Engineer | Planned |
 | WRA-RQ-049 | The embedded rule path shall preserve a no_std compatibility boundary. | v0.6.0 / issue #72 | High | Embedded-compatible rule execution avoids CSV parsing, file I/O, plotting, report generation, hardware HALs, and heap requirements for basic evaluation where practical. | Embedded RTOS Engineer / Core Software Engineer | Planned |
 | WRA-RQ-050 | The project shall prove desktop-vs-embedded rule parity with exact tests. | v0.6.0 / issue #74 | High | The same waveform, same rule package, and same expected result are evaluated by desktop and embedded-compatible paths with exact matching pass/fail and evidence values. | Verification and Validation Engineer | Planned |
+| WRA-RQ-051 | The project shall define a production control config schema. | v0.7.0 / issue #77 | High | Schema captures inputs, outputs, thresholds, state machine definitions, timing rules, control actions, fault responses, modes, version, and approval metadata without depending on desktop-only DAQ, plotting, or report code. | Software Architect / Embedded RTOS Engineer | Planned |
+| WRA-RQ-052 | The project shall define a test verification config schema separate from production control config. | v0.7.0 / issue #80 | High | Verification schema captures expected transitions, voltage limits, pulse widths, transient limits, dropout limits, stable-state requirements, timing windows, evidence/report settings, version, and approval metadata. | Software Architect / V&V Engineer | Planned |
+| WRA-RQ-053 | The project shall add a virtual controller simulation engine. | v0.7.0 / issue #78 | High | Desktop simulation can run state-machine/controller logic against fixture or abstract sample input and produce control-state trace evidence without requiring final controller hardware. | Core Software Engineer / Embedded RTOS Engineer | Planned |
+| WRA-RQ-054 | The project shall define a DAQ input abstraction. | v0.7.0 / issue #79 | Medium | DAQ-facing interfaces are abstracted with fixture/test-double support first; vendor SDKs, drivers, and live hardware remain behind separate dependency and environment gates. | Systems Engineer / Security Engineer | Planned |
+| WRA-RQ-055 | The project shall define a controller I/O abstraction. | v0.7.0 / issue #81 | High | Controller input/output interfaces separate portable controller logic from HAL, RTOS SDK, and hardware bindings. | Embedded RTOS Engineer / Core Software Engineer | Planned |
+| WRA-RQ-056 | The project shall add a desktop simulation workflow. | v0.7.0 / issue #82 | High | CLI or future desktop workflow can load production control config, test verification config, channel map, and fixture/abstract input to produce simulation and verification evidence. | Core Software Engineer / Documentation Engineer | Planned |
+| WRA-RQ-057 | The project shall define an RTOS deployment package format. | v0.7.0 / issue #83 | High | Deployment package links production control config, test verification config, channel map, manifest, checksum, qualification report, evidence SVG, and generated timestamp. | Embedded RTOS Engineer / Security Engineer | Planned |
+| WRA-RQ-058 | The project shall separate production, test, and signal-validation modes. | v0.7.0 / issue #84 | High | Runtime mode definitions prevent production control behavior from being confused with test verification or signal-validation behavior. | Software Architect / V&V Engineer | Planned |
+| WRA-RQ-059 | The project shall add config and behavior parity tests. | v0.7.0 / issue #85 | High | Same configs and waveform inputs produce matching desktop and embedded-compatible state, pass/fail, timing, channel, and evidence outputs, or document approved schema differences. | Verification and Validation Engineer | Planned |
+| WRA-RQ-060 | The project shall define a qualification evidence report format for controller-in-the-loop workflows. | v0.7.0 / issue #86 | Medium | Reports link config versions, channel map, simulation trace, criteria evidence, deployment package metadata, checksum evidence, and explicit non-certification scope notes. | Documentation Engineer / Flight Certification Assurance Engineer | Planned |
 
 ## Assumptions
 
@@ -110,6 +120,16 @@
 | WRA-RQ-048 | Shared engine tests | Desktop/CLI and embedded-compatible paths call shared rule-engine semantics. |
 | WRA-RQ-049 | no_std boundary checks | Embedded-compatible crates avoid CSV, file I/O, plotting, reporting, HAL, and target SDK dependencies. |
 | WRA-RQ-050 | Exact parity tests | Same waveform and same rule package produce exact matching desktop and embedded-compatible results. |
+| WRA-RQ-051 | Schema unit tests and docs review | Production control config schema tests cover state machines, timing rules, actions, fault responses, modes, and metadata. |
+| WRA-RQ-052 | Schema unit tests and docs review | Test verification config schema tests cover expected transitions, limits, timing windows, and evidence settings. |
+| WRA-RQ-053 | Simulation tests | Deterministic fixture-driven virtual controller tests produce expected state traces and outputs. |
+| WRA-RQ-054 | Abstraction tests | DAQ input test doubles feed deterministic samples without vendor SDKs or live hardware. |
+| WRA-RQ-055 | Abstraction and dependency tests | Controller I/O abstractions compile without HAL, RTOS SDK, or target hardware dependencies. |
+| WRA-RQ-056 | CLI/workflow tests | Desktop simulation workflow loads configs, channel map, and fixture input to produce expected evidence. |
+| WRA-RQ-057 | Package fixture tests | Deployment package fixtures include control config, verification config, channel map, manifest, checksum, report, SVG, and timestamp. |
+| WRA-RQ-058 | Mode separation tests | Production, test, and signal-validation modes cannot be conflated in config or runtime selection. |
+| WRA-RQ-059 | Parity tests | Same configs and waveform inputs produce matching desktop and embedded-compatible state and evidence outputs. |
+| WRA-RQ-060 | Exact report tests and docs review | Controller-in-the-loop reports link config versions, channel map, simulation trace, criteria evidence, deployment metadata, checksum evidence, and non-certification notes. |
 
 ## Rules
 

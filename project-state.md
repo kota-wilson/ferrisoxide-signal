@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Continue v0.5.0 criteria DSL implementation after planning v0.6.0 portable rule packages.
+Plan v0.7.0 controller simulation and deployment config system while preserving active v0.5.0 and planned v0.6.0 work.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. Milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, is open with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -54,6 +54,12 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
   Owner: Documentation Engineer / Flight Certification Assurance Engineer
 - Risk: Manifest, checksum, or binary package work may create security/dependency overclaims.
   Owner: Security Engineer / Core Software Engineer
+- Risk: Production control config and test verification config may be conflated.
+  Owner: Software Architect / Verification and Validation Engineer
+- Risk: DAQ or controller I/O abstractions may pull in vendor SDK, HAL, or hardware assumptions too early.
+  Owner: Systems Engineer / Security Engineer
+- Risk: Desktop virtual controller behavior may drift from RTOS runtime behavior.
+  Owner: Embedded RTOS Engineer / Core Software Engineer
 
 ## Pending Decisions
 
@@ -81,21 +87,24 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 - Decision: Treat embedded/controller support as a deployment target for one portable rule schema and one shared rule engine, not as a forked rule implementation.
   Owner: Software Architect / Embedded RTOS Engineer
   Status: Accepted for future milestone planning in `decisions/ADR-004-portable-rule-package-architecture.md`.
+- Decision: Keep production control config and test verification config separate, linked by a deployment manifest and parity evidence.
+  Owner: Software Architect / Verification and Validation Engineer
+  Status: Accepted for future milestone planning in `docs/controller-in-the-loop-workflow.md`.
 
 ## Next Responsible Role
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline unless v0.6.0 is explicitly reprioritized.
+Expected deliverable: Open and validate the v0.7.0 controller-in-the-loop planning PR without displacing active M7 or planned M8 issues.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestone #8, `v0.6.0: Portable Rule Package System`, is planned.
+- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57 unless v0.6.0 is explicitly reprioritized.
+- Next gate: Open and merge the v0.7.0 controller-in-the-loop planning PR, then return to M7-003 / issue #57 unless reprioritized.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -115,7 +124,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, and planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, and planned v0.7.0 requirements WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86.
 
 ## Gate Decisions
 
@@ -260,6 +269,11 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | v0.6.0 Portable Rule Package Issue Planning Gate | Pass | GitHub milestone #8 and issues #67 through #74 created | GitHub Maintainer Specialist |
 | v0.6.0 Portable Rule Package Release Gate | Pass | PR #75 merged after required `rust` CI passed; merge commit `3dadc38f591ffe2faa3c2c62016f07e9c46ecab0` | Project Coordinator |
 | v0.6.0 Portable Rule Package Community Gate | Pass | Milestone #8 open with issues #67 through #74; active M7 issues #57 through #61 remain open | Project Orchestrator |
+| v0.7.0 Controller-In-The-Loop Intake Gate | Pass | User described controller simulation, DAQ observation, production/test config separation, RTOS modes, and digital-twin direction | Project Coordinator |
+| v0.7.0 Controller-In-The-Loop Requirements Gate | Pass for proposal | WRA-RQ-051 through WRA-RQ-060 in `requirements.md` | Software Architect |
+| v0.7.0 Controller-In-The-Loop Architecture Gate | Pass for proposal | `docs/controller-in-the-loop-workflow.md` | Abstraction Review Engineer |
+| v0.7.0 Controller-In-The-Loop Scope Gate | Pass | Proposal excludes GUI, vendor DAQ SDKs, hardware HALs, production RTOS integration, real-time guarantees, safety certification, and hardware qualification claims | Project Orchestrator |
+| v0.7.0 Controller-In-The-Loop Issue Planning Gate | Pass | GitHub milestone #9 and issues #77 through #86 created | GitHub Maintainer Specialist |
 
 ## Update Rules
 

@@ -30,6 +30,8 @@ Current status: This proposal has been implemented through the validated MVP fea
 
 Future portable rule package crates are planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`. They are not implemented yet.
 
+Future controller-in-the-loop simulation and deployment config modules are planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`. They are not implemented yet.
+
 ## Module Map
 
 | Module | Path | Responsibility |
@@ -75,6 +77,13 @@ Future portable deployment flow
   -> WRA Rule Package schema captures rules, units, channels, and timing assumptions
   -> Shared rule engine executes the same semantics for desktop and embedded-compatible paths
   -> Controller runtime consumes constrained deployment artifacts
+
+Future controller-in-the-loop flow
+  -> Desktop simulator loads production control config and test verification config
+  -> DAQ abstraction, fixtures, or generated waveforms provide UUT signals
+  -> Virtual controller runs shared state-machine logic
+  -> Qualification evidence and deployment package are generated
+  -> RTOS/controller runtime consumes approved configs in production or verification mode
 ```
 
 ## Public API Outline
@@ -128,6 +137,7 @@ Future portable deployment flow
 - Plotting is a desktop-only SVG renderer in `wra-plot`; 2D evidence overlays reuse report measurement evidence; `wra-core` and `wra-signal` do not depend on Plotters.
 - Criteria DSL direction is documented in `docs/criteria-dsl.md`; existing `[[criteria]]` entries remain the runtime compatibility baseline.
 - Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; future desktop and embedded/controller paths must use one rule schema and one shared rule engine rather than duplicate rule semantics.
+- Controller-in-the-loop direction is documented in `docs/controller-in-the-loop-workflow.md`; production control config and test verification config remain separate but linked through manifests and parity evidence.
 
 ## Test Plan
 
