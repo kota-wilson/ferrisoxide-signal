@@ -18,13 +18,13 @@ Out of scope: GUI, live DAQ, control-loop execution, RTOS deployment, hardware q
 | Requirements | Requirements Gate | Pass | WRA-RQ-066 through WRA-RQ-068 added. | Future controller simulation requirements remain in v0.7.0 scope. | Software Architect |
 | Architecture | Architecture Gate | Pass | Response latency added to shared rule engine/schema; transient arming remains config-driven. | Response latency is a first implementation, not a complete controller state-machine model. | Software Architect |
 | Implementation | Implementation Gate | Pass | `ferrisoxide-rule-engine`, `ferrisoxide-core`, `ferrisoxide-rule-schema`, `ferrisoxide-cli`, and heated actuator fixtures updated. | No binary package loader or embedded target execution yet. | Core Software Engineer |
-| Testing | Testing Gate | Pass locally | Unit tests, exact golden report tests, CLI analysis/plot/export smokes. | Protected GitHub CI pending PR creation. | V&V Engineer |
-| V&V | V&V Gate | Pass locally | Four exact expected reports prove PASS, late response FAIL, transient event FAIL, and supply dropout FAIL. | Software-only validation does not prove hardware accuracy. | QA Engineer |
+| Testing | Testing Gate | Pass | Unit tests, exact golden report tests, CLI analysis/plot/export smokes, and PR #118 required `rust` CI. | Future hardware validation remains out of scope. | V&V Engineer |
+| V&V | V&V Gate | Pass | Four exact expected reports prove PASS, late response FAIL, transient event FAIL, and supply dropout FAIL. | Software-only validation does not prove hardware accuracy. | QA Engineer |
 | Security | Security Gate | Pass | No new dependencies, no network/runtime credentials, no unsafe code added. | Rule-package export remains non-cryptographic drift evidence only. | Security Engineer |
 | Performance | Performance Gate | Pass | Small fixed fixtures; no performance claim introduced. | Large batch qualification remains future work. | Performance Engineer |
 | Documentation | Documentation Gate | Pass | `docs/heated-actuator-qualification-suite.md`, requirements, traceability, risk, and validation notes updated. | More user-facing tutorials can follow if this workflow becomes primary. | Documentation Engineer |
-| Code Review | Code Review Gate | Pass for PR creation | Local review found scoped changes and exact tests. | Maintainer/CI review pending. | Code Reviewer |
-| Release | Release Gate | Blocked pending PR/CI | Branch is local until PR is opened and checks pass. | Main remains unchanged until merge. | GitHub Maintainer |
+| Code Review | Code Review Gate | Pass | Local review found scoped changes and exact tests; PR #118 passed required CI. | Future external review may request scenario refinements. | Code Reviewer |
+| Release | Release Gate | Pass | PR #118 merged and issue #117 closed. | Mainline evidence is software-only, not hardware qualification. | GitHub Maintainer |
 
 ## Acceptance Mapping
 
@@ -44,6 +44,6 @@ Role: Core Software Engineer / Verification and Validation Engineer
 Goal: Add a full software-only heated actuator qualification test suite.
 Files changed: criteria/rule/schema/CLI code, `tests/e2e/heated_actuator/`, requirements, traceability, risk, docs, validation log, project state.
 Checks run: `cargo test -p ferrisoxide-rule-engine`; `cargo test -p ferrisoxide-rule-schema`; `cargo test -p ferrisoxide-core --test heated_actuator`; `cargo test -p ferrisoxide-cli`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Implemented locally; PR and protected CI pending.
+Status: Implemented and merged through PR #118; issue #117 closed.
 Known gaps: No live DAQ, controller runtime, RTOS target execution, binary package loader, or certification evidence.
-Next recommended step: Run full validation, open PR with `Fixes #117`, then merge only after required checks pass.
+Next recommended step: Keep the suite current when response-latency, transient-event, report, SVG, or rule-package behavior changes.

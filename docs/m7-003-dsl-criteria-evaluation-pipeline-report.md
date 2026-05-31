@@ -10,7 +10,7 @@ Issue: #57, `M7-003 Evaluate DSL criteria through existing measurement evidence`
 
 Pull request: Pending.
 
-Status: Implemented and locally validated; PR/CI pending.
+Status: Implemented and merged through PR #101; issue #57 closed.
 
 ## Scope
 
@@ -217,6 +217,6 @@ Role: Core Software Engineer
 Goal: Complete M7-003 / issue #57.
 Files changed: `crates/ferrisoxide-core/src/criteria.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/tests/criteria_engine.rs`, requirements, traceability, risk register, project state, validation log, and this report.
 Checks run: `cargo test -p ferrisoxide-core`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Implemented and locally validated; PR pending.
+Status: Implemented and merged through PR #101; issue #57 closed.
 Known gaps: #58 parity golden tests, #59 invalid-config matrix, and #60/#61 user-facing DSL docs remain open.
-Next recommended step: Run full validation, open PR for #57, wait for required CI, merge, then continue issue #58.
+Next recommended step: Keep DSL evaluation evidence current when criteria, measurement, or report behavior changes.

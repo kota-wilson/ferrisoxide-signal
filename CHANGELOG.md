@@ -9,6 +9,7 @@ The format follows Keep a Changelog principles, and the project intends to use s
 ### Changed
 
 - Adopted FerrisOxide Signal as the in-repository product identity, including `ferrisoxide-*` workspace packages and the `ferrisoxide-signal` CLI binary.
+- Expanded the main README into a complete product guide covering workflow, examples, repo layout, commands, reports, plotting, rule packages, embedded boundaries, validation assets, and contribution expectations.
 
 ### Added
 
