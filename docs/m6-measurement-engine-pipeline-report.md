@@ -8,6 +8,10 @@ Milestone: `v0.4.0: Measurement & Evidence Engine`
 
 Primary issue: #43, `M6-001 Extract measurement engine from criteria evaluation`
 
+Merged PR: #48, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/48`
+
+Merge commit: `559c96151f6f1d9a99d3d399a0e6bd046bfe5f51`
+
 Related open roadmap issues: #44 annotated SVG evidence overlays, #45 report measurement schema, #46 criteria DSL direction, #47 measurement validation fixtures.
 
 Out of scope for M6-001: report schema migration, annotated SVG overlays, new TOML DSL syntax, batch analysis, plugin runtime, GUI, DAQ integration, RTOS expansion, hardware qualification, production performance claims, and certification evidence.
@@ -151,19 +155,19 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 
 - Owner role: Release Engineer
 - Artifact: `docs/release-readiness.md`.
-- Evidence: branch prepared for protected-branch PR after local validation passed.
+- Evidence: PR #48 merged into protected `main` after required `rust` check passed in 27 seconds.
 - Gate: Release Gate.
-- Decision: Pass for PR creation.
-- Residual risk: Branch evidence only until CI passes and PR merges.
+- Decision: Pass.
+- Residual risk: Mainline evidence is not a tagged product release or certification artifact.
 - Next owner: Community Engineering Lead.
 
 ## Community
 
 - Owner role: Community Engineering Lead
 - Artifact: `docs/community-report.md`.
-- Evidence: v0.4.0 milestone and issues #43-#47 exist; issue #43 is the first implementation slice.
+- Evidence: v0.4.0 milestone and issues #43-#47 exist; PR #48 closed issue #43; issues #44-#47 remain open.
 - Gate: Community Gate.
-- Decision: Pending PR creation/CI.
+- Decision: Pass for M6-001.
 - Residual risk: External usability feedback is not yet available.
 - Next owner: Project Coordinator.
 
@@ -183,6 +187,6 @@ Role: Project Orchestrator / Core Software Engineer
 Goal: Start v0.4.0 by extracting reusable measurement primitives for issue #43.
 Files changed: Cargo workspace files, `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, README, docs, requirements, traceability, risk, and project state.
 Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
-Status: Pass locally; ready for PR creation.
+Status: PR #48 merged; issue #43 closed.
 Known gaps: Issues #44-#47 remain open for annotated SVG evidence, report measurement schema, DSL documentation, and broader validation fixtures.
-Next recommended step: Open protected-branch PR, wait for CI, then merge and update post-merge evidence.
+Next recommended step: Select the next v0.4.0 issue, likely #45 report measurement schema or #44 annotated SVG evidence overlays.

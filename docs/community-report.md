@@ -40,14 +40,15 @@ Owner Role: Community Engineering Lead
 ## M6 Measurement Engine Community Update
 
 - Issues #43-#47 record the v0.4.0 measurement and evidence-engine roadmap.
-- Issue #43 is the first implementation slice for reusable measurement extraction.
+- PR #48 merged and closed issue #43, the first implementation slice for reusable measurement extraction.
+- Issues #44-#47 remain open under milestone `v0.4.0: Measurement & Evidence Engine`.
 - Follow-up community messaging should describe M6-001 as internal measurement reuse and compatibility preservation, not a new report schema, annotated SVG feature, batch-analysis feature, plugin runtime, hardware validation, or certification claim.
 
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, and M6 issue planning.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, and M6 roadmap issues.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, and M6-001 issue closure.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, and PR #48 merge evidence.
 - Residual risk: Community onboarding quality, plotting usability, measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
