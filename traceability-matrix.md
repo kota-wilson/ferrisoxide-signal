@@ -1,0 +1,16 @@
+# Traceability Matrix
+
+| Requirement | Design / Decision | Code / Docs / Artifact | Verification | Validation | Release Evidence | Status |
+|---|---|---|---|---|---|---|
+| WRA-RQ-001 | CSV parser interface in architecture; dependency review approved `csv` crate | `crates/wra-core/src/csv.rs`, `crates/wra-cli/src/main.rs`, `docs/dependency-review.md` | Parser unit, fixture, and CLI smoke tests pass | User can load CSV fixture from CLI | Release readiness report | MVP implemented |
+| WRA-RQ-002 | Channel mapping model and TOML config input | `crates/wra-core/src/model.rs`, `crates/wra-core/src/csv.rs`, `crates/wra-core/src/config.rs` | Parser, config, and CLI smoke tests select named columns | User can select time/channel columns through config or flags | CLI docs | MVP implemented |
+| WRA-RQ-003 | Waveform model | `crates/wra-core/src/model.rs` | Waveform construction tests pass | Reconstructed waveform preserves units and samples | API docs later | MVP implemented |
+| WRA-RQ-004 | Multi-channel collection | `Waveform.channels` | Multi-channel fixture test passes | Multiple DAQ channels represented | Example data | MVP implemented |
+| WRA-RQ-005 | Filter trait and derived outputs | `crates/wra-core/src/filter.rs`, `crates/wra-cli/src/main.rs` | Filter unit tests and CLI smoke test pass | Derived filtered output without raw mutation | Docs later | MVP implemented |
+| WRA-RQ-006 | Low-pass and moving average modules | `filter.rs` | Synthetic step and moving-average tests pass | Basic smoothing/filtering works | MVP release notes later | MVP implemented |
+| WRA-RQ-007 | Criteria model plus TOML config | `crates/wra-core/src/criteria.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `examples/basic-config.toml` | Criteria, config, and CLI tests pass | Configurable pass/fail checks through TOML or flags | Config docs | MVP implemented |
+| WRA-RQ-008 | Analysis result model and text/JSON reports | `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs` | Analysis, text report, JSON report, and CLI smoke tests pass | Pass/fail report is actionable for humans and automation | Report docs | MVP implemented |
+| WRA-RQ-009 | CLI analysis command | `crates/wra-cli/src/main.rs` | Workspace build, CLI unit tests, and CLI smoke commands pass | User can run local CSV analysis from config or explicit flags | README usage | MVP implemented |
+| WRA-RQ-010 | Test and example fixtures | `examples/`, `tests/fixtures/` | Cargo tests and file inspection | Contributors have reproducible examples | CI logs later | MVP implemented |
+| WRA-RQ-011 | Raw data preservation decision | `docs/architecture.md`, `crates/wra-core/src/filter.rs` | Filter tests confirm source waveform is unchanged | Raw and transformed data remain distinguishable | Docs later | MVP implemented |
+| WRA-RQ-012 | Open-source repository files and MIT license decision | README, LICENSE, templates, CI, `decisions/ADR-002-license-assumption.md` | File inspection and release readiness review | Contributors can understand workflow | Repository publication | Implemented; publication gate approved pending execution |

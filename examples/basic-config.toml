@@ -1,0 +1,23 @@
+# Example config for `wra analyze --config`.
+
+[input]
+time_column = "time"
+channels = ["input_v", "output_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "moving_average"
+window_samples = 2
+
+[[criteria]]
+id = "input_min_voltage"
+type = "minimum_voltage"
+channel = "input_v"
+threshold_v = 0.0
+
+[[criteria]]
+id = "input_max_voltage"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
