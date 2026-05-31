@@ -18,6 +18,8 @@ M6 review update: M6 adds measurement-engine docs; M6-003 adds report measuremen
 
 M7 review update: M7 adds criteria DSL runtime, parity, invalid-config, migration, schema, and report evidence documentation while preserving legacy config compatibility and excluding shorthand units, expressions, plugins, GUI, DAQ, RTOS expansion, hardware qualification, and certification scope.
 
+DOCS-001 review update: Issue #119 expands the main README into a product-level guide that explains the development workflow, repository layout, commands, configs, criteria, reports, plotting, rule packages, embedded boundaries, validation assets, and contribution process with real examples and explicit non-goals.
+
 ## Evidence
 
 | Artifact | Result |
@@ -48,21 +50,22 @@ M7 review update: M7 adds criteria DSL runtime, parity, invalid-config, migratio
 | M6-003 report schema migration docs and pipeline report | Pass |
 | M6 completion plotting, criteria DSL, measurement validation, and pipeline docs | Pass |
 | M7 criteria DSL migration, schema, report evidence, parity, invalid-config, and pipeline docs | Pass |
+| DOCS-001 expanded README product guide and pipeline report | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, traceability, current-state, and M4/M5/M3/M6/M7 follow-up documentation exist and are human-readable.
-- Residual risk: API docs, richer visual-output examples, downstream schema migration feedback, embedded target build docs, and automated Markdown link checking are still thin.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, traceability, current-state, and M4/M5/M3/M6/M7/DOCS-001 follow-up documentation exist and are human-readable.
+- Residual risk: API docs, external reader feedback, embedded target build docs, automated README example refresh, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
 ## Hand-Off Note
 
 Role: Documentation Engineer
 Goal: Confirm MVP docs are accurate and readable after the validated-MVP feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, criteria DSL docs, embedded docs, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
-Known gaps: Add API docs, richer visual-output examples, downstream schema migration feedback, embedded target build docs, and automated docs/link checking later.
+Known gaps: Add API docs, external reader feedback, embedded target build docs, automated README example refresh, and automated docs/link checking later.
 Next recommended step: Continue milestone issue review after M7 completion.

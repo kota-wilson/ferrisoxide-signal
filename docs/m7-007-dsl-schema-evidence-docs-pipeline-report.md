@@ -10,7 +10,7 @@ Issue: #61, `M7-007 Add DSL schema reference and report evidence notes`
 
 Pull request: Pending.
 
-Status: Implemented and locally validated; PR/CI pending.
+Status: Implemented and merged through PR #105; issue #61 closed.
 
 ## Scope
 
@@ -207,6 +207,6 @@ Role: Documentation Engineer
 Goal: Complete M7-007 / issue #61.
 Files changed: `docs/criteria-dsl.md`, `docs/report-schema.md`, `docs/documentation-review.md`, requirements, traceability, risk register, project state, validation log, and this report.
 Checks run: Documentation inspection; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Implemented and locally validated; PR pending.
+Status: Implemented and merged through PR #105; issue #61 closed.
 Known gaps: Milestone #7 closure and next issue selection remain after PR merge.
-Next recommended step: Run full validation, open PR for #61, wait for required CI, merge, then refresh the open issue queue.
+Next recommended step: Keep schema evidence docs current when report or DSL schema behavior changes.

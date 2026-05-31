@@ -271,10 +271,10 @@ Still out of scope for this command:
 
 The format is validated by parse-testing `rules.toml` and `rules.json` into `ferrisoxide-rule-schema::RulePackage`, verifying that both examples describe the same package, and running `RulePackage::validate()` before export or execution.
 
-Implemented and remaining issue boundaries:
+Implemented issue boundaries:
 
-- M8-006 shared rule execution is implemented locally through `ferrisoxide-rule-engine`,
-- M8-007 no_std compatibility boundary is implemented locally through `ferrisoxide-rule-engine`,
+- M8-006 shared rule execution is implemented through `ferrisoxide-rule-engine`,
+- M8-007 no_std compatibility boundary is implemented through `ferrisoxide-rule-engine`,
 - M8-008 desktop-vs-embedded parity tests are implemented in `tests/parity/` and `crates/ferrisoxide-core/tests/rule_parity.rs`.
 
 The M8-003 validator and M8-005 checksum helpers return structured errors for:

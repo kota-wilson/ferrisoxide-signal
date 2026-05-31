@@ -1228,6 +1228,55 @@ Status: Pass locally; protected PR, CI, merge, issue #74 closure, and final M8 o
 Known gaps: Runtime package loaders, binary package serialization, signing, hardware execution, and certification evidence remain out of scope.
 Next recommended step: Open a protected-branch PR with `Fixes #74`, wait for required `rust` CI, merge, then confirm no open milestone #8 issues remain.
 
+## DOCS-001 README Product Guide Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing expanded README product guide
+
+Owner Role: Documentation Engineer / Test Automation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, Zephyr tooling, or new dependencies installed.
+- GitHub issue: #119, `DOCS-001 Expand README into complete product guide`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo run --quiet --bin ferrisoxide-signal -- --help` | Passed | CLI usage copied into README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Quick-start output copied into README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | ADC quantization output copied into README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Transient-event failure output copied into README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input tests/e2e/heated_actuator/input/failing_transient_event.csv --config tests/e2e/heated_actuator/configs/test-verification-config.toml --format text` | Passed | Heated actuator failure output copied into README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- export-rule-package --input tests/e2e/heated_actuator/input/passing_run.csv --config tests/e2e/heated_actuator/configs/test-verification-config.toml --output-dir /private/tmp/ferrisoxide-readme-rule-package-119 --package-name heated-actuator-qualification --package-version 0.1.0 --target controller_runtime` | Passed | Rule-package artifact set verified in temp space. |
+| `cargo fmt --check` | Passed | Rust formatting clean after README/docs edits. |
+| `cargo test --workspace` | Passed | 145 tests passed across CLI, core, embedded, measurements, plot, rule engine, rule schema, signal, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+| `perl -ne 'while (/\\[[^\\]]+\\]\\(([^)#]+)(?:#[^)]+)?\\)/g) { print "$1\\n" unless $1 =~ /^(https?:|mailto:)/ }' README.md | sort -u | while read target; do [ -e "$target" ] || echo "missing $target"; done` | Passed | README local Markdown link targets exist. |
+| `rg -n "<<<<<<<|=======|>>>>>>>" README.md docs project-state.md requirements.md traceability-matrix.md risk-register.md CHANGELOG.md` | Passed | No conflict markers found. |
+
+### Gate Decision
+
+- Gate: Testing Gate for DOCS-001.
+- Decision: Pass locally.
+- Reason: CLI examples used in README were generated from the current binary; formatting, workspace tests, clippy, whitespace check, README local-link scan, and conflict-marker scan passed.
+- Residual risk: Protected GitHub CI, PR merge, issue #119 closure, and automated Markdown link checking beyond README remain pending.
+- Owner for residual risk: Documentation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Documentation Engineer / Test Automation Engineer
+Goal: Validate the expanded README product guide and supporting documentation review artifacts.
+Files changed: README, docs pipeline report, documentation review, validation log, requirements, traceability, risk register, project state, and changelog.
+Checks run: CLI example commands, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, README local-link scan, and conflict-marker scan.
+Status: Pass locally.
+Known gaps: Automated Markdown link checking beyond the README remains future work.
+Next recommended step: Open the protected-branch PR with `Fixes #119`, wait for required CI, then merge only after checks pass.
+
 ## M8 Completion Release Update
 
 Date: 2026-05-31

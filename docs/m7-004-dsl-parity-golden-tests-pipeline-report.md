@@ -10,7 +10,7 @@ Issue: #58, `M7-004 Add DSL legacy-parity golden JSON tests`
 
 Pull request: Pending.
 
-Status: Implemented and locally validated; PR/CI pending.
+Status: Implemented and merged through PR #102; issue #58 closed.
 
 ## Scope
 
@@ -210,6 +210,6 @@ Role: Test Automation Engineer
 Goal: Complete M7-004 / issue #58.
 Files changed: DSL parity configs, criteria-engine tests, parity evidence docs, requirements, traceability, risk register, project state, and this report.
 Checks run: `cargo test -p ferrisoxide-core --test criteria_engine`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Implemented and locally validated; PR pending.
+Status: Implemented and merged through PR #102; issue #58 closed.
 Known gaps: #59 invalid-config matrix and #60/#61 docs remain open.
-Next recommended step: Run full validation, open PR for #58, wait for required CI, merge, then continue issue #59.
+Next recommended step: Keep DSL parity goldens current when legacy or DSL report evidence changes.

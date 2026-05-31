@@ -10,7 +10,7 @@ Issue: #59, `M7-005 Add invalid DSL config validation tests`
 
 Pull request: Pending.
 
-Status: Implemented and locally validated; PR/CI pending.
+Status: Implemented and merged through PR #103; issue #59 closed.
 
 ## Scope
 
@@ -210,6 +210,6 @@ Role: Test Automation Engineer / Core Software Engineer
 Goal: Complete M7-005 / issue #59.
 Files changed: `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, invalid DSL fixtures, requirements, traceability, risk register, project state, validation log, and this report.
 Checks run: `cargo test -p ferrisoxide-core config::tests -- --nocapture`; `cargo test -p ferrisoxide-cli invalid_config_semantics_return_clear_errors`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Implemented and locally validated; PR pending.
+Status: Implemented and merged through PR #103; issue #59 closed.
 Known gaps: #60 engineering examples/migration docs and #61 schema/report evidence notes remain open.
-Next recommended step: Run full validation, open PR for #59, wait for required CI, merge, then continue issue #60.
+Next recommended step: Keep invalid-config coverage current as DSL syntax expands.

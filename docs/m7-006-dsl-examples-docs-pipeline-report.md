@@ -10,7 +10,7 @@ Issue: #60, `M7-006 Add engineering DSL examples and migration docs`
 
 Pull request: Pending.
 
-Status: Implemented and locally validated; PR/CI pending.
+Status: Implemented and merged through PR #104; issue #60 closed.
 
 ## Scope
 
@@ -208,6 +208,6 @@ Role: Documentation Engineer
 Goal: Complete M7-006 / issue #60.
 Files changed: README, `examples/basic-dsl-config.toml`, `docs/criteria-dsl-migration.md`, `docs/criteria-dsl.md`, `docs/usage-mvp.md`, CLI tests, requirements, traceability, risk register, project state, validation log, and this report.
 Checks run: CLI smoke for `examples/basic-dsl-config.toml`; `cargo test -p ferrisoxide-cli runs_analysis_with_dsl_config_and_text_output`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Implemented and locally validated; PR pending.
+Status: Implemented and merged through PR #104; issue #60 closed.
 Known gaps: #61 schema reference and report evidence notes remain open.
-Next recommended step: Run full validation, open PR for #60, wait for required CI, merge, then continue issue #61.
+Next recommended step: Keep DSL examples current when config syntax or report output changes.
