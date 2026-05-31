@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Prepare M3-RTOS-001 `wra-signal` for merge after M1-001 and v0.2.0 landed on `main`.
+Prepare the domain end-user design review for merge after M1-001, v0.2.0, and M3-RTOS-001 landed on `main`.
 
 ## Current Stage
 
-M3-RTOS-001 branch is being rebased onto current `main`; M1-001 and v0.2.0 are already merged.
+End-user design review PR #23 is being rebased onto current `main`; M1-001, v0.2.0, and M3-RTOS-001 are already merged.
 
 ## Open Risks
 
@@ -22,6 +22,8 @@ M3-RTOS-001 branch is being rebased onto current `main`; M1-001 and v0.2.0 are a
   Owner: Security Engineer
 - Risk: Future RTOS adapters may accidentally pull desktop-only concerns such as CSV parsing, file I/O, or report generation into embedded crates.
   Owner: Software Architect
+- Risk: Users may overread MVP validation evidence as hardware validation, RTOS readiness, or certification support.
+  Owner: Project Coordinator / Documentation Engineer
 
 ## Pending Decisions
 
@@ -42,16 +44,16 @@ M3-RTOS-001 branch is being rebased onto current `main`; M1-001 and v0.2.0 are a
 
 Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Complete PR #21 rebase, rerun CI, and merge the M3-RTOS-001 embedded foundation.
+Expected deliverable: Complete PR #23 rebase, rerun CI, merge the end-user design review, and route accepted findings into follow-up issues.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
-- Current milestone: Dependency-reviewed MVP slice complete.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: `M3: RTOS / embedded no_std foundation`.
-- Next gate: CI and merge for PR #21.
+- Current milestone: Domain end-user design review.
+- Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
+- Next gate: CI and merge for PR #23.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -100,10 +102,10 @@ Expected deliverable: Complete PR #21 rebase, rerun CI, and merge the M3-RTOS-00
 | M1-001 Requirements Gate | Pass | Issue #1 acceptance criteria captured in `docs/m1-001-csv-parser-edge-cases.md` | Software Architect |
 | M1-001 Implementation Gate | Pass | `crates/wra-core/src/csv.rs`, `docs/implementation-report.md` | Test Automation Engineer |
 | M1-001 Testing Gate | Pass | `docs/validation-log.md`; targeted parser tests, workspace tests, fmt, and clippy passed | Project Orchestrator |
-| M1-001 Release Gate | Pass | PR #22 opened and `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/22` | Community Engineering Lead |
+| M1-001 Release Gate | Pass | PR #22 merged after `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/22` | Community Engineering Lead |
 | M1-001 Community Gate | Pass | PR #22 body links issue #1 and validation commands | Project Coordinator |
 | v0.2.0 Planning Gate | Pass | M2 issues #8-#15 created under `v0.2.0: waveform criteria engine` | Core Software Engineer |
-| v0.2.0 Implementation Gate | Pass in branch | `docs/implementation-report.md`, `traceability-matrix.md` | Test Automation Engineer |
+| v0.2.0 Implementation Gate | Pass | PR #16 merged with waveform fixtures, criteria, config validation, and golden JSON tests | Test Automation Engineer |
 | M3 Issue Planning Gate | Pass | M3 milestone plus issues #17-#20 created | Project Orchestrator |
 | M3-RTOS-001 Requirements Gate | Pass | `requirements.md`, `traceability-matrix.md` include WRA-RQ-017 | Software Architect |
 | M3-RTOS-001 Architecture Gate | Pass | `docs/embedded-roadmap.md`, `crates/wra-signal/no_std-design.md` | Core Software Engineer |
@@ -116,9 +118,10 @@ Expected deliverable: Complete PR #21 rebase, rerun CI, and merge the M3-RTOS-00
 | M3-RTOS-001 Documentation Gate | Pass | `README.md`, `CHANGELOG.md`, `docs/embedded-roadmap.md`, `crates/wra-signal/README.md` | Code Reviewer |
 | M3-RTOS-001 Code Review Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Evaluation Engineer |
 | M3-RTOS-001 Evaluation Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Release Engineer |
-| M3-RTOS-001 Release Gate | Pass | PR #21 opened: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21` | Community Engineering Lead |
+| M3-RTOS-001 Release Gate | Pass | PR #21 merged after `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21` | Community Engineering Lead |
 | M3-RTOS-001 Community Gate | Pass | PR #21 body links issue #20 and follow-up issues #17-#19 | Project Coordinator |
 | M3-RTOS-001 Retrospective Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Project Orchestrator |
+| Domain End-User Review Gate | Pass | `docs/end-user-design-review.md` | Documentation Engineer |
 
 ## Update Rules
 
