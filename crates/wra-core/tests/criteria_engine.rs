@@ -170,3 +170,17 @@ fn validation_contact_bounce_environmental_case_matches_expected_report() {
             .trim_end()
     );
 }
+
+#[test]
+fn validation_measurement_engine_known_answer_matches_expected_report() {
+    let rendered = render_report(
+        "validation/measurement_engine/known_answer_measurements.csv",
+        include_str!("../../../validation/measurement_engine/known_answer_measurements.csv"),
+        include_str!("../../../validation/measurement_engine/known_answer_measurements.toml"),
+    );
+
+    assert_eq!(
+        rendered,
+        include_str!("../../../validation/reports/measurement_engine_known_answer.json").trim_end()
+    );
+}

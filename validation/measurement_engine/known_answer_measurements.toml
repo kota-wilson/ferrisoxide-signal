@@ -1,0 +1,65 @@
+[input]
+time_column = "time_s"
+channels = ["control_v", "supply_v", "rise_v", "fall_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "MEAS-KA-001"
+acquisition_notes = "Synthetic known-answer fixture for measurement-engine validation."
+environment = "software validation fixture"
+operator = "wra validation suite"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0005
+
+[[criteria]]
+id = "control_transition_count"
+type = "state_transitions"
+channel = "control_v"
+threshold_v = 2.5
+expected_count = 4
+
+[[criteria]]
+id = "control_high_pulse_width"
+type = "pulse_width"
+channel = "control_v"
+state = "high"
+threshold_v = 2.5
+min_width_s = 0.0015
+
+[[criteria]]
+id = "control_stable_low"
+type = "stable_state_duration"
+channel = "control_v"
+state = "low"
+threshold_v = 2.5
+min_duration_s = 0.002
+
+[[criteria]]
+id = "supply_dropout_tolerance"
+type = "transient_event"
+event_kind = "dropout"
+channel = "supply_v"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.0015
+
+[[criteria]]
+id = "rise_time_tolerance"
+type = "rise_fall_time"
+channel = "rise_v"
+direction = "rise"
+low_threshold_v = 0.5
+high_threshold_v = 4.5
+max_duration_s = 0.0015
+
+[[criteria]]
+id = "fall_time_tolerance"
+type = "rise_fall_time"
+channel = "fall_v"
+direction = "fall"
+low_threshold_v = 0.5
+high_threshold_v = 4.5
+max_duration_s = 0.0015

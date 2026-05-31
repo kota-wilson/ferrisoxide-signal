@@ -505,3 +505,57 @@ Checks run: See `docs/validation-log.md`.
 Status: Pass locally; ready for final checks, PR, CI, and merge.
 Known gaps: Annotated SVG overlays, criteria DSL direction, and measurement validation fixtures remain tracked by issues #44, #46, and #47.
 Next recommended step: Final validation and protected-branch PR for issue #45.
+
+## M6 Completion Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- GitHub issue #44, `M6-002 Add annotated SVG criteria evidence overlays`.
+- GitHub issue #46, `M6-004 Document criteria DSL direction for engineering measurements`.
+- GitHub issue #47, `M6-005 Add measurement-engine validation fixtures`.
+- Existing report measurement schema from M6-003.
+
+### Work Performed
+
+- What: Added 2D SVG evidence overlays, documented criteria DSL direction, and added known-answer measurement validation fixtures.
+- Where: `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `validation/measurement_engine/`, `validation/reports/measurement_engine_known_answer.json`, `docs/criteria-dsl.md`, README, plotting docs, requirements, risk, traceability, and validation docs.
+- How: Derived `EvidenceOverlay` from `AnalysisResult` and `MeasurementRecord`; let `wra plot --config` run existing config/filter/criteria evaluation before rendering overlays; added a synthetic measurement fixture with independently documented expected values and exact JSON report comparison; documented future DSL concepts without changing runtime config parsing.
+- Why: SVG plots should become engineering evidence aids, DSL expansion needs auditable direction, and measurement primitives need known-answer coverage before broader evidence work.
+
+### Behavior Added
+
+- 2D SVG evidence status text.
+- Voltage threshold overlay lines.
+- Failed-criterion markers and labels with sample index, timestamp, channel, measured value, and required value.
+- `wra plot --config` evidence overlay workflow.
+- Known-answer validation fixture covering transition count, pulse width, transient duration, stable-state duration, rise time, fall time, tolerance expectations, and time-axis assumptions.
+- Criteria DSL direction documentation with operator vocabulary and explicit-unit policy.
+
+### Out Of Scope Preserved
+
+- No GUI, bitmap, web, DAQ, plugin runtime, RTOS expansion, hardware qualification, or certification claim.
+- No new criteria DSL parser in M6 completion.
+- No 3D evidence overlays in M6 completion.
+- No third-party dependency added.
+
+### Gate Decision
+
+- Gate: M6 Completion Implementation Gate.
+- Decision: Pass.
+- Reason: Issues #44, #46, and #47 have focused code/docs/fixtures/tests while preserving scope boundaries.
+- Residual risk: Future visual regression and DSL parser work require separate issues and gates.
+- Owner for residual risk: Verification and Validation Engineer / Software Architect.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Complete remaining M6 issues #44, #46, and #47.
+Files changed: plotting, CLI, validation fixtures/reports, criteria DSL docs, README, docs, requirements, risk, traceability, and project state.
+Checks run: See `docs/validation-log.md`.
+Status: Pass locally; ready for final checks, PR, CI, and merge.
+Known gaps: Visual regression automation, external capture corpora, external visual review, and future DSL parser implementation remain out of scope.
+Next recommended step: Final validation and protected-branch PR for remaining M6 issues.

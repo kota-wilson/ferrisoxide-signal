@@ -134,6 +134,19 @@ Gate: Release Gate for M6-003.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release, annotated SVG evidence, hardware validation, or certification artifact.
 
+## M6 Completion Release Update
+
+- PR: pending.
+- Issues: #44 `M6-002 Add annotated SVG criteria evidence overlays`; #46 `M6-004 Document criteria DSL direction for engineering measurements`; #47 `M6-005 Add measurement-engine validation fixtures`.
+- Milestone: `v0.4.0: Measurement & Evidence Engine`
+- Scope: 2D SVG evidence overlays, criteria DSL direction docs, and measurement-engine known-answer fixtures.
+- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; PR and required `rust` CI pending.
+- Dependency evidence: no new third-party dependencies.
+
+Gate: Release Gate for M6 completion.
+Decision: Pending PR/CI/merge.
+Residual risk: This is branch evidence until protected-branch CI passes and the PR is merged.
+
 ## Hand-Off Note
 
 Role: Release Engineer / GitHub Maintainer Specialist

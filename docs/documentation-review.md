@@ -14,7 +14,7 @@ M5 review update: M5 adds optional desktop SVG plotting docs while preserving no
 
 M3 review update: M3 follow-up work adds embedded adapter, QEMU proof, and Zephyr feasibility docs while preserving no-SDK, no-HAL, no-unsafe-FFI, no-DAQ, no-production-RTOS, and no-certification scope.
 
-M6 review update: M6 adds measurement-engine docs; M6-003 adds report measurement schema docs while deferring annotated SVG, DSL, batch, plugin, GUI, DAQ, RTOS-expansion, and certification scope.
+M6 review update: M6 adds measurement-engine docs; M6-003 adds report measurement schema docs; M6 completion adds annotated SVG, DSL direction, and measurement validation fixture docs while deferring batch, plugin, GUI, DAQ, RTOS-expansion, and certification scope.
 
 ## Evidence
 
@@ -44,12 +44,13 @@ M6 review update: M6 adds measurement-engine docs; M6-003 adds report measuremen
 | `crates/wra-measurements/README.md` | Pass |
 | M6 README, architecture, dependency, risk, and traceability updates | Pass |
 | M6-003 report schema migration docs and pipeline report | Pass |
+| M6 completion plotting, criteria DSL, measurement validation, and pipeline docs | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, traceability, current-state, and M4/M5/M3/M6 follow-up documentation exist and are human-readable.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction, traceability, current-state, and M4/M5/M3/M6 follow-up documentation exist and are human-readable.
 - Residual risk: API docs, a formal config schema reference, richer visual-output examples, downstream schema migration feedback, embedded target build docs, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 

@@ -9,6 +9,7 @@ The validation area is not a production qualification package and does not provi
 | Folder | Purpose |
 |---|---|
 | `known_answer/` | Waveforms with precomputed expected measurements. |
+| `measurement_engine/` | Known-answer fixtures that exercise reusable measurement primitives. |
 | `environmental_cases/` | Environmental-style examples with stated intent and limits. |
 | `filter_response/` | Filter behavior fixtures and equation-backed expected outputs. |
 | `reports/` | Expected reports generated from validation fixtures. |

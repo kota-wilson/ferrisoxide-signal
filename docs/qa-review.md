@@ -62,6 +62,16 @@ No blocking QA defects found for the M6-003 report measurement schema branch. Th
 - Exact golden JSON reports updated and compared.
 - Schema migration documented in `docs/report-schema.md`.
 
+## M6 Completion Update
+
+No blocking QA defects found for the M6 completion branch. The review scope includes:
+
+- 2D SVG evidence overlays with pass/fail status, threshold labels, and failed-criterion markers.
+- `wra plot --config` CLI behavior.
+- Measurement-engine known-answer fixture and exact JSON comparison.
+- Criteria DSL direction documentation without runtime syntax changes.
+- Scope boundaries excluding GUI, DAQ, plugin runtime, RTOS expansion, hardware qualification, and certification claims.
+
 ## Checks
 
 | Check | Evidence | Result |
@@ -76,13 +86,14 @@ No blocking QA defects found for the M6-003 report measurement schema branch. Th
 | M3 RTOS follow-up validation | `docs/validation-log.md` M3 adapter/prototype section | Pass |
 | M6 measurement validation | `docs/validation-log.md` M6 section | Pass |
 | M6-003 report schema validation | `docs/validation-log.md` M6-003 section | Pass locally; final CI pending |
+| M6 completion validation | `docs/validation-log.md` M6 completion section | Pass locally; final CI pending |
 
 ## Gate Decision
 
 - Gate: QA Gate.
 - Decision: Pass.
-- Reason: No blocking defects found in local, CI, M4 validation, M5 plotting, M3 adapter/prototype evidence, M6 measurement extraction evidence, or M6-003 report schema evidence.
-- Residual risk: Additional malformed CSV dialect coverage, external capture validation, downstream report-schema migration feedback, annotated SVG evidence review, visual regression coverage, ARM64 target execution, and Zephyr SDK validation remain future work.
+- Reason: No blocking defects found in local, CI, M4 validation, M5 plotting, M3 adapter/prototype evidence, M6 measurement extraction evidence, M6-003 report schema evidence, or M6 completion evidence.
+- Residual risk: Additional malformed CSV dialect coverage, external capture validation, downstream report-schema migration feedback, external SVG evidence review, visual regression coverage, ARM64 target execution, and Zephyr SDK validation remain future work.
 - Next owner: Security Engineer.
 
 ## Hand-Off Note
@@ -92,5 +103,5 @@ Goal: Review MVP repository quality for the initial public publication gate.
 Files changed: `docs/qa-review.md`
 Checks run: Reviewed local and CI validation evidence.
 Status: Pass.
-Known gaps: Negative-path matrix, downstream schema migration feedback, annotated SVG evidence review, visual regression coverage, target execution, and RTOS SDK validation are intentionally light.
+Known gaps: Negative-path matrix, downstream schema migration feedback, external SVG evidence review, visual regression coverage, target execution, and RTOS SDK validation are intentionally light.
 Next recommended step: Security review.

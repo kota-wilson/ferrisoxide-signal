@@ -4,8 +4,10 @@ use std::fmt;
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
+use plotters::coord::types::RangedCoordf64;
 use plotters::coord::Shift;
 use plotters::prelude::*;
+use wra_core::analysis::{AnalysisResult, MeasurementRecord, Outcome};
 use wra_core::model::{Channel, Waveform};
 
 const DEFAULT_WIDTH: u32 = 1024;
@@ -17,6 +19,7 @@ pub struct PlotOptions {
     pub title: String,
     pub channels: Vec<String>,
     pub z_channel: Option<String>,
+    pub evidence_overlays: Vec<EvidenceOverlay>,
     pub width: u32,
     pub height: u32,
 }
@@ -28,10 +31,73 @@ impl PlotOptions {
             title: "Waveform Plot".to_string(),
             channels,
             z_channel: None,
+            evidence_overlays: Vec::new(),
             width: DEFAULT_WIDTH,
             height: DEFAULT_HEIGHT,
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EvidenceOverlay {
+    pub criterion_id: String,
+    pub measurement_id: String,
+    pub outcome: Outcome,
+    pub channel: String,
+    pub measured_value: f64,
+    pub required_value: f64,
+    pub unit: String,
+    pub sample_index: usize,
+    pub timestamp: f64,
+    pub threshold_v: Option<f64>,
+    pub low_threshold_v: Option<f64>,
+    pub high_threshold_v: Option<f64>,
+}
+
+impl EvidenceOverlay {
+    fn threshold_lines(&self) -> Vec<(&'static str, f64)> {
+        let mut lines = Vec::new();
+        if let Some(threshold_v) = self.threshold_v {
+            lines.push(("threshold", threshold_v));
+        } else if self.unit == "V" {
+            lines.push(("required", self.required_value));
+        }
+        if let Some(low_threshold_v) = self.low_threshold_v {
+            lines.push(("low", low_threshold_v));
+        }
+        if let Some(high_threshold_v) = self.high_threshold_v {
+            lines.push(("high", high_threshold_v));
+        }
+        lines
+    }
+}
+
+pub fn evidence_overlays(
+    measurements: &[MeasurementRecord],
+    results: &[AnalysisResult],
+) -> Vec<EvidenceOverlay> {
+    results
+        .iter()
+        .filter_map(|result| {
+            let measurement = measurements
+                .iter()
+                .find(|measurement| measurement.id == result.measurement_id)?;
+            Some(EvidenceOverlay {
+                criterion_id: result.criterion_id.clone(),
+                measurement_id: result.measurement_id.clone(),
+                outcome: result.outcome,
+                channel: result.channel.clone(),
+                measured_value: result.measured_value,
+                required_value: result.required_value,
+                unit: result.unit.clone(),
+                sample_index: result.sample_index,
+                timestamp: result.timestamp,
+                threshold_v: measurement.method_context.threshold_v,
+                low_threshold_v: measurement.method_context.low_threshold_v,
+                high_threshold_v: measurement.method_context.high_threshold_v,
+            })
+        })
+        .collect()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -129,7 +195,7 @@ where
         .margin(24)
         .x_label_area_size(40)
         .y_label_area_size(56)
-        .build_cartesian_2d(x_range, y_range)
+        .build_cartesian_2d(x_range.clone(), y_range.clone())
         .map_err(render_error)?;
 
     chart
@@ -154,6 +220,8 @@ where
             .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
     }
 
+    draw_evidence_overlays(&mut chart, waveform, options, &x_range, &y_range)?;
+
     chart
         .configure_series_labels()
         .border_style(BLACK)
@@ -162,6 +230,112 @@ where
         .map_err(render_error)?;
 
     Ok(())
+}
+
+fn draw_evidence_overlays<DB>(
+    chart: &mut ChartContext<'_, DB, Cartesian2d<RangedCoordf64, RangedCoordf64>>,
+    waveform: &Waveform,
+    options: &PlotOptions,
+    x_range: &Range<f64>,
+    y_range: &Range<f64>,
+) -> Result<()>
+where
+    DB: DrawingBackend,
+    DB::ErrorType: fmt::Debug,
+{
+    let overlays = options
+        .evidence_overlays
+        .iter()
+        .filter(|overlay| {
+            options
+                .channels
+                .iter()
+                .any(|channel| channel == &overlay.channel)
+        })
+        .collect::<Vec<_>>();
+    if overlays.is_empty() {
+        return Ok(());
+    }
+
+    let status = if overlays
+        .iter()
+        .any(|overlay| overlay.outcome == Outcome::Fail)
+    {
+        ("Evidence status: FAIL", &RED)
+    } else {
+        ("Evidence status: PASS", &GREEN)
+    };
+    let x_span = x_range.end - x_range.start;
+    let y_span = y_range.end - y_range.start;
+    chart
+        .draw_series(std::iter::once(Text::new(
+            status.0,
+            (x_range.start + x_span * 0.02, y_range.end - y_span * 0.06),
+            ("sans", 14).into_font().color(status.1),
+        )))
+        .map_err(render_error)?;
+
+    for overlay in overlays {
+        for (name, value) in overlay.threshold_lines() {
+            if !(y_range.start..=y_range.end).contains(&value) {
+                continue;
+            }
+            chart
+                .draw_series(LineSeries::new(
+                    vec![(x_range.start, value), (x_range.end, value)],
+                    RED.mix(0.25),
+                ))
+                .map_err(render_error)?;
+            chart
+                .draw_series(std::iter::once(Text::new(
+                    format!("{} {} {:.6} V", overlay.criterion_id, name, value),
+                    (x_range.start + x_span * 0.02, value),
+                    ("sans", 11).into_font().color(&RED),
+                )))
+                .map_err(render_error)?;
+        }
+
+        if overlay.outcome != Outcome::Fail {
+            continue;
+        }
+        let Some(marker_y) = marker_sample_value(waveform, overlay) else {
+            continue;
+        };
+        chart
+            .draw_series(std::iter::once(Circle::new(
+                (overlay.timestamp, marker_y),
+                5,
+                RED.filled(),
+            )))
+            .map_err(render_error)?;
+        chart
+            .draw_series(std::iter::once(Text::new(
+                format!(
+                    "FAIL {} sample_index={} timestamp={:.6} channel={} measured={:.6} {} required={:.6} {}",
+                    overlay.criterion_id,
+                    overlay.sample_index,
+                    overlay.timestamp,
+                    overlay.channel,
+                    overlay.measured_value,
+                    overlay.unit,
+                    overlay.required_value,
+                    overlay.unit
+                ),
+                (overlay.timestamp, marker_y),
+                ("sans", 11).into_font().color(&RED),
+            )))
+            .map_err(render_error)?;
+    }
+
+    Ok(())
+}
+
+fn marker_sample_value(waveform: &Waveform, overlay: &EvidenceOverlay) -> Option<f64> {
+    waveform
+        .channel(&overlay.channel)
+        .and_then(|channel| channel.samples.get(overlay.sample_index))
+        .copied()
+        .filter(|value| value.is_finite())
 }
 
 fn draw_3d<DB>(
@@ -364,6 +538,31 @@ mod tests {
         assert!(svg.contains("<svg"));
         assert!(svg.contains("Waveform Plot"));
         assert!(svg.contains("input_v"));
+    }
+
+    #[test]
+    fn renders_evidence_overlays_on_2d_svg() {
+        let mut options = PlotOptions::new("unused.svg", vec!["input_v".to_string()]);
+        options.evidence_overlays = vec![EvidenceOverlay {
+            criterion_id: "input_max_voltage".to_string(),
+            measurement_id: "input_max_voltage_measurement".to_string(),
+            outcome: Outcome::Fail,
+            channel: "input_v".to_string(),
+            measured_value: 5.0,
+            required_value: 4.0,
+            unit: "V".to_string(),
+            sample_index: 2,
+            timestamp: 0.002,
+            threshold_v: None,
+            low_threshold_v: None,
+            high_threshold_v: None,
+        }];
+
+        let svg = render_svg_string(&waveform(), &options).expect("plot should render");
+
+        assert!(svg.contains("Evidence status: FAIL"));
+        assert!(svg.contains("input_max_voltage required 4.000000 V"));
+        assert!(svg.contains("FAIL input_max_voltage sample_index=2"));
     }
 
     #[test]

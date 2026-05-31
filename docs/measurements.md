@@ -39,6 +39,12 @@ CSV
 | Rise time | `measure_rise_time` | Start/end index, start/end timestamp, duration. |
 | Fall time | `measure_fall_time` | Start/end index, start/end timestamp, duration. |
 
+## Validation Fixtures
+
+The M6-005 known-answer fixture in `validation/measurement_engine/` covers state transition count, pulse width, transient/dropout duration, stable-state duration, rise time, fall time, time tolerance behavior, and strictly increasing time-axis assumptions.
+
+Expected values are documented in `validation/measurement_engine/expected-measurements.md` and compared exactly through `validation/reports/measurement_engine_known_answer.json`.
+
 ## Report Evidence
 
 M6-003 separates measured evidence from criteria decisions in report output.

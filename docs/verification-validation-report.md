@@ -74,12 +74,22 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | Confidence notes | Existing `evidence_context.confidence_notes` remain in text and JSON output | Pass |
 | Scope control | Pipeline report excludes annotated SVG, DSL, GUI, DAQ, RTOS expansion, hardware qualification, and certification claims | Pass |
 
+## M6 Completion Update
+
+| M6 Completion Area | Evidence | Result |
+|---|---|---|
+| Annotated SVG evidence overlays | `wra_plot::tests::renders_evidence_overlays_on_2d_svg`, CLI annotated SVG smoke output | Pass |
+| Criteria DSL direction | `docs/criteria-dsl.md` defines concepts, operators, explicit units, compatibility, and non-goals | Pass |
+| Measurement validation fixtures | `validation/measurement_engine/expected-measurements.md` and exact JSON test | Pass |
+| Requirement traceability | WRA-RQ-033 through WRA-RQ-035 in `requirements.md` and `traceability-matrix.md` | Pass |
+| Scope control | No GUI, bitmap, web, DAQ, plugin, RTOS expansion, hardware qualification, or certification claim | Pass |
+
 ## Gate Decision
 
 - Gate: V&V Gate.
 - Decision: Pass.
-- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, M5 adds optional desktop SVG plotting evidence, M3 follow-up work adds embedded adapter/prototype evidence, M6 extracts reusable measurement primitives, and M6-003 adds auditable report measurement records without overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
-- Residual risk: Filter numerical behavior, CSV dialect coverage, downstream schema migration feedback, annotated SVG evidence quality, hardware capture corpora, DAQ accuracy, visual regression coverage, ARM64 target execution, Zephyr SDK validation, RTOS timing behavior, and certification use need broader validation before production claims.
+- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, M5 adds optional desktop SVG plotting evidence, M3 follow-up work adds embedded adapter/prototype evidence, M6 extracts reusable measurement primitives, M6-003 adds auditable report measurement records, and M6 completion adds 2D SVG evidence overlays plus known-answer measurement validation without overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
+- Residual risk: Filter numerical behavior, CSV dialect coverage, downstream schema migration feedback, visual evidence usability, hardware capture corpora, DAQ accuracy, visual regression coverage, ARM64 target execution, Zephyr SDK validation, RTOS timing behavior, and certification use need broader validation before production claims.
 - Next owner: QA Engineer.
 
 ## Hand-Off Note
@@ -89,5 +99,5 @@ Goal: Confirm implemented behavior traces to requirements and user intent.
 Files changed: `docs/verification-validation-report.md`
 Checks run: Reviewed validation evidence in `docs/validation-log.md`.
 Status: Pass.
-Known gaps: No external hardware signal corpus, formal filter frequency-response validation, downstream schema migration feedback, annotated SVG evidence validation, DAQ validation, visual regression testing, ARM64 QEMU boot image, Zephyr SDK build, RTOS timing validation, or certification evidence yet.
+Known gaps: No external hardware signal corpus, formal filter frequency-response validation, downstream schema migration feedback, external visual evidence review, DAQ validation, visual regression testing, ARM64 QEMU boot image, Zephyr SDK build, RTOS timing validation, or certification evidence yet.
 Next recommended step: QA review.

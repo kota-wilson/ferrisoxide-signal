@@ -266,7 +266,7 @@ max_v = 5.0
 
 The quantizer clips samples outside the configured range, snaps in-range samples to the nearest ideal ADC code level, and keeps output samples in volts so normal voltage criteria can evaluate the digitized waveform. See [ADC quantization transform](docs/adc-quantization.md) for assumptions and limits.
 
-Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Measurement primitives are documented in [measurement engine](docs/measurements.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
+Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Measurement primitives are documented in [measurement engine](docs/measurements.md). Criteria DSL direction is documented in [criteria DSL direction](docs/criteria-dsl.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
 
 ## Plotting
 
@@ -289,6 +289,15 @@ cargo run --quiet --bin wra -- plot \
   --channels signal_v \
   --z-column temperature_c \
   --output three-axis.svg
+```
+
+Use `--config` for a 2D SVG plot with criteria evidence overlays:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input tests/fixtures/dropout_event.csv \
+  --config tests/configs/transient-event-dropout-fail.toml \
+  --output dropout-evidence.svg
 ```
 
 See [SVG plotting](docs/plotting.md) for scope, commands, and limits.

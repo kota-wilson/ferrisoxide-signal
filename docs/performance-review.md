@@ -67,12 +67,21 @@ M6-003 report schema work is validated as a report-shape change only:
 - JSON output is larger because measurement records and method context are explicit.
 - No large-report benchmark, batch-analysis throughput claim, DAQ timing claim, or certification performance claim is made.
 
+## M6 Completion Update
+
+M6 completion work is validated as small-fixture evidence rendering and known-answer validation only:
+
+- Evidence overlays add a bounded number of SVG line/text/marker elements derived from criteria results.
+- Known-answer measurement fixtures are small and deterministic.
+- DSL work is documentation-only.
+- No large annotated-plot benchmark, batch-analysis throughput claim, DAQ timing claim, or certification performance claim is made.
+
 ## Gate Decision
 
 - Gate: Performance Gate.
 - Decision: Pass for MVP and M4 baseline measurement.
-- Reason: The current implementation handles example fixtures, M4 records a repeatable large-CSV baseline, M5 renders small fixture SVGs, M3 adds only small no_std adapter/prototype paths, M6 uses allocation-free measurement primitives, M6-003 adds only per-result report records, and the documentation avoids performance guarantees.
-- Residual risk: Memory profiling, streaming analysis, large-report benchmarks, large-plot benchmarks, batch-analysis benchmarks, cross-platform benchmarks, ARM64 target timing, RTOS scheduler timing, and DAQ throughput remain future work.
+- Reason: The current implementation handles example fixtures, M4 records a repeatable large-CSV baseline, M5 renders small fixture SVGs, M3 adds only small no_std adapter/prototype paths, M6 uses allocation-free measurement primitives, M6-003 adds only per-result report records, M6 completion adds small SVG annotation output and known-answer fixtures, and the documentation avoids performance guarantees.
+- Residual risk: Memory profiling, streaming analysis, large-report benchmarks, large annotated-plot benchmarks, batch-analysis benchmarks, cross-platform benchmarks, ARM64 target timing, RTOS scheduler timing, and DAQ throughput remain future work.
 - Next owner: Documentation Engineer.
 
 ## Hand-Off Note
@@ -82,5 +91,5 @@ Goal: Prevent unsupported performance claims for the initial publication gate.
 Files changed: `docs/performance-review.md`
 Checks run: Reviewed scope, README, and risk register.
 Status: Pass for MVP and M4 baseline.
-Known gaps: No memory profiler baseline, streaming redesign, large-report benchmark, large-plot benchmark, batch-analysis benchmark, ARM64 timing benchmark, RTOS timing validation, or cross-platform benchmark matrix yet.
+Known gaps: No memory profiler baseline, streaming redesign, large-report benchmark, large annotated-plot benchmark, batch-analysis benchmark, ARM64 timing benchmark, RTOS timing validation, or cross-platform benchmark matrix yet.
 Next recommended step: Documentation review.

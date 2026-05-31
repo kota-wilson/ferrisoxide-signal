@@ -9,3 +9,4 @@ Current expected reports:
 - `square_wave_tolerance.json`
 - `environmental_dropout_fail.json`
 - `environmental_contact_bounce_fail.json`
+- `measurement_engine_known_answer.json`
