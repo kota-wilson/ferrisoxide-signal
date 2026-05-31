@@ -28,6 +28,20 @@ fn render_report(input_name: &str, csv_input: &str, config_input: &str) -> Strin
     report.render_json_pretty().expect("json should render")
 }
 
+fn assert_legacy_and_dsl_reports_match(
+    input_name: &str,
+    csv_input: &str,
+    legacy_config_input: &str,
+    dsl_config_input: &str,
+    expected_json: &str,
+) {
+    let legacy = render_report(input_name, csv_input, legacy_config_input);
+    let dsl = render_report(input_name, csv_input, dsl_config_input);
+
+    assert_eq!(legacy, expected_json.trim_end());
+    assert_eq!(dsl, legacy);
+}
+
 #[test]
 fn clean_square_wave_matches_golden_report() {
     let rendered = render_report(
@@ -39,6 +53,17 @@ fn clean_square_wave_matches_golden_report() {
     assert_eq!(
         rendered,
         include_str!("../../../tests/golden/criteria_engine_pass.json").trim_end()
+    );
+}
+
+#[test]
+fn clean_square_wave_dsl_matches_legacy_golden_report() {
+    assert_legacy_and_dsl_reports_match(
+        "tests/fixtures/clean_square_wave.csv",
+        include_str!("../../../tests/fixtures/clean_square_wave.csv"),
+        include_str!("../../../tests/configs/criteria-engine-pass.toml"),
+        include_str!("../../../tests/configs/criteria-engine-pass-dsl.toml"),
+        include_str!("../../../tests/golden/criteria_engine_pass.json"),
     );
 }
 
@@ -57,6 +82,17 @@ fn dropout_transient_event_matches_golden_report() {
 }
 
 #[test]
+fn dropout_transient_event_dsl_matches_legacy_golden_report() {
+    assert_legacy_and_dsl_reports_match(
+        "tests/fixtures/dropout_event.csv",
+        include_str!("../../../tests/fixtures/dropout_event.csv"),
+        include_str!("../../../tests/configs/transient-event-dropout-fail.toml"),
+        include_str!("../../../tests/configs/transient-event-dropout-fail-dsl.toml"),
+        include_str!("../../../tests/golden/transient_event_dropout_fail.json"),
+    );
+}
+
+#[test]
 fn slow_rise_fall_matches_golden_report() {
     let rendered = render_report(
         "tests/fixtures/slow_rise_fall_signal.csv",
@@ -67,6 +103,17 @@ fn slow_rise_fall_matches_golden_report() {
     assert_eq!(
         rendered,
         include_str!("../../../tests/golden/slow_rise_fail.json").trim_end()
+    );
+}
+
+#[test]
+fn slow_rise_fall_dsl_matches_legacy_golden_report() {
+    assert_legacy_and_dsl_reports_match(
+        "tests/fixtures/slow_rise_fall_signal.csv",
+        include_str!("../../../tests/fixtures/slow_rise_fall_signal.csv"),
+        include_str!("../../../tests/configs/slow-rise-fail.toml"),
+        include_str!("../../../tests/configs/slow-rise-fail-dsl.toml"),
+        include_str!("../../../tests/golden/slow_rise_fail.json"),
     );
 }
 
@@ -184,6 +231,17 @@ fn validation_measurement_engine_known_answer_matches_expected_report() {
     assert_eq!(
         rendered,
         include_str!("../../../validation/reports/measurement_engine_known_answer.json").trim_end()
+    );
+}
+
+#[test]
+fn validation_measurement_engine_dsl_matches_legacy_golden_report() {
+    assert_legacy_and_dsl_reports_match(
+        "validation/measurement_engine/known_answer_measurements.csv",
+        include_str!("../../../validation/measurement_engine/known_answer_measurements.csv"),
+        include_str!("../../../validation/measurement_engine/known_answer_measurements.toml"),
+        include_str!("../../../validation/measurement_engine/known_answer_measurements_dsl.toml"),
+        include_str!("../../../validation/reports/measurement_engine_known_answer.json"),
     );
 }
 

@@ -22,6 +22,46 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M7-004 DSL Parity Golden Tests Branch
+
+Current as of the M7-004 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-core --test criteria_engine` | Passed | 15 criteria-engine integration tests passed, including exact DSL/legacy/golden JSON parity cases. |
+| `cargo fmt` | Passed | Rust sources formatted after parity-test edits. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 101 tests passed: 10 CLI, 51 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `clean_square_wave_dsl_matches_legacy_golden_report` | DSL clean-square-wave report matches the legacy report and `criteria_engine_pass.json` exactly. |
+| `dropout_transient_event_dsl_matches_legacy_golden_report` | DSL dropout report matches the legacy report and `transient_event_dropout_fail.json` exactly. |
+| `slow_rise_fall_dsl_matches_legacy_golden_report` | DSL rise/fall report matches the legacy report and `slow_rise_fail.json` exactly. |
+| `validation_measurement_engine_dsl_matches_legacy_golden_report` | DSL measurement-engine known-answer report matches the legacy report and validation golden JSON exactly. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M7-004.
+- Decision: Pass locally.
+- Reason: Formatting, focused parity tests, workspace tests, clippy, and whitespace checks pass; existing golden reports remain unchanged while DSL configs render identical JSON.
+- Residual risk: Protected GitHub CI is pending until PR creation; invalid-config DSL matrix remains #59.
+- Owner for residual risk: GitHub Maintainer Specialist / Test Automation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate exact DSL/legacy JSON parity for issue #58.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo test -p ferrisoxide-core --test criteria_engine`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: #59 invalid-config matrix and #60/#61 user-facing docs remain open.
+Next recommended step: Open the M7-004 PR with `Fixes #58`.
+
 ## M7-003 DSL Criteria Evaluation Branch
 
 Current as of the M7-003 branch on 2026-05-31.
