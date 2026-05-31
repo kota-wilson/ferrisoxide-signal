@@ -1,0 +1,99 @@
+[input]
+time_column = "time_s"
+channels = ["control_v", "supply_v", "rise_v", "fall_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "MEAS-KA-001"
+acquisition_notes = "Synthetic known-answer fixture for measurement-engine validation."
+environment = "software validation fixture"
+operator = "FerrisOxide Signal validation suite"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0005
+
+[[criteria]]
+id = "control_transition_count"
+channel = "control_v"
+
+[criteria.measurement]
+type = "state_transition_count"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "equal_to"
+value = 4
+unit = "count"
+
+[[criteria]]
+id = "control_high_pulse_width"
+channel = "control_v"
+
+[criteria.measurement]
+type = "pulse_width"
+state = "high"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.0015
+unit = "s"
+
+[[criteria]]
+id = "control_stable_low"
+channel = "control_v"
+
+[criteria.measurement]
+type = "stable_state_duration"
+state = "low"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.002
+unit = "s"
+
+[[criteria]]
+id = "supply_dropout_tolerance"
+channel = "supply_v"
+
+[criteria.measurement]
+type = "transient_event_duration"
+event_kind = "dropout"
+expected_state = "high"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0015
+unit = "s"
+
+[[criteria]]
+id = "rise_time_tolerance"
+channel = "rise_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0015
+unit = "s"
+
+[[criteria]]
+id = "fall_time_tolerance"
+channel = "fall_v"
+
+[criteria.measurement]
+type = "fall_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0015
+unit = "s"

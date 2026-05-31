@@ -1,0 +1,20 @@
+[input]
+time_column = "time_s"
+channels = ["supply_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "supply_dropout_max_1ms"
+channel = "supply_v"
+
+[criteria.measurement]
+type = "transient_event_duration"
+event_kind = "dropout"
+expected_state = "high"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.001
+unit = "s"

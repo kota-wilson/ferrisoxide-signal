@@ -1,0 +1,46 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "control_transition_count"
+channel = "control_v"
+
+[criteria.measurement]
+type = "state_transition_count"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "equal_to"
+value = 4
+unit = "count"
+
+[[criteria]]
+id = "control_high_pulse_width"
+channel = "control_v"
+
+[criteria.measurement]
+type = "pulse_width"
+state = "high"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.002
+unit = "s"
+
+[[criteria]]
+id = "control_stable_low"
+channel = "control_v"
+
+[criteria.measurement]
+type = "stable_state_duration"
+state = "low"
+threshold = { value = 2.5, unit = "V" }
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.002
+unit = "s"

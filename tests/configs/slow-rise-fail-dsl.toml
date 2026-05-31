@@ -1,0 +1,33 @@
+[input]
+time_column = "time_s"
+channels = ["signal_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "signal_rise_time_max_3ms"
+channel = "signal_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.003
+unit = "s"
+
+[[criteria]]
+id = "signal_fall_time_max_3ms"
+channel = "signal_v"
+
+[criteria.measurement]
+type = "fall_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.003
+unit = "s"
