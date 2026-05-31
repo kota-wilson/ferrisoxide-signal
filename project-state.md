@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Complete remaining v0.4.0 issues #44, #46, and #47 through protected-branch PR #52.
+Record completion evidence after closing all open GitHub issues.
 
 ## Current Stage
 
-The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with M6-001 merged by PR #48, M6-003 merged by PR #50, and remaining M6 issues #44, #46, and #47 implemented in PR #52 from branch `feature/m6-complete-evidence-work`. The PR adds 2D SVG evidence overlays, criteria DSL direction docs, measurement-engine known-answer fixtures, exact report validation, and pipeline evidence. Issues #43 and #45 are closed; issues #44, #46, and #47 remain open until PR #52 is merged. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+The repository has zero open GitHub issues. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. PR #52 merged the final M6 scope: 2D SVG evidence overlays, criteria DSL direction docs, measurement-engine known-answer fixtures, exact report validation, and pipeline evidence. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -73,18 +73,18 @@ The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, wi
 
 ## Next Responsible Role
 
-Role: Release Engineer / GitHub Maintainer Specialist
+Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Validate and merge PR #52 for issues #44, #46, and #47.
+Expected deliverable: Keep the repository at zero open issues until the next approved milestone is created.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: `v0.4.0: Measurement & Evidence Engine`.
-- Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`.
-- Next gate: Protected-branch CI and merge for PR #52, then issue/milestone closure verification.
+- Current milestone: None active; `v0.4.0: Measurement & Evidence Engine` is closed.
+- Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
+- Next gate: Define and approve the next milestone before opening additional scope.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, criteria DSL implementation, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -212,20 +212,21 @@ Expected deliverable: Validate and merge PR #52 for issues #44, #46, and #47.
 | M6 Code Review Gate | Pass | `docs/code-review.md`, `docs/m6-measurement-engine-pipeline-report.md` | Evaluation Engineer |
 | M6 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
 | M6 Release Gate | Pass | PR #48 merged after required `rust` CI passed; merge commit `559c96151f6f1d9a99d3d399a0e6bd046bfe5f51` | GitHub Maintainer Specialist |
-| M6 Community Gate | Pass for M6-001 | Issue #43 closed; issues #44-#47 remain open under milestone #6 | Project Coordinator |
+| M6 Community Gate | Pass for M6-001 | Issue #43 closed; remaining milestone #6 issues later closed by PR #50 and PR #52 | Project Coordinator |
 | M6-003 Requirements Gate | Pass | `requirements.md` WRA-RQ-032; issue #45 | Software Architect |
 | M6-003 Architecture Gate | Pass | `docs/report-schema.md`, `docs/measurements.md`, `docs/m6-report-measurement-schema-pipeline-report.md` | Abstraction Review Engineer |
 | M6-003 Implementation Gate | Pass | `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, exact golden reports | Test Automation Engineer |
 | M6-003 Testing Gate | Pass | Measurement-link unit test, report tests, CLI tests, exact golden JSON tests, workspace tests | Verification and Validation Engineer |
 | M6-003 V&V Gate | Pass | `docs/m6-report-measurement-schema-pipeline-report.md`, WRA-RQ-032 traceability | QA Engineer |
 | M6-003 Release Gate | Pass | PR #50 merged after required `rust` CI passed; merge commit `f7e21695f501890669d591d0d7cbc9b731a541bb` | GitHub Maintainer Specialist |
-| M6-003 Community Gate | Pass | Issue #45 closed; issues #44, #46, and #47 remain open under milestone #6 | Project Coordinator |
+| M6-003 Community Gate | Pass | Issue #45 closed; remaining milestone #6 issues later closed by PR #52 | Project Coordinator |
 | M6 Completion Requirements Gate | Pass | `requirements.md` WRA-RQ-033 through WRA-RQ-035; issues #44, #46, and #47 | Software Architect |
 | M6 Completion Architecture Gate | Pass | `docs/architecture.md`, `docs/plotting.md`, `docs/criteria-dsl.md`, `docs/m6-completion-pipeline-report.md` | Abstraction Review Engineer |
 | M6 Completion Implementation Gate | Pass | `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `validation/measurement_engine/`, docs | Test Automation Engineer |
-| M6 Completion Testing Gate | Pass locally | Workspace tests, annotated SVG CLI smoke, exact measurement-engine report test | Verification and Validation Engineer |
-| M6 Completion V&V Gate | Pass locally | `docs/m6-completion-pipeline-report.md`, WRA-RQ-033 through WRA-RQ-035 traceability | QA Engineer |
-| M6 Completion Release Gate | Pending | PR #52 is open; required `rust` CI and merge are pending | GitHub Maintainer Specialist |
+| M6 Completion Testing Gate | Pass | Workspace tests, annotated SVG CLI smoke, exact measurement-engine report test, and PR #52 required `rust` CI | Verification and Validation Engineer |
+| M6 Completion V&V Gate | Pass | `docs/m6-completion-pipeline-report.md`, WRA-RQ-033 through WRA-RQ-035 traceability | QA Engineer |
+| M6 Completion Release Gate | Pass | PR #52 merged after required `rust` CI passed; merge commit `dd9c4bf39a5866f8a2cf903247db2ca0ded6a2b9` | GitHub Maintainer Specialist |
+| M6 Completion Community Gate | Pass | Issues #43-#47 closed; milestone #6 closed with 5 closed issues and 0 open issues; repository issue list empty | Project Coordinator |
 
 ## Update Rules
 

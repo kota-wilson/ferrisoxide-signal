@@ -6,7 +6,7 @@ Owner Role: Project Coordinator
 
 ## Current Status
 
-This is the initial publication retrospective. Follow-up GitHub issues have since been created for M1, v0.2.0, M3, M4, M5, ADC quantization, and M6 measurement/evidence work; remaining open issues are tracked in `project-state.md`.
+This is the initial publication retrospective. Follow-up GitHub issues have since been created for M1, v0.2.0, M3, M4, M5, ADC quantization, and M6 measurement/evidence work; after PR #52, the repository issue list is empty.
 
 ## What Worked
 

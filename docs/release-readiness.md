@@ -106,11 +106,11 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 - Required check: `rust`, passed in 27 seconds.
 - Issue: #43, `M6-001 Extract measurement engine from criteria evaluation`
 - Milestone: `v0.4.0: Measurement & Evidence Engine`
-- Milestone status: open with issues #44-#47 remaining.
+- Milestone status: later closed by PR #52 completion evidence with 5 closed issues and 0 open issues.
 - Scope: reusable no_std measurement primitives and criteria integration only.
 - Validation: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
 - Dependency evidence: no new third-party dependencies; `wra-measurements` is a local no-dependency crate.
-- Deferred issues: #44 annotated SVG overlays, #45 report measurement schema, #46 criteria DSL direction, and #47 measurement validation fixtures.
+- Deferred issues: #44, #45, #46, and #47 were later completed under milestone #6.
 
 Gate: Release Gate for M6-001.
 Decision: Pass.
@@ -124,11 +124,11 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 - Required check: `rust`, passed in 31 seconds.
 - Issue: #45, `M6-003 Add report measurement schema and golden JSON updates`
 - Milestone: `v0.4.0: Measurement & Evidence Engine`
-- Milestone status: open with issues #44, #46, and #47 remaining.
+- Milestone status: later closed by PR #52 completion evidence with 5 closed issues and 0 open issues.
 - Scope: report measurement records, result `measurement_id` links, exact golden JSON updates, and schema docs.
 - Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed; PR #50 required `rust` CI passed.
 - Dependency evidence: no new third-party dependencies; report schema changes use existing Serde/JSON support.
-- Deferred issues: #44 annotated SVG overlays, #46 criteria DSL direction, and #47 measurement validation fixtures.
+- Deferred issues: #44, #46, and #47 were later completed by PR #52.
 
 Gate: Release Gate for M6-003.
 Decision: Pass.
@@ -137,15 +137,18 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 ## M6 Completion Release Update
 
 - PR: #52, `Complete M6 evidence and validation work`.
+- Merge commit: `dd9c4bf39a5866f8a2cf903247db2ca0ded6a2b9`
+- Merge method: rebase / fast-forward mainline.
+- Required check: `rust`, passed in 27 seconds.
 - Issues: #44 `M6-002 Add annotated SVG criteria evidence overlays`; #46 `M6-004 Document criteria DSL direction for engineering measurements`; #47 `M6-005 Add measurement-engine validation fixtures`.
-- Milestone: `v0.4.0: Measurement & Evidence Engine`
+- Milestone: `v0.4.0: Measurement & Evidence Engine`, closed with 5 closed issues and 0 open issues.
 - Scope: 2D SVG evidence overlays, criteria DSL direction docs, and measurement-engine known-answer fixtures.
-- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; required `rust` CI and merge pending.
+- Validation: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; PR #52 required `rust` CI passed.
 - Dependency evidence: no new third-party dependencies.
 
 Gate: Release Gate for M6 completion.
-Decision: Pending CI/merge.
-Residual risk: This is PR evidence until protected-branch CI passes and PR #52 is merged.
+Decision: Pass.
+Residual risk: This is mainline repository evidence, not a tagged product release, hardware validation, or certification artifact.
 
 ## Hand-Off Note
 
