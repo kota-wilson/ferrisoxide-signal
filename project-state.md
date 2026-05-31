@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Implement M6-003 / issue #45 by adding report measurement evidence records, stable measurement IDs, and exact golden JSON updates.
+Continue v0.4.0 after merging M6-003; next work should address annotated SVG evidence overlays, criteria DSL direction, or measurement validation fixtures.
 
 ## Current Stage
 
-The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with M6-001 merged by PR #48 and M6-003 implemented in PR #50. The branch adds top-level report `measurements`, per-result `measurement_id`, schema docs, exact golden JSON updates, and focused measurement-link tests for issue #45. Issue #43 is closed; issues #44-#47 remain open until PR/merge evidence updates close #45. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, annotated SVG overlays, production readiness, and certification claims remain out of scope until separately gated.
+The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with M6-001 merged by PR #48 and M6-003 merged by PR #50. Mainline includes top-level report `measurements`, per-result `measurement_id`, schema docs, exact golden JSON updates, and focused measurement-link tests for issue #45. Issues #43 and #45 are closed; issues #44, #46, and #47 remain open. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -71,7 +71,7 @@ The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, wi
 
 Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Validate and merge PR #50 for issue #45.
+Expected deliverable: Choose and pipeline the next v0.4.0 issue, likely #44 annotated SVG evidence overlays or #47 measurement validation fixtures.
 
 ## Orchestration Status
 
@@ -80,8 +80,8 @@ Expected deliverable: Validate and merge PR #50 for issue #45.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: `v0.4.0: Measurement & Evidence Engine`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`.
-- Next gate: Protected-branch CI for PR #50.
-- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, criteria DSL, or annotated SVG overlays without a fresh issue/gate.
+- Next gate: v0.4.0 follow-up issue selection and requirements review for issues #44, #46, and #47.
+- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, criteria DSL implementation, or annotated SVG overlays without a fresh issue/gate.
 
 ## Granularity Status
 
@@ -212,9 +212,10 @@ Expected deliverable: Validate and merge PR #50 for issue #45.
 | M6-003 Requirements Gate | Pass | `requirements.md` WRA-RQ-032; issue #45 | Software Architect |
 | M6-003 Architecture Gate | Pass | `docs/report-schema.md`, `docs/measurements.md`, `docs/m6-report-measurement-schema-pipeline-report.md` | Abstraction Review Engineer |
 | M6-003 Implementation Gate | Pass | `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, exact golden reports | Test Automation Engineer |
-| M6-003 Testing Gate | Pass locally | Measurement-link unit test, report tests, CLI tests, exact golden JSON tests, workspace tests | Verification and Validation Engineer |
-| M6-003 V&V Gate | Pass locally | `docs/m6-report-measurement-schema-pipeline-report.md`, WRA-RQ-032 traceability | QA Engineer |
-| M6-003 Release Gate | Pending | PR #50 required `rust` CI and merge are pending | GitHub Maintainer Specialist |
+| M6-003 Testing Gate | Pass | Measurement-link unit test, report tests, CLI tests, exact golden JSON tests, workspace tests | Verification and Validation Engineer |
+| M6-003 V&V Gate | Pass | `docs/m6-report-measurement-schema-pipeline-report.md`, WRA-RQ-032 traceability | QA Engineer |
+| M6-003 Release Gate | Pass | PR #50 merged after required `rust` CI passed; merge commit `f7e21695f501890669d591d0d7cbc9b731a541bb` | GitHub Maintainer Specialist |
+| M6-003 Community Gate | Pass | Issue #45 closed; issues #44, #46, and #47 remain open under milestone #6 | Project Coordinator |
 
 ## Update Rules
 
