@@ -8,7 +8,7 @@ Implement M7-001 criteria DSL config schema.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 through #61 after user approval. Issue #55 is implemented locally on branch `feature/m7-001-dsl-config-schema`: the config layer can deserialize legacy and DSL criteria shapes side by side, rejects ambiguous mixed shapes, and preserves legacy runtime conversion while DSL runtime evaluation remains deferred. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 through #61 after user approval. Issue #55 is implemented in PR #63 from branch `feature/m7-001-dsl-config-schema`: the config layer can deserialize legacy and DSL criteria shapes side by side, rejects ambiguous mixed shapes, and preserves legacy runtime conversion while DSL runtime evaluation remains deferred. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -77,7 +77,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Open and validate the M7-001 / issue #55 PR.
+Expected deliverable: Validate and merge PR #63 for M7-001 / issue #55.
 
 ## Orchestration Status
 
@@ -86,7 +86,7 @@ Expected deliverable: Open and validate the M7-001 / issue #55 PR.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Full local validation, PR creation, and protected-branch CI for issue #55.
+- Next gate: Protected-branch CI and merge for PR #63.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status

@@ -8,7 +8,7 @@ Milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`
 
 Issue: #55, `M7-001 Add criteria DSL config schema and compatibility adapter`
 
-Status: Local implementation and validation complete; PR pending.
+Status: Local implementation and validation complete; PR #63 open.
 
 ## Scope
 
@@ -179,9 +179,9 @@ Out of scope:
 
 - Owner role: Release Engineer
 - Artifact: Local validation evidence.
-- Evidence: `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed locally; protected `rust` CI remains pending.
+- Evidence: `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed locally; PR #63 is open and protected `rust` CI remains pending.
 - Gate: Release Gate.
-- Decision: Pending PR/CI/merge.
+- Decision: Pending CI/merge.
 - Residual risk: Branch work is not released until CI passes and the PR is merged.
 - Next owner: GitHub Maintainer Specialist.
 
@@ -189,9 +189,9 @@ Out of scope:
 
 - Owner role: Community Engineering Lead
 - Artifact: Future PR body.
-- Evidence: PR body should close issue #55 only.
+- Evidence: PR #63 body closes issue #55 only.
 - Gate: Community Gate.
-- Decision: Pending PR creation.
+- Decision: Pending merge.
 - Residual risk: Issues #56 through #61 remain open.
 - Next owner: Project Coordinator.
 
@@ -211,6 +211,6 @@ Role: Core Software Engineer
 Goal: Complete M7-001 / issue #55.
 Files changed: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `tests/configs/invalid-mixed-legacy-dsl-criterion.toml`, requirements, traceability, project state, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Local implementation, validation, and pipeline evidence complete; PR pending.
+Status: Local implementation, validation, and pipeline evidence complete; PR #63 open.
 Known gaps: Runtime DSL evaluation, operator semantics, explicit unit validation, DSL parity golden tests, and full user docs remain in issues #56 through #61.
-Next recommended step: Run full validation, open PR, wait for required CI, and merge issue #55.
+Next recommended step: Wait for required CI on PR #63, merge, and verify issue #55 closure.
