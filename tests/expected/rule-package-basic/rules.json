@@ -1,0 +1,97 @@
+{
+  "package": {
+    "name": "basic-rule-package",
+    "version": "1.0.0",
+    "schema_version": "0.1.0",
+    "description": "Exported from ../../examples/basic-waveform.csv using FerrisOxide Signal."
+  },
+  "target": {
+    "kind": "controller_runtime",
+    "identifier": "test-controller",
+    "notes": [
+      "Exported by FerrisOxide Signal CLI as software validation evidence only; not hardware qualification or certification evidence."
+    ]
+  },
+  "sample_timing": {
+    "timestamp_unit": "s",
+    "nominal_sample_rate_hz": 1000.0,
+    "nominal_sample_interval_s": 0.001,
+    "timestamp_tolerance_s": 0.0
+  },
+  "channels": [
+    {
+      "name": "input_v",
+      "source_name": "input_v",
+      "unit": "V",
+      "sample_rate_hz": 1000.0,
+      "thresholds": [
+        {
+          "name": "input_min_voltage_low_threshold",
+          "role": "low",
+          "value": {
+            "value": 0.0,
+            "unit": "V"
+          }
+        },
+        {
+          "name": "input_max_voltage_high_threshold",
+          "role": "high",
+          "value": {
+            "value": 5.5,
+            "unit": "V"
+          }
+        }
+      ]
+    },
+    {
+      "name": "output_v",
+      "source_name": "output_v",
+      "unit": "V",
+      "sample_rate_hz": 1000.0
+    }
+  ],
+  "filters": [
+    {
+      "type": "moving_average",
+      "id": "moving_average_0_input_v",
+      "channel": "input_v",
+      "window_samples": 2
+    },
+    {
+      "type": "moving_average",
+      "id": "moving_average_0_output_v",
+      "channel": "output_v",
+      "window_samples": 2
+    }
+  ],
+  "criteria": [
+    {
+      "id": "input_min_voltage",
+      "channel": "input_v",
+      "measurement": {
+        "type": "minimum_sample"
+      },
+      "requirement": {
+        "operator": "greater_than_or_equal",
+        "value": {
+          "value": 0.0,
+          "unit": "V"
+        }
+      }
+    },
+    {
+      "id": "input_max_voltage",
+      "channel": "input_v",
+      "measurement": {
+        "type": "maximum_sample"
+      },
+      "requirement": {
+        "operator": "less_than_or_equal",
+        "value": {
+          "value": 5.5,
+          "unit": "V"
+        }
+      }
+    }
+  ]
+}

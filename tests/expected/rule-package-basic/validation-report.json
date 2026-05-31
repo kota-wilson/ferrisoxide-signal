@@ -1,0 +1,124 @@
+{
+  "input_name": "../../examples/basic-waveform.csv",
+  "waveform_metadata": {
+    "source_name": "../../examples/basic-waveform.csv",
+    "test_run_id": null,
+    "acquisition_notes": null,
+    "environment": null,
+    "operator": null,
+    "time_unit": "s",
+    "sample_count": 5,
+    "channel_count": 2,
+    "channels": [
+      {
+        "name": "input_v",
+        "unit": "V"
+      },
+      {
+        "name": "output_v",
+        "unit": "V"
+      }
+    ],
+    "sample_interval": {
+      "min": 0.001,
+      "max": 0.001,
+      "nominal": 0.001,
+      "unit": "s",
+      "uniform": true
+    },
+    "nominal_sample_rate_hz": 1000.0,
+    "lineage": "derived",
+    "transform_history": [
+      "moving_average(window_samples=2)"
+    ],
+    "tolerance_policy": {
+      "voltage_v": 0.0,
+      "time_s": 0.0
+    }
+  },
+  "evidence_context": {
+    "validation_profile": "engineering_validation",
+    "evidence_source": "local_file_analysis",
+    "tolerance_policy": {
+      "voltage_v": 0.0,
+      "time_s": 0.0
+    },
+    "confidence_notes": [
+      "software validation evidence only",
+      "not hardware qualification or certification evidence"
+    ]
+  },
+  "overall_outcome": "pass",
+  "measurements": [
+    {
+      "id": "input_min_voltage_measurement",
+      "channel": "input_v",
+      "method": "minimum_sample",
+      "measured_value": 0.0,
+      "unit": "V",
+      "sample_index": 0,
+      "timestamp": 0.0,
+      "method_context": {
+        "source": "ferrisoxide-measurements",
+        "threshold_v": null,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    },
+    {
+      "id": "input_max_voltage_measurement",
+      "channel": "input_v",
+      "method": "maximum_sample",
+      "measured_value": 5.0,
+      "unit": "V",
+      "sample_index": 4,
+      "timestamp": 0.004,
+      "method_context": {
+        "source": "ferrisoxide-measurements",
+        "threshold_v": null,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    }
+  ],
+  "results": [
+    {
+      "criterion_id": "input_min_voltage",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "input_min_voltage_measurement",
+      "channel": "input_v",
+      "measured_value": 0.0,
+      "required_value": 0.0,
+      "tolerance_used": 0.0,
+      "unit": "V",
+      "sample_index": 0,
+      "timestamp": 0.0,
+      "reason": "minimum observed voltage was 0.000000 V"
+    },
+    {
+      "criterion_id": "input_max_voltage",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "input_max_voltage_measurement",
+      "channel": "input_v",
+      "measured_value": 5.0,
+      "required_value": 5.5,
+      "tolerance_used": 0.0,
+      "unit": "V",
+      "sample_index": 4,
+      "timestamp": 0.004,
+      "reason": "maximum observed voltage was 5.000000 V"
+    }
+  ]
+}

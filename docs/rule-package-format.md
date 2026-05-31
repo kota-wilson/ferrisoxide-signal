@@ -203,13 +203,51 @@ Embedded consumers must not require:
 - SDK-specific RTOS bindings,
 - heap allocation for basic rule evaluation where practical.
 
+## CLI Export
+
+M8-004 adds a desktop-only export command:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- export-rule-package \
+  --input examples/basic-waveform.csv \
+  --config examples/basic-dsl-config.toml \
+  --output-dir deployment \
+  --package-name switch-rule \
+  --package-version 1.0.0 \
+  --target controller_runtime \
+  --target-id test-controller
+```
+
+Current exported artifacts:
+
+```text
+deployment/
+  rules.toml
+  rules.json
+  validation-report.json
+```
+
+The command validates the analysis config, runs the analysis to produce evidence, builds a `RulePackage`, validates the package, and writes the artifacts only when the target files do not already exist.
+
+Still out of scope for this command:
+
+- `rules.bin`,
+- `manifest.json`,
+- `checksum.txt`,
+- signing,
+- GUI,
+- live DAQ,
+- controller SDK/HAL,
+- RTOS production integration,
+- hardware qualification,
+- certification claims.
+
 ## Validation Expectations
 
 The format is validated by parse-testing `rules.toml` and `rules.json` into `ferrisoxide-rule-schema::RulePackage`, verifying that both examples describe the same package, and running `RulePackage::validate()` before export or execution.
 
 Later issues add:
 
-- M8-004 CLI export,
 - M8-005 manifest/checksum behavior,
 - M8-006 shared rule execution,
 - M8-007 no_std compatibility boundary,
