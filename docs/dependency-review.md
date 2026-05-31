@@ -75,6 +75,17 @@ The M6 completion branch adds no new third-party crates. Annotated SVG overlays 
 | Runtime surface | No GUI, bitmap, web, DAQ, plugin, RTOS SDK, HAL, or FFI dependency added. | Pass |
 | Scope boundary | No parser, plotting, report, file I/O, DAQ, RTOS SDK, HAL, or plugin dependency is added. | Pass |
 
+## M8-001 Rule Schema Dependency Review
+
+The M8-001 rule schema crate adds no new third-party crates. It reuses approved workspace `serde` for schema serialization derives and approved workspace `serde_json` only as a dev-dependency for round-trip tests.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | `crates/ferrisoxide-rule-schema/Cargo.toml` uses only `serde.workspace = true` and `serde_json.workspace = true` under dev-dependencies. | Pass |
+| Scope boundary | The crate does not depend on `ferrisoxide-core`, `ferrisoxide-cli`, `ferrisoxide-plot`, CSV parsing, plotting, reports, DAQ, controller I/O, HALs, SDKs, or RTOS tooling. | Pass |
+| Dependency tree | `cargo tree -p ferrisoxide-rule-schema` is recorded in `docs/m8-001-rule-schema-crate-pipeline-report.md`. | Pass |
+| Future work boundary | Validation, export commands, checksums/manifests, shared execution, no_std compatibility, and parity tests remain separate M8 issues. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -84,12 +95,13 @@ The M6 completion branch adds no new third-party crates. Annotated SVG overlays 
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 - Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
+- Rule package drift risk: Medium; the schema crate reduces duplicated shapes, but validator, engine, no_std, and parity tests are still required before runtime claims.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, and M6 completion work add no third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, and M8-001 rule-schema work add no new third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

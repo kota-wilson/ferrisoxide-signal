@@ -26,9 +26,10 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded` | `no_std` adapter traits and streaming helpers for ARM64/RTOS wrappers. | Embedded adapters around `ferrisoxide-signal`. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements` | `no_std` measurement primitives over time/sample slices. | Extrema, transition count, state-run duration, and rise/fall measurements used by criteria evidence. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot` | Desktop SVG plotting for waveform data and 2D evidence overlays. | SVG plot renderer used by the CLI. |
+| `ferrisoxide-rule-schema` | `crates/ferrisoxide-rule-schema` | Versioned portable FerrisOxide Rule Package data model. | Package metadata, target profile, sample timing, channels, units, thresholds, filters, and measurement-backed criteria definitions. |
 | `ferrisoxide-signal` | `crates/ferrisoxide-signal` | `no_std` signal primitives for future embedded adapters. | Dependency-free embedded-oriented primitives. |
 
-Future portable rule package crates are planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`. They are not implemented yet.
+Future portable rule package validator, export, checksum, shared-engine, no_std-boundary, and parity-test work is planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
 
 Future controller-in-the-loop simulation and deployment config modules are planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`. They are not implemented yet.
 
@@ -49,6 +50,7 @@ Platform targets are documented in `docs/platform-targets.md`. The desktop autho
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded/src/lib.rs` | `SampleSource`, `EventSink`, `RuntimeHooks`, and no_std streaming helper loops. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements/src/lib.rs` | Slice-based measurement functions with no allocation, file I/O, parsing, plotting, or reporting. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot/src/lib.rs` | SVG plotting with 2D evidence overlays and optional third-axis 3D line rendering. |
+| `ferrisoxide-rule-schema` | `crates/ferrisoxide-rule-schema/src/lib.rs` | Versioned portable rule package schema types only; no CSV, CLI, plotting, report rendering, package export, checksums, controller I/O, HAL, SDK, or rule execution behavior. |
 
 ## Core Data Flow
 

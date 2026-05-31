@@ -65,11 +65,16 @@ Current embedded/no_std crates:
 | `ferrisoxide-signal` | `no_std` | Fixed-size buffers, threshold evaluation, transient event primitives. |
 | `ferrisoxide-embedded` | `no_std` | Sample source, event sink, runtime hook, and streaming adapter traits around `ferrisoxide-signal`. |
 
+Current portable-schema crates:
+
+| Crate | Runtime Profile | Notes |
+|---|---|---|
+| `ferrisoxide-rule-schema` | `std` crate; future no_std boundary tracked by M8-007 | Portable rule package schema types from v0.6.0 planning. No CSV, plotting, report rendering, export command, checksum, HAL, SDK, or controller I/O dependency. |
+
 Planned embedded-compatible crates:
 
 | Crate | Runtime Profile | Notes |
 |---|---|---|
-| `ferrisoxide-rule-schema` | `no_std`-compatible subset expected | Portable rule package schema from v0.6.0 planning. |
 | `ferrisoxide-rule-engine` | `no_std`-compatible subset expected | Shared rule execution semantics from v0.6.0 planning. |
 | `ferrisoxide-control-schema` | `no_std`-compatible subset expected | Production control config schema from v0.7.0 planning. |
 

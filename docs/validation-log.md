@@ -20,7 +20,46 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
-- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+
+## M8-001 Rule Schema Crate Branch
+
+Current as of the M8-001 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo tree -p ferrisoxide-rule-schema` | Passed | Runtime dependency is approved `serde`; dev-dependency is approved `serde_json`. No CLI, CSV, plotting, report, controller I/O, HAL, SDK, or RTOS dependency appears. |
+| `cargo test -p ferrisoxide-rule-schema` | Passed | 2 schema unit tests passed plus doctests. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 108 tests passed: 11 CLI, 55 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 2 `ferrisoxide-rule-schema`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Schema Evidence
+
+| Artifact | Coverage |
+|---|---|
+| `crates/ferrisoxide-rule-schema/src/lib.rs` | Package metadata, target profile, sample timing, channels, units, thresholds, filters, measurement-backed criteria, and unit-bearing requirements. |
+| `crates/ferrisoxide-rule-schema/README.md` | Schema-only scope and explicit non-goals. |
+| `docs/m8-001-rule-schema-crate-pipeline-report.md` | Pipeline gates, acceptance mapping, validation evidence, and handoff. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M8-001.
+- Decision: Pass locally.
+- Reason: Schema unit tests, workspace tests, formatting, clippy, dependency boundary, and whitespace checks pass; scope excludes validator/export/engine/checksum/no_std claims.
+- Residual risk: Protected GitHub CI is pending until PR creation; package format docs, validator, shared engine, no_std boundary, and parity tests remain open M8 issues.
+- Owner for residual risk: GitHub Maintainer Specialist / Project Orchestrator.
+
+### Hand-Off Note
+
+Role: Verification and Validation Engineer
+Goal: Validate the initial portable rule schema crate for issue #67.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo tree -p ferrisoxide-rule-schema`; `cargo test -p ferrisoxide-rule-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: No package format docs, validator, export command, checksum/manifest, shared rule execution, no_std compatibility claim, or parity tests yet.
+Next recommended step: Open the M8-001 PR with `Fixes #67`.
 
 ## M7-007 DSL Schema And Report Evidence Docs Branch
 
