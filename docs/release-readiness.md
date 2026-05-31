@@ -53,6 +53,19 @@ Publish the initial public GitHub repository for the MVP Rust waveform analysis 
 - Initial CI run: `26699230596`, passed.
 - Follow-up CI maintenance: `actions/checkout` upgraded from v4 to v5 to use the Node 24 runtime.
 
+## M4 Release Update
+
+- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/36`
+- Merge commit: `a0d381556ff5f5d044f230217b335b73b3b57608`
+- Merge method: rebase / fast-forward mainline.
+- Required check: `rust`, passed in 28 seconds.
+- Issues closed by PR: #27, #28, #29, #30, #31, #32, #33, #34.
+- Milestone: `M4: Signal Accuracy and Validation`, closed with 8 closed issues and 0 open issues.
+
+Gate: Release Gate for M4.
+Decision: Pass.
+Residual risk: This is mainline repository evidence, not a tagged product release or certification artifact.
+
 ## Hand-Off Note
 
 Role: Release Engineer / GitHub Maintainer Specialist
