@@ -147,6 +147,22 @@ impl Criterion {
         }
     }
 
+    pub fn measurement(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        measurement: MeasurementSpec,
+        requirement: MeasurementRequirement,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::Measurement {
+                channel: channel.into(),
+                measurement,
+                requirement,
+            },
+        }
+    }
+
     pub fn channel(&self) -> &str {
         self.check.channel()
     }
@@ -200,6 +216,11 @@ pub enum CriterionCheck {
         high_threshold_v: f64,
         max_duration_s: f64,
     },
+    Measurement {
+        channel: String,
+        measurement: MeasurementSpec,
+        requirement: MeasurementRequirement,
+    },
 }
 
 impl CriterionCheck {
@@ -212,7 +233,162 @@ impl CriterionCheck {
             | Self::TransientDuration { channel, .. }
             | Self::TransientEvent { channel, .. }
             | Self::StableStateDuration { channel, .. }
-            | Self::RiseFallTime { channel, .. } => channel,
+            | Self::RiseFallTime { channel, .. }
+            | Self::Measurement { channel, .. } => channel,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CriterionOperator {
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    EqualTo,
+}
+
+impl CriterionOperator {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "less_than" => Some(Self::LessThan),
+            "less_than_or_equal" => Some(Self::LessThanOrEqual),
+            "greater_than" => Some(Self::GreaterThan),
+            "greater_than_or_equal" => Some(Self::GreaterThanOrEqual),
+            "equal_to" => Some(Self::EqualTo),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::LessThan => "less_than",
+            Self::LessThanOrEqual => "less_than_or_equal",
+            Self::GreaterThan => "greater_than",
+            Self::GreaterThanOrEqual => "greater_than_or_equal",
+            Self::EqualTo => "equal_to",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CriterionMeasurementKind {
+    MinimumSample,
+    MaximumSample,
+    StateTransitionCount,
+    PulseWidth,
+    StableStateDuration,
+    TransientEventDuration,
+    RiseTime,
+    FallTime,
+}
+
+impl CriterionMeasurementKind {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "minimum_sample" => Some(Self::MinimumSample),
+            "maximum_sample" => Some(Self::MaximumSample),
+            "state_transition_count" => Some(Self::StateTransitionCount),
+            "pulse_width" => Some(Self::PulseWidth),
+            "stable_state_duration" => Some(Self::StableStateDuration),
+            "transient_event_duration" => Some(Self::TransientEventDuration),
+            "rise_time" => Some(Self::RiseTime),
+            "fall_time" => Some(Self::FallTime),
+            _ => None,
+        }
+    }
+
+    pub fn requirement_unit(self) -> &'static str {
+        match self {
+            Self::MinimumSample | Self::MaximumSample => "V",
+            Self::StateTransitionCount => "count",
+            Self::PulseWidth
+            | Self::StableStateDuration
+            | Self::TransientEventDuration
+            | Self::RiseTime
+            | Self::FallTime => "s",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeasurementRequirement {
+    pub operator: CriterionOperator,
+    pub value: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum MeasurementSpec {
+    MinimumSample,
+    MaximumSample,
+    StateTransitionCount {
+        threshold_v: f64,
+    },
+    PulseWidth {
+        state: SignalState,
+        threshold_v: f64,
+        selection: RunSelectionConfig,
+    },
+    StableStateDuration {
+        state: SignalState,
+        threshold_v: f64,
+    },
+    TransientEventDuration {
+        event_kind: TransientEventKind,
+        expected_state: SignalState,
+        threshold_v: f64,
+    },
+    RiseTime {
+        low_threshold_v: f64,
+        high_threshold_v: f64,
+    },
+    FallTime {
+        low_threshold_v: f64,
+        high_threshold_v: f64,
+    },
+}
+
+impl MeasurementSpec {
+    pub fn kind(&self) -> CriterionMeasurementKind {
+        match self {
+            Self::MinimumSample => CriterionMeasurementKind::MinimumSample,
+            Self::MaximumSample => CriterionMeasurementKind::MaximumSample,
+            Self::StateTransitionCount { .. } => CriterionMeasurementKind::StateTransitionCount,
+            Self::PulseWidth { .. } => CriterionMeasurementKind::PulseWidth,
+            Self::StableStateDuration { .. } => CriterionMeasurementKind::StableStateDuration,
+            Self::TransientEventDuration { .. } => CriterionMeasurementKind::TransientEventDuration,
+            Self::RiseTime { .. } => CriterionMeasurementKind::RiseTime,
+            Self::FallTime { .. } => CriterionMeasurementKind::FallTime,
+        }
+    }
+
+    pub fn is_time_dependent(&self) -> bool {
+        !matches!(
+            self,
+            Self::MinimumSample | Self::MaximumSample | Self::StateTransitionCount { .. }
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RunSelectionConfig {
+    Shortest,
+    Longest,
+}
+
+impl RunSelectionConfig {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "shortest" => Some(Self::Shortest),
+            "longest" => Some(Self::Longest),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Shortest => "shortest",
+            Self::Longest => "longest",
         }
     }
 }
