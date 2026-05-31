@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Move the public repository from skeleton MVP to validated M1 MVP.
+Address M1-001 by validating CSV parser edge cases on a main-based feature branch.
 
 ## Current Stage
 
-M1 issues created; filter pipeline architecture accepted; main protection pending.
+M1-001 implementation and full local validation complete on `feature/m1-001-csv-parser-edge-cases`; PR creation pending.
 
 ## Open Risks
 
@@ -37,7 +37,7 @@ M1 issues created; filter pipeline architecture accepted; main protection pendin
 
 Role: Project Orchestrator
 
-Expected deliverable: Protect `main`, then route M1 issues through pull requests.
+Expected deliverable: Run final validation, push `feature/m1-001-csv-parser-edge-cases`, and open a PR for issue #1.
 
 ## Orchestration Status
 
@@ -46,7 +46,7 @@ Expected deliverable: Protect `main`, then route M1 issues through pull requests
 - Current milestone: Dependency-reviewed MVP slice complete.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: `M1: Validated MVP`.
-- Next gate: Branch protection verification and M1 implementation through PRs.
+- Next gate: Release Gate for M1-001 pull request creation.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -92,6 +92,9 @@ Expected deliverable: Protect `main`, then route M1 issues through pull requests
 | Retrospective Gate | Pass | `docs/retrospective.md` | Community Engineering Lead |
 | Architecture Decision Gate | Pass | `decisions/ADR-003-filter-pipeline-architecture.md` | Core Software Engineer |
 | GitHub Issue Planning Gate | Pass | M1 issues #1-#7 created under `M1: Validated MVP` | Project Orchestrator |
+| M1-001 Requirements Gate | Pass | Issue #1 acceptance criteria captured in `docs/m1-001-csv-parser-edge-cases.md` | Software Architect |
+| M1-001 Implementation Gate | Pass | `crates/wra-core/src/csv.rs`, `docs/implementation-report.md` | Test Automation Engineer |
+| M1-001 Testing Gate | Pass | `docs/validation-log.md`; targeted parser tests, workspace tests, fmt, and clippy passed | Project Orchestrator |
 
 ## Update Rules
 
