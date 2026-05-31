@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Add simulated ADC quantization as an ordered pre-criteria waveform transform.
+Route remaining M1 and M3 backlog after completing simulated ADC quantization.
 
 ## Current Stage
 
-ADC quantization implementation, documentation, and local validation are complete on `feature/adc-quantization-transform`; tracking issue #24 is open for PR handoff.
+ADC quantization implementation, documentation, and local validation are complete; PR #25 records release status for issue #24 and M1-003 issue #2.
 
 ## Open Risks
 
@@ -46,16 +46,16 @@ ADC quantization implementation, documentation, and local validation are complet
 
 Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Open an ADC quantization PR for issue #24 and keep hardware/DAQ/certification claims out of scope.
+Expected deliverable: Route remaining M1 issues #4 and #6 plus M3 issues #17-#19 while keeping hardware/DAQ/certification claims out of scope.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: ADC quantization transform.
+- Current milestone: ADC quantization transform complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Protected-branch PR for ADC quantization issue #24.
+- Next gate: Remaining M1 and M3 backlog routing after PR #25.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -126,6 +126,7 @@ Expected deliverable: Open an ADC quantization PR for issue #24 and keep hardwar
 | Domain End-User Review Gate | Pass | `docs/end-user-design-review.md`; PR #23 | Documentation Engineer |
 | ADC Quantization Implementation Gate | Pass | `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `docs/implementation-report.md` | Test Automation Engineer |
 | ADC Quantization Testing Gate | Pass | `docs/validation-log.md`; unit, config, CLI, and workspace tests passed | Release Engineer |
+| ADC Quantization Release Gate | Pass | PR #25 opened with required `rust` CI passing | Project Orchestrator |
 
 ## Update Rules
 
