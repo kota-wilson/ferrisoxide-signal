@@ -128,6 +128,7 @@ Implemented today:
 - Production control and test verification config schema boundaries for future controller-in-the-loop workflows.
 - Virtual controller simulation engine over deterministic abstract sample frames.
 - Fixture/test-double DAQ input abstraction for deterministic sample sources.
+- Host-checkable controller I/O abstraction for portable input/output boundaries.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
@@ -135,7 +136,6 @@ Implemented today:
 Planned or future:
 
 - Controller simulation workflow.
-- Controller I/O abstraction.
 - RTOS deployment package format.
 - Runtime loaders.
 - Raspberry Pi 5 bare-metal runtime work.

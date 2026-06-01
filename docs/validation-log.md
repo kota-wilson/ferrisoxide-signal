@@ -1433,6 +1433,59 @@ Status: Pass; PR #123 merged and issue #78 closed.
 Known gaps: No CLI/desktop workflow integration, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
 Next recommended step: Continue M9 issue work with DAQ/controller I/O abstractions, desktop simulation workflow, deployment package, parity tests, and evidence reporting.
 
+## M9-005 Controller I/O Abstraction Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing controller I/O abstraction
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, HALs, RTOS SDKs, Zephyr tooling, unsafe FFI, controller SDKs, target toolchains, QEMU images, or new third-party dependencies installed.
+- GitHub issue: #81, `M9-005 Add controller I/O abstraction`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-controller-io` | Passed | 4 controller I/O tests passed: read/write behavior, safe-output reset behavior, unknown/wrong-kind/invalid-value rejection, and duplicate-port rejection. |
+| `cargo tree -p ferrisoxide-controller-io` | Passed | Uses the existing approved workspace Serde dependency only; no HAL, RTOS SDK, Zephyr, unsafe FFI, controller SDK, or target hardware dependency appears. |
+| `cargo fmt --check` | Passed | Rust formatting clean after controller I/O/docs edits. |
+| `cargo test --workspace` | Passed | 164 tests passed across CLI, control schema, controller I/O, core, DAQ, embedded, measurements, plot, rule engine, rule schema, signal, simulator, verification schema, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| README/controller I/O/pipeline local Markdown link-target scan | Passed | Local links in README and relevant controller I/O docs resolved. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `fake_controller_io_reads_inputs_and_writes_outputs` | Verifies host fake input reads and output writes over typed controller I/O values. |
+| `fake_controller_io_starts_and_resets_to_safe_outputs` | Verifies outputs initialize to configured safe values and can be reset to safe values after writes. |
+| `fake_controller_io_rejects_unknown_or_invalid_values` | Verifies unknown ports, signal/value kind mismatches, and invalid PWM duty values produce structured errors. |
+| `fake_controller_io_rejects_duplicate_ports` | Verifies duplicate input port IDs are rejected during fake I/O construction. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M9-005.
+- Decision: Pass locally.
+- Reason: Focused controller I/O tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding HALs, RTOS SDKs, Zephyr support, unsafe FFI, controller SDKs, hardware timing claims, or certification claims.
+- Residual risk: Protected GitHub CI, PR merge, issue #81 closure, simulator-to-I/O mapping, DAQ-to-input mapping, HAL adapter, RTOS SDK adapter, target hardware validation, and certification evidence remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-005 controller I/O abstraction.
+Files changed: `Cargo.toml`, `crates/ferrisoxide-controller-io/`, README, architecture/controller workflow docs, controller I/O docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-controller-io`; `cargo tree -p ferrisoxide-controller-io`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/controller I/O/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass locally; PR, protected CI, merge, and issue #81 closure pending.
+Known gaps: No simulator-to-I/O mapping, DAQ-to-input mapping, HAL adapter, RTOS SDK adapter, hardware timing evidence, or certification evidence.
+Next recommended step: Open PR with `Fixes #81`, wait for required CI, and merge only after checks pass.
+
 ## M9-004 DAQ Input Abstraction Validation Update
 
 Date: 2026-06-01
@@ -1469,9 +1522,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing Gate for M9-004.
-- Decision: Pass locally.
-- Reason: Focused DAQ abstraction tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed.
-- Residual risk: Protected GitHub CI, PR merge, issue #79 closure, channel-to-simulator mapping, controller I/O follow-up work, live DAQ SDK gating, and hardware validation remain pending.
+- Decision: Pass.
+- Reason: Focused DAQ abstraction tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, protected CI, and PR merge passed.
+- Residual risk: Channel-to-simulator mapping, controller I/O follow-up work, live DAQ SDK gating, and hardware validation remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -1480,9 +1533,9 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-004 DAQ input abstraction.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-daq/`, README, architecture/controller workflow docs, DAQ docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: `cargo test -p ferrisoxide-daq`; `cargo tree -p ferrisoxide-daq`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/DAQ/pipeline local Markdown link-target scan; `git diff --check`.
-Status: Pass locally.
-Known gaps: No live DAQ SDK, channel-to-simulator mapping, controller I/O abstraction, desktop workflow integration, hardware execution, or certification evidence.
-Next recommended step: Run full workspace validation, then open PR with `Fixes #79`, wait for required CI, and merge only after checks pass.
+Status: Pass; PR #124 merged and issue #79 closed.
+Known gaps: No live DAQ SDK, channel-to-simulator mapping, desktop workflow integration, hardware execution, or certification evidence.
+Next recommended step: Continue M9 issue work with controller I/O abstraction, desktop simulation workflow, deployment package, parity tests, and evidence reporting.
 
 ## M8 Completion Release Update
 
