@@ -32,6 +32,7 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 - [Reports](#reports)
 - [SVG Plotting](#svg-plotting)
 - [Heated Actuator Example](#heated-actuator-example)
+- [Desktop Simulation Workflow](#desktop-simulation-workflow)
 - [Portable Rule Packages](#portable-rule-packages)
 - [Embedded And no_std Boundary](#embedded-and-nostd-boundary)
 - [Validation Assets](#validation-assets)
@@ -129,13 +130,13 @@ Implemented today:
 - Virtual controller simulation engine over deterministic abstract sample frames.
 - Fixture/test-double DAQ input abstraction for deterministic sample sources.
 - Host-checkable controller I/O abstraction for portable input/output boundaries.
+- Desktop simulation workflow that loads production control config, test verification config, a channel map, and fixture CSV input.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
 
 Planned or future:
 
-- Controller simulation workflow.
 - RTOS deployment package format.
 - Runtime loaders.
 - Raspberry Pi 5 bare-metal runtime work.
@@ -182,11 +183,27 @@ crates/ferrisoxide-core/         Desktop core library:
                                   filters, criteria adapter, reports.
 
 crates/ferrisoxide-cli/          CLI entry point.
-                                  Builds the `ferrisoxide-signal` binary.
+                                  Builds the `ferrisoxide-signal` binary,
+                                  including analyze, plot, export, and
+                                  desktop simulation workflows.
 
 crates/ferrisoxide-control-schema/
                                   Production control config schema for future
                                   controller-in-the-loop workflows.
+
+crates/ferrisoxide-verification-schema/
+                                  Test verification config schema for
+                                  controller-in-the-loop workflows.
+
+crates/ferrisoxide-simulator/    Deterministic virtual controller simulation
+                                  over production control configs.
+
+crates/ferrisoxide-daq/          Fixture/test-double DAQ sample-source
+                                  abstraction.
+
+crates/ferrisoxide-controller-io/
+                                  Host-checkable controller input/output
+                                  abstraction.
 
 crates/ferrisoxide-plot/         Desktop SVG plotting support.
                                   Isolated so core and embedded crates do not
@@ -275,6 +292,19 @@ CSV file + TOML config
   -> checksum.txt
 ```
 
+### Desktop Simulation Flow
+
+```text
+production control config
+  + test verification config
+  + channel map
+  + fixture CSV input
+  -> fixture DAQ frames
+  -> virtual controller simulation trace
+  -> waveform verification evidence
+  -> JSON or text workflow report
+```
+
 ### Embedded Direction
 
 ```text
@@ -325,6 +355,7 @@ Usage:
   ferrisoxide-signal plot --input <csv> --config examples/basic-config.toml --output annotated.svg
   ferrisoxide-signal plot --input <csv> --time-column time --channels input_v --z-column temp_c --output waveform-3d.svg
   ferrisoxide-signal export-rule-package --input <csv> --config examples/basic-dsl-config.toml --output-dir deployment --package-name switch-rule --package-version 1.0.0 --target controller_runtime
+  ferrisoxide-signal simulate --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --format json
 ```
 
 ## Quick Start
@@ -861,6 +892,75 @@ What it does not prove:
 
 See [heated actuator qualification suite](docs/heated-actuator-qualification-suite.md) for the suite rationale and scope limits.
 
+## Desktop Simulation Workflow
+
+The `simulate` command is the first controller-in-the-loop desktop workflow. It is still software-only, but it connects the milestone pieces into one command:
+
+```text
+production control config
++ test verification config
++ channel map
++ fixture CSV
+-> virtual controller trace
+-> verification evidence
+```
+
+Run the included heated actuator workflow:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- simulate \
+  --input tests/e2e/heated_actuator/input/passing_run.csv \
+  --control-config examples/control-config/production-control-config.toml \
+  --verification-config examples/test-verification-config/test-verification-config.toml \
+  --channel-map examples/simulation/heated-actuator-channel-map.toml \
+  --format text
+```
+
+Expected excerpt:
+
+```text
+Desktop Simulation Workflow
+Mode: normal
+Simulation Frames: 9
+Verification Overall: Pass
+Simulation Transitions:
+- sample_index=3 timestamp=1.000000 machine=actuator_control transition=command_to_heating idle -> heating
+- sample_index=4 timestamp=1.020000 machine=actuator_control transition=feedback_reached heating -> idle
+Verification Criteria:
+- REQ-001: Pass channel=feedback measured=0.020000 required=0.050000 sample_index=4 timestamp=1.020000
+```
+
+Use `--format json` when the output needs to be consumed by automation. The JSON document includes `workflow`, `simulation_trace`, and `verification_evidence` sections. Use `--output-json <path>` to write that JSON to a new file; the command refuses to overwrite an existing artifact.
+
+The channel map is the bridge between CSV fixture columns, logical verification channels, and production-control input IDs:
+
+```toml
+[simulation]
+mode = "normal"
+time_column = "time_s"
+time_unit = "s"
+
+[[channels]]
+id = "command"
+column = "command_v"
+unit = "V"
+
+[[control_inputs]]
+input = "command"
+channel = "command"
+```
+
+Current simulation workflow limits:
+
+- Fixture CSV input only.
+- No live DAQ SDK.
+- No GUI.
+- No production RTOS binding.
+- No hardware timing guarantee.
+- No certification claim.
+
+See [desktop simulation workflow](docs/desktop-simulation-workflow.md) and [controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md).
+
 ## Portable Rule Packages
 
 FerrisOxide can export a reviewable rule package from a validated config and analysis run:
@@ -1019,6 +1119,8 @@ Start here:
 - [Platform targets](docs/platform-targets.md)
 - [Controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md)
 - [Production control config schema](docs/control-config-schema.md)
+- [Test verification config schema](docs/test-verification-config-schema.md)
+- [Desktop simulation workflow](docs/desktop-simulation-workflow.md)
 - [Validation log](docs/validation-log.md)
 - [Traceability matrix](traceability-matrix.md)
 - [Requirements](requirements.md)

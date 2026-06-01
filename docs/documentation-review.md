@@ -30,6 +30,8 @@ M9-004 review update: Issue #79 adds `docs/daq-abstraction.md`, README and archi
 
 M9-005 review update: Issue #81 adds `docs/controller-io-abstraction.md`, README and architecture references, controller workflow status updates, and a pipeline report for the host-checkable controller I/O abstraction while preserving no-HAL, no-RTOS-SDK, no-unsafe-FFI, no-Zephyr-production-support, no-hardware-timing-guarantee, and no-certification scope.
 
+M9-006 review update: Issue #82 adds `docs/desktop-simulation-workflow.md`, a channel-map example, README usage, controller workflow status updates, and a pipeline report for the fixture-driven desktop simulation workflow while preserving no-GUI, no-live-DAQ-SDK, no-production-RTOS-binding, no-hardware-timing-guarantee, and no-certification scope.
+
 ## Evidence
 
 | Artifact | Result |
@@ -66,12 +68,13 @@ M9-005 review update: Issue #81 adds `docs/controller-io-abstraction.md`, README
 | M9-003 virtual controller simulator docs and pipeline report | Pass |
 | M9-004 DAQ input abstraction docs and pipeline report | Pass |
 | M9-005 controller I/O abstraction docs and pipeline report | Pass |
+| M9-006 desktop simulation workflow docs and pipeline report | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, simulator/DAQ/controller-I/O abstraction boundaries, traceability, current-state, and M4/M5/M3/M6/M7/DOCS-001/M9-001/M9-002/M9-003/M9-004/M9-005 follow-up documentation exist and are human-readable.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation boundaries, traceability, current-state, and M4/M5/M3/M6/M7/DOCS-001/M9-001/M9-002/M9-003/M9-004/M9-005/M9-006 follow-up documentation exist and are human-readable.
 - Residual risk: API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
@@ -79,8 +82,8 @@ M9-005 review update: Issue #81 adds `docs/controller-io-abstraction.md`, README
 
 Role: Documentation Engineer
 Goal: Confirm MVP docs are accurate and readable after the validated-MVP feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, `docs/desktop-simulation-workflow.md`, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
 Known gaps: Add API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, and automated docs/link checking later.
-Next recommended step: Continue M9 issue review after M9-005 completion.
+Next recommended step: Continue M9 issue review after M9-006 completion.

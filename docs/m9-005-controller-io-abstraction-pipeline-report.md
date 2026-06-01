@@ -27,8 +27,8 @@ Add a controller I/O abstraction that separates portable controller logic from H
 | Documentation | Documentation Engineer | README, architecture docs, controller I/O docs, validation log | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Local review of scope boundaries and value validation | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #125 with `Fixes #81` and validation evidence | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | Required CI, merge, issue close | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -59,6 +59,6 @@ Role: Software Architect / Core Software Engineer / V&V Engineer
 Goal: Implement issue #81 controller I/O abstraction.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-controller-io/`, README, architecture/controller workflow docs, controller I/O docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: See validation log.
-Status: Pass locally; full workspace validation passed, with PR, protected CI, merge, and issue #81 closure pending.
+Status: Pass; PR #125 merged and issue #81 closed.
 Known gaps: No simulator-to-I/O mapping, DAQ-to-input mapping, HAL adapter, RTOS SDK adapter, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #81`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9 issue work with desktop simulation workflow, deployment format, mode separation, parity tests, and evidence reporting.

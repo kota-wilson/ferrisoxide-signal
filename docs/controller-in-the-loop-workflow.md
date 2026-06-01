@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Planned architecture direction; not yet implemented
+Status: Partially implemented through fixture-driven desktop simulation; deployment and runtime work remain planned.
 
 ## Summary
 
@@ -138,13 +138,13 @@ Recommended future crate/module boundaries:
 | `ferrisoxide-rule-engine` | Shared test verification rule execution semantics. | Exists. |
 | `ferrisoxide-control-schema` | Production control config schema and state-machine model. | Exists as an M9-001 schema boundary; execution remains future work. |
 | `ferrisoxide-verification-schema` | Test verification config schema for expected transitions, limits, timing windows, evidence, and report settings. | Exists as an M9-002 schema boundary; execution remains future work. |
-| `ferrisoxide-simulator` | Desktop virtual controller simulation engine over production control config and abstract sample frames. | Exists as an M9-003 engine boundary; CLI/desktop workflow integration remains future work. |
+| `ferrisoxide-simulator` | Desktop virtual controller simulation engine over production control config and abstract sample frames. | Exists as an M9-003 engine boundary and is wired into the M9-006 fixture-driven CLI simulation workflow. |
 | `ferrisoxide-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
 | `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Exists as an M9-004 fixture/test-double boundary; vendor SDKs and live hardware remain future gated work. |
 | `ferrisoxide-controller-io` | Host-checkable controller input/output abstraction. | Exists as an M9-005 fake I/O boundary; HAL and RTOS SDK adapters remain future gated work. |
 | `ferrisoxide-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
 | `ferrisoxide-pico-runtime` | Optional Pico 2 microcontroller adapter for compact configs, fixed buffers, threshold/timing criteria, simple filters, and GPIO/PWM actions. | Future issue #92 work; not implemented. |
-| `ferrisoxide-cli` | CLI workflows for analysis, plotting, export, and future simulation commands. | Exists. |
+| `ferrisoxide-cli` | CLI workflows for analysis, plotting, export, and fixture-driven desktop simulation. | Exists; `simulate` loads production control config, test verification config, a channel map, and fixture CSV input. |
 
 Platform profiles are defined in `docs/platform-targets.md`. Controller-in-the-loop implementation should treat Apple Silicon macOS as the desktop authoring platform, Raspberry Pi 5 bare-metal ARM64 as the first-class richer embedded runtime target, and Raspberry Pi Pico 2 as a later optional microcontroller target for constrained deterministic rule execution.
 
@@ -357,6 +357,6 @@ Role: Software Architect / Embedded RTOS Engineer
 Goal: Define the controller-in-the-loop workflow and deployment configuration architecture.
 Files changed: `docs/controller-in-the-loop-workflow.md`.
 Checks run: Architecture review by inspection.
-Status: Planned architecture direction; not implemented.
-Known gaps: No deployment package implementation, desktop simulation workflow, live DAQ SDK integration, HAL/RTOS controller I/O adapter, or RTOS verification runtime exists yet.
-Next recommended step: Continue M9 issues in dependency order: desktop simulation workflow, deployment format, parity tests, and qualification evidence reports.
+Status: Partially implemented; fixture-driven desktop simulation exists, while deployment and runtime work remain planned.
+Known gaps: No deployment package implementation, live DAQ SDK integration, HAL/RTOS controller I/O adapter, or RTOS verification runtime exists yet.
+Next recommended step: Continue M9 issues in dependency order: deployment format, mode separation, parity tests, and qualification evidence reports.

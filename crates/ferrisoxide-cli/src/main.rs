@@ -5,18 +5,26 @@ use std::io::Write;
 use std::path::Path;
 use std::process::ExitCode;
 
+use ferrisoxide_control_schema::{
+    parse_control_config_toml, DigitalState as ControlDigitalState, ProductionControlConfig,
+    SignalKind,
+};
 use ferrisoxide_core::analysis::evaluate_criteria_with_measurements;
 use ferrisoxide_core::config::AnalysisConfig;
 use ferrisoxide_core::criteria::{
     Criterion, CriterionCheck, CriterionOperator, EdgeDirection, MeasurementSpec,
-    RunSelectionConfig, SignalState, TransientEventKind,
+    ResponseLatencySpec, RunSelectionConfig, SignalState, TransientEventKind, TransientEventWindow,
 };
 use ferrisoxide_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
 use ferrisoxide_core::filter::{
     apply_filter_chain, AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter,
 };
-use ferrisoxide_core::model::{MetadataContext, TolerancePolicy};
+use ferrisoxide_core::model::{Channel, MetadataContext, TolerancePolicy, Unit, Waveform};
 use ferrisoxide_core::report::{AnalysisReport, ReportEvidenceContext};
+use ferrisoxide_daq::{
+    collect_frames, DaqChannel, DaqSampleFrame, DaqSampleValue, DaqSourceDescriptor, DaqSourceKind,
+    FixtureDaqSource,
+};
 use ferrisoxide_plot::{evidence_overlays, render_svg, PlotOptions};
 use ferrisoxide_rule_schema::{
     checksum_str, ChannelDefinition, ChecksumMetadata, ComparisonOperator, CriterionDefinition,
@@ -25,6 +33,15 @@ use ferrisoxide_rule_schema::{
     RulePackage, RulePackageManifest, SampleTimingAssumption, TargetProfile, TargetProfileKind,
     ThresholdDefinition, ThresholdRole, UnitValue,
 };
+use ferrisoxide_simulator::{
+    simulate_controller, SimulatedInputValue, SimulationInputFrame, SimulationReport,
+};
+use ferrisoxide_verification_schema::{
+    parse_verification_config_toml, DigitalState as VerificationDigitalState,
+    TestVerificationConfig, TransientEventKind as VerificationTransientEventKind,
+    VerificationChannel,
+};
+use serde::{Deserialize, Serialize};
 
 fn main() -> ExitCode {
     match run(env::args().skip(1).collect()) {
@@ -48,8 +65,9 @@ fn run(args: Vec<String>) -> Result<String, String> {
         Some("analyze") => run_analyze(&args),
         Some("plot") => run_plot(&args),
         Some("export-rule-package") => run_export_rule_package(&args),
+        Some("simulate") => run_simulate(&args),
         Some(other) => Err(format!(
-            "expected subcommand `analyze`, `plot`, or `export-rule-package`, got `{other}`"
+            "expected subcommand `analyze`, `plot`, `export-rule-package`, or `simulate`, got `{other}`"
         )),
         None => Ok(help()),
     }
@@ -306,6 +324,758 @@ fn run_export_rule_package(args: &[String]) -> Result<String, String> {
         "Rule package exported to {}\nArtifacts: rules.toml, rules.json, validation-report.json, manifest.json, checksum.txt",
         output_dir.display()
     ))
+}
+
+fn run_simulate(args: &[String]) -> Result<String, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let control_config_path =
+        value_after(args, "--control-config").ok_or("missing --control-config <toml>")?;
+    let verification_config_path =
+        value_after(args, "--verification-config").ok_or("missing --verification-config <toml>")?;
+    let channel_map_path =
+        value_after(args, "--channel-map").ok_or("missing --channel-map <toml>")?;
+    let output_format = value_after(args, "--format").unwrap_or("json");
+
+    let control_config = load_control_config(control_config_path)?;
+    let verification_config = load_verification_config(verification_config_path)?;
+    let channel_map = load_simulation_channel_map(channel_map_path)?;
+    validate_simulation_channel_map(&channel_map, &control_config, &verification_config)?;
+
+    let mode = value_after(args, "--mode")
+        .unwrap_or(&channel_map.simulation.mode)
+        .to_string();
+    let workflow = run_desktop_simulation_workflow(DesktopSimulationInput {
+        input_path,
+        control_config_path,
+        verification_config_path,
+        channel_map_path,
+        mode,
+        control_config,
+        verification_config,
+        channel_map,
+    })?;
+
+    let output = match output_format {
+        "json" => render_desktop_simulation_json(&workflow),
+        "text" => Ok(render_desktop_simulation_text(&workflow)),
+        _ => Err(format!(
+            "unsupported --format `{output_format}`; use text or json"
+        )),
+    }?;
+
+    if let Some(output_path) = value_after(args, "--output-json") {
+        if output_format != "json" {
+            return Err("--output-json requires --format json".to_string());
+        }
+        write_new_file(Path::new(output_path), &with_trailing_newline(output))?;
+        return Ok(format!(
+            "Desktop simulation workflow written to {output_path}"
+        ));
+    }
+
+    Ok(output)
+}
+
+struct DesktopSimulationInput<'a> {
+    input_path: &'a str,
+    control_config_path: &'a str,
+    verification_config_path: &'a str,
+    channel_map_path: &'a str,
+    mode: String,
+    control_config: ProductionControlConfig,
+    verification_config: TestVerificationConfig,
+    channel_map: SimulationChannelMap,
+}
+
+struct DesktopSimulationRun {
+    input_path: String,
+    control_config_path: String,
+    verification_config_path: String,
+    channel_map_path: String,
+    mode: String,
+    channel_map: SimulationChannelMap,
+    simulation: SimulationReport,
+    verification: AnalysisReport,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct SimulationChannelMap {
+    simulation: SimulationSettings,
+    channels: Vec<SimulationChannelMapping>,
+    control_inputs: Vec<SimulationControlInputMapping>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct SimulationSettings {
+    mode: String,
+    time_column: String,
+    #[serde(default = "default_time_unit")]
+    time_unit: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct SimulationChannelMapping {
+    id: String,
+    column: String,
+    unit: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct SimulationControlInputMapping {
+    input: String,
+    channel: String,
+}
+
+fn default_time_unit() -> String {
+    "s".to_string()
+}
+
+fn run_desktop_simulation_workflow(
+    input: DesktopSimulationInput<'_>,
+) -> Result<DesktopSimulationRun, String> {
+    let waveform = load_fixture_waveform(input.input_path, &input.channel_map)?;
+    let daq_frames = collect_fixture_daq_frames(input.input_path, &input.channel_map, &waveform)?;
+    let simulation_frames = simulation_frames_from_daq(
+        &input.control_config,
+        &input.verification_config,
+        &input.channel_map,
+        &daq_frames,
+    )?;
+    let simulation = simulate_controller(&input.control_config, &input.mode, &simulation_frames)
+        .map_err(|error| format!("simulation failed: {error}"))?;
+    let criteria = verification_criteria(&input.verification_config)?;
+    let evaluation =
+        evaluate_criteria_with_measurements(&waveform, &criteria, TolerancePolicy::default())
+            .map_err(|error| format!("verification failed: {error}"))?;
+    let verification = AnalysisReport {
+        input_name: input.input_path.to_string(),
+        waveform_metadata: waveform.metadata.clone(),
+        evidence_context: ReportEvidenceContext::engineering_validation(TolerancePolicy::default()),
+        measurements: evaluation.measurements,
+        results: evaluation.results,
+    };
+
+    Ok(DesktopSimulationRun {
+        input_path: input.input_path.to_string(),
+        control_config_path: input.control_config_path.to_string(),
+        verification_config_path: input.verification_config_path.to_string(),
+        channel_map_path: input.channel_map_path.to_string(),
+        mode: input.mode,
+        channel_map: input.channel_map,
+        simulation,
+        verification,
+    })
+}
+
+fn render_desktop_simulation_json(workflow: &DesktopSimulationRun) -> Result<String, String> {
+    let verification_evidence: serde_json::Value = serde_json::from_str(
+        &workflow
+            .verification
+            .render_json_pretty()
+            .map_err(|error| format!("failed to render verification evidence: {error}"))?,
+    )
+    .map_err(|error| format!("failed to build simulation workflow json: {error}"))?;
+    let document = serde_json::json!({
+        "workflow": {
+            "kind": "desktop_simulation",
+            "input": workflow.input_path,
+            "production_control_config": workflow.control_config_path,
+            "test_verification_config": workflow.verification_config_path,
+            "channel_map": workflow.channel_map_path,
+            "mode": workflow.mode,
+            "scope_note": "software-only desktop simulation evidence; not live DAQ, hardware qualification, RTOS runtime, or certification evidence",
+            "loaded_channel_map": workflow.channel_map,
+        },
+        "simulation_trace": workflow.simulation,
+        "verification_evidence": verification_evidence,
+    });
+
+    serde_json::to_string_pretty(&document)
+        .map_err(|error| format!("failed to render simulation workflow json: {error}"))
+}
+
+fn render_desktop_simulation_text(workflow: &DesktopSimulationRun) -> String {
+    let mut output = String::new();
+    output.push_str("Desktop Simulation Workflow\n");
+    output.push_str(&format!("Input: {}\n", workflow.input_path));
+    output.push_str(&format!("Mode: {}\n", workflow.mode));
+    output.push_str(&format!(
+        "Simulation Frames: {}\n",
+        workflow.simulation.frames.len()
+    ));
+    output.push_str(&format!(
+        "Verification Overall: {:?}\n",
+        workflow.verification.overall_outcome()
+    ));
+    output.push_str("Simulation Transitions:\n");
+    for frame in &workflow.simulation.frames {
+        for transition in &frame.transitions {
+            output.push_str(&format!(
+                "- sample_index={} timestamp={:.6} machine={} transition={} {} -> {}\n",
+                frame.sample_index,
+                frame.time_s,
+                transition.machine,
+                transition.transition,
+                transition.from,
+                transition.to
+            ));
+        }
+    }
+    output.push_str("Verification Criteria:\n");
+    for result in &workflow.verification.results {
+        output.push_str(&format!(
+            "- {}: {:?} channel={} measured={:.6} required={:.6} sample_index={} timestamp={:.6}\n",
+            result.criterion_id,
+            result.outcome,
+            result.channel,
+            result.measured_value,
+            result.required_value,
+            result.sample_index,
+            result.timestamp
+        ));
+    }
+    output
+}
+
+fn load_control_config(path: &str) -> Result<ProductionControlConfig, String> {
+    let input =
+        fs::read_to_string(path).map_err(|error| format!("failed to read `{path}`: {error}"))?;
+    let config = parse_control_config_toml(&input)
+        .map_err(|error| format!("failed to parse control config `{path}`: {error}"))?;
+    config
+        .validate()
+        .map_err(|report| format!("invalid control config `{path}`: {report}"))?;
+    Ok(config)
+}
+
+fn load_verification_config(path: &str) -> Result<TestVerificationConfig, String> {
+    let input =
+        fs::read_to_string(path).map_err(|error| format!("failed to read `{path}`: {error}"))?;
+    let config = parse_verification_config_toml(&input)
+        .map_err(|error| format!("failed to parse verification config `{path}`: {error}"))?;
+    config
+        .validate()
+        .map_err(|report| format!("invalid verification config `{path}`: {report}"))?;
+    Ok(config)
+}
+
+fn load_simulation_channel_map(path: &str) -> Result<SimulationChannelMap, String> {
+    let input =
+        fs::read_to_string(path).map_err(|error| format!("failed to read `{path}`: {error}"))?;
+    toml::from_str::<SimulationChannelMap>(&input)
+        .map_err(|error| format!("failed to parse simulation channel map `{path}`: {error}"))
+}
+
+fn validate_simulation_channel_map(
+    channel_map: &SimulationChannelMap,
+    control_config: &ProductionControlConfig,
+    verification_config: &TestVerificationConfig,
+) -> Result<(), String> {
+    if channel_map.simulation.mode.trim().is_empty() {
+        return Err("channel map simulation.mode must not be empty".to_string());
+    }
+    if channel_map.simulation.time_column.trim().is_empty() {
+        return Err("channel map simulation.time_column must not be empty".to_string());
+    }
+    if channel_map.simulation.time_unit != "s" {
+        return Err("channel map simulation.time_unit must be `s` for this workflow".to_string());
+    }
+    if channel_map.channels.is_empty() {
+        return Err("channel map must include at least one [[channels]] entry".to_string());
+    }
+    if channel_map.control_inputs.is_empty() {
+        return Err("channel map must include at least one [[control_inputs]] entry".to_string());
+    }
+
+    let mut channel_ids = std::collections::BTreeSet::new();
+    let mut columns = std::collections::BTreeSet::new();
+    for channel in &channel_map.channels {
+        if channel.id.trim().is_empty() {
+            return Err("channel map channel id must not be empty".to_string());
+        }
+        if channel.column.trim().is_empty() {
+            return Err(format!(
+                "channel map channel `{}` column must not be empty",
+                channel.id
+            ));
+        }
+        if channel.unit.trim().is_empty() {
+            return Err(format!(
+                "channel map channel `{}` unit must not be empty",
+                channel.id
+            ));
+        }
+        if !channel_ids.insert(channel.id.clone()) {
+            return Err(format!("duplicate channel map channel `{}`", channel.id));
+        }
+        if !columns.insert(channel.column.clone()) {
+            return Err(format!(
+                "duplicate channel map source column `{}`",
+                channel.column
+            ));
+        }
+    }
+
+    let mut mapped_inputs = std::collections::BTreeSet::new();
+    for mapping in &channel_map.control_inputs {
+        if !control_config
+            .inputs
+            .iter()
+            .any(|input| input.id == mapping.input)
+        {
+            return Err(format!(
+                "channel map references unknown control input `{}`",
+                mapping.input
+            ));
+        }
+        if !channel_ids.contains(&mapping.channel) {
+            return Err(format!(
+                "channel map control input `{}` references unknown channel `{}`",
+                mapping.input, mapping.channel
+            ));
+        }
+        if !mapped_inputs.insert(mapping.input.clone()) {
+            return Err(format!(
+                "duplicate channel map control input `{}`",
+                mapping.input
+            ));
+        }
+    }
+    for input in &control_config.inputs {
+        if !mapped_inputs.contains(&input.id) {
+            return Err(format!(
+                "channel map is missing required control input `{}`",
+                input.id
+            ));
+        }
+    }
+
+    for verification_channel in &verification_config.channels {
+        let Some(mapped_channel) = channel_map
+            .channels
+            .iter()
+            .find(|channel| channel.id == verification_channel.id)
+        else {
+            return Err(format!(
+                "channel map is missing verification channel `{}`",
+                verification_channel.id
+            ));
+        };
+        if mapped_channel.column != verification_channel.column {
+            return Err(format!(
+                "channel map channel `{}` column `{}` does not match verification config column `{}`",
+                mapped_channel.id, mapped_channel.column, verification_channel.column
+            ));
+        }
+        if mapped_channel.unit != verification_channel.unit {
+            return Err(format!(
+                "channel map channel `{}` unit `{}` does not match verification config unit `{}`",
+                mapped_channel.id, mapped_channel.unit, verification_channel.unit
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+fn load_fixture_waveform(
+    input_path: &str,
+    channel_map: &SimulationChannelMap,
+) -> Result<Waveform, String> {
+    let input = fs::read_to_string(input_path)
+        .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
+    let columns = channel_map
+        .channels
+        .iter()
+        .map(|channel| channel.column.clone())
+        .collect::<Vec<_>>();
+    let mut options = CsvParseOptions::new(&channel_map.simulation.time_column, columns);
+    options.time_unit = Unit::new(&channel_map.simulation.time_unit);
+    let parsed = SimpleCsvParser
+        .parse_str(&input, &options)
+        .map_err(|error| format!("failed to parse simulation fixture: {error}"))?;
+    let channels = channel_map
+        .channels
+        .iter()
+        .map(|mapping| {
+            let source = parsed
+                .channel(&mapping.column)
+                .ok_or_else(|| format!("parsed fixture is missing `{}`", mapping.column))?;
+            Ok(Channel::new(
+                mapping.id.clone(),
+                Unit::new(&mapping.unit),
+                source.samples.clone(),
+            ))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+
+    Waveform::new_with_time_unit(
+        parsed.time.clone(),
+        Unit::new(&channel_map.simulation.time_unit),
+        channels,
+    )
+    .map_err(|error| format!("failed to build simulation waveform: {error}"))
+    .map(|waveform| {
+        waveform
+            .with_source_name(input_path.to_string())
+            .with_tolerance_policy(TolerancePolicy::default())
+    })
+}
+
+fn collect_fixture_daq_frames(
+    input_path: &str,
+    channel_map: &SimulationChannelMap,
+    waveform: &Waveform,
+) -> Result<Vec<DaqSampleFrame>, String> {
+    let descriptor = DaqSourceDescriptor {
+        name: input_path.to_string(),
+        kind: DaqSourceKind::Fixture,
+        channels: channel_map
+            .channels
+            .iter()
+            .map(|channel| DaqChannel::new(&channel.id, &channel.column, &channel.unit))
+            .collect(),
+    };
+    let frames = (0..waveform.sample_count())
+        .map(|sample_index| {
+            let mut frame = DaqSampleFrame::new(waveform.time[sample_index]);
+            for channel in &channel_map.channels {
+                let waveform_channel = waveform
+                    .channel(&channel.id)
+                    .ok_or_else(|| format!("waveform is missing channel `{}`", channel.id))?;
+                frame = frame.with_value(
+                    &channel.id,
+                    DaqSampleValue::Analog {
+                        value: waveform_channel.samples[sample_index],
+                    },
+                );
+            }
+            Ok(frame)
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let mut source = FixtureDaqSource::new(descriptor, frames)
+        .map_err(|error| format!("failed to build fixture DAQ source: {error}"))?;
+    collect_frames(&mut source, usize::MAX)
+        .map_err(|error| format!("failed to collect fixture DAQ frames: {error}"))
+}
+
+fn simulation_frames_from_daq(
+    control_config: &ProductionControlConfig,
+    verification_config: &TestVerificationConfig,
+    channel_map: &SimulationChannelMap,
+    daq_frames: &[DaqSampleFrame],
+) -> Result<Vec<SimulationInputFrame>, String> {
+    let input_to_channel = channel_map
+        .control_inputs
+        .iter()
+        .map(|mapping| (mapping.input.as_str(), mapping.channel.as_str()))
+        .collect::<BTreeMap<_, _>>();
+    let verification_channels = verification_channels_by_id(verification_config);
+    daq_frames
+        .iter()
+        .enumerate()
+        .map(|(sample_index, daq_frame)| {
+            let mut frame = SimulationInputFrame::new(daq_frame.time_s);
+            for input in &control_config.inputs {
+                let channel_id = input_to_channel.get(input.id.as_str()).ok_or_else(|| {
+                    format!("missing channel map for control input `{}`", input.id)
+                })?;
+                let value = daq_frame.values.get(*channel_id).ok_or_else(|| {
+                    format!("DAQ frame {sample_index} is missing mapped channel `{channel_id}`")
+                })?;
+                let verification_channel = verification_channels
+                    .get(*channel_id)
+                    .ok_or_else(|| format!("missing verification channel `{channel_id}`"))?;
+                frame = frame.with_input(
+                    &input.id,
+                    simulated_input_value(
+                        input.signal,
+                        value,
+                        verification_config,
+                        verification_channel,
+                    )?,
+                );
+            }
+            Ok(frame)
+        })
+        .collect()
+}
+
+fn simulated_input_value(
+    signal: SignalKind,
+    value: &DaqSampleValue,
+    verification_config: &TestVerificationConfig,
+    channel: &VerificationChannel,
+) -> Result<SimulatedInputValue, String> {
+    match signal {
+        SignalKind::AnalogVoltage | SignalKind::Virtual => match value {
+            DaqSampleValue::Analog { value } => Ok(SimulatedInputValue::Analog { value: *value }),
+            DaqSampleValue::Digital { high } => Ok(SimulatedInputValue::Digital {
+                state: if *high {
+                    ControlDigitalState::High
+                } else {
+                    ControlDigitalState::Low
+                },
+            }),
+        },
+        SignalKind::Digital | SignalKind::Gpio => match value {
+            DaqSampleValue::Digital { high } => Ok(SimulatedInputValue::Digital {
+                state: if *high {
+                    ControlDigitalState::High
+                } else {
+                    ControlDigitalState::Low
+                },
+            }),
+            DaqSampleValue::Analog { value } => {
+                let threshold = decision_threshold(
+                    verification_config,
+                    &channel.id,
+                    VerificationDigitalState::High,
+                )?;
+                Ok(SimulatedInputValue::Digital {
+                    state: if *value >= threshold {
+                        ControlDigitalState::High
+                    } else {
+                        ControlDigitalState::Low
+                    },
+                })
+            }
+        },
+        SignalKind::Pwm => Err(format!(
+            "control input `{}` uses unsupported PWM signal mapping for simulation input",
+            channel.id
+        )),
+    }
+}
+
+fn verification_criteria(config: &TestVerificationConfig) -> Result<Vec<Criterion>, String> {
+    let mut criteria = Vec::new();
+
+    for transition in &config.expected_transitions {
+        if !transition.required {
+            continue;
+        }
+        if transition.min_latency_s.unwrap_or(0.0) > 0.0 {
+            return Err(format!(
+                "expected transition `{}` min_latency_s is not supported by the current desktop workflow",
+                transition.id
+            ));
+        }
+        let source_channel = transition.reference_channel.as_ref().ok_or_else(|| {
+            format!(
+                "expected transition `{}` requires reference_channel for response-latency evaluation",
+                transition.id
+            )
+        })?;
+        let source_state = transition.reference_state.ok_or_else(|| {
+            format!(
+                "expected transition `{}` requires reference_state for response-latency evaluation",
+                transition.id
+            )
+        })?;
+        let max_latency_s = transition.max_latency_s.ok_or_else(|| {
+            format!(
+                "expected transition `{}` requires max_latency_s for response-latency evaluation",
+                transition.id
+            )
+        })?;
+        criteria.push(Criterion::response_latency(
+            &transition.id,
+            ResponseLatencySpec {
+                source_channel: source_channel.clone(),
+                target_channel: transition.channel.clone(),
+                source_threshold_v: decision_threshold(config, source_channel, source_state)?,
+                target_threshold_v: decision_threshold(
+                    config,
+                    &transition.channel,
+                    transition.to_state,
+                )?,
+                source_state: signal_state(source_state),
+                expected_target_state: signal_state(transition.to_state),
+                max_latency_s,
+            },
+        ));
+    }
+
+    for limit in &config.voltage_limits {
+        match (limit.min_v, limit.max_v) {
+            (Some(min_v), Some(max_v)) => {
+                criteria.push(Criterion::minimum_voltage(
+                    format!("{}-min", limit.id),
+                    &limit.channel,
+                    min_v,
+                ));
+                criteria.push(Criterion::maximum_voltage(
+                    format!("{}-max", limit.id),
+                    &limit.channel,
+                    max_v,
+                ));
+            }
+            (Some(min_v), None) => {
+                criteria.push(Criterion::minimum_voltage(&limit.id, &limit.channel, min_v))
+            }
+            (None, Some(max_v)) => {
+                criteria.push(Criterion::maximum_voltage(&limit.id, &limit.channel, max_v))
+            }
+            (None, None) => {
+                return Err(format!(
+                    "voltage limit `{}` must include min_v or max_v",
+                    limit.id
+                ));
+            }
+        }
+    }
+
+    for requirement in &config.pulse_widths {
+        criteria.push(Criterion::pulse_width(
+            &requirement.id,
+            &requirement.channel,
+            signal_state(requirement.state),
+            decision_threshold(config, &requirement.channel, requirement.state)?,
+            requirement.min_width_s,
+            requirement.max_width_s,
+        ));
+    }
+
+    for limit in &config.transient_limits {
+        let (start_time_s, end_time_s) = timing_window(config, limit.window.as_deref())?;
+        criteria.push(Criterion::transient_event_window(
+            &limit.id,
+            &limit.channel,
+            transient_event_kind(limit.event_kind),
+            signal_state(limit.expected_state),
+            decision_threshold(config, &limit.channel, limit.expected_state)?,
+            limit.max_duration_s,
+            TransientEventWindow {
+                start_time_s,
+                end_time_s,
+                arm_after_first_expected_state: limit.arm_after_first_expected_state,
+            },
+        ));
+    }
+
+    for limit in &config.dropout_limits {
+        let (start_time_s, end_time_s) = timing_window(config, limit.window.as_deref())?;
+        criteria.push(Criterion::transient_event_window(
+            &limit.id,
+            &limit.channel,
+            TransientEventKind::Dropout,
+            signal_state(limit.expected_state),
+            decision_threshold(config, &limit.channel, limit.expected_state)?,
+            limit.max_duration_s,
+            TransientEventWindow {
+                start_time_s,
+                end_time_s,
+                arm_after_first_expected_state: false,
+            },
+        ));
+    }
+
+    for requirement in &config.stable_state_requirements {
+        criteria.push(Criterion::stable_state_duration(
+            &requirement.id,
+            &requirement.channel,
+            signal_state(requirement.state),
+            requirement.threshold_v.unwrap_or(decision_threshold(
+                config,
+                &requirement.channel,
+                requirement.state,
+            )?),
+            requirement.min_duration_s,
+        ));
+    }
+
+    if criteria.is_empty() {
+        return Err("verification config did not produce any executable criteria".to_string());
+    }
+
+    Ok(criteria)
+}
+
+fn verification_channels_by_id(
+    config: &TestVerificationConfig,
+) -> BTreeMap<&str, &VerificationChannel> {
+    config
+        .channels
+        .iter()
+        .map(|channel| (channel.id.as_str(), channel))
+        .collect()
+}
+
+fn decision_threshold(
+    config: &TestVerificationConfig,
+    channel_id: &str,
+    state: VerificationDigitalState,
+) -> Result<f64, String> {
+    let channel = config
+        .channels
+        .iter()
+        .find(|channel| channel.id == channel_id)
+        .ok_or_else(|| format!("unknown verification channel `{channel_id}`"))?;
+    match (channel.low_threshold, channel.high_threshold) {
+        (Some(low), Some(high)) => return Ok((low + high) / 2.0),
+        (Some(low), None) => return Ok(low),
+        (None, Some(high)) => return Ok(high),
+        (None, None) => {}
+    }
+
+    for limit in &config.voltage_limits {
+        if limit.channel == channel_id {
+            match state {
+                VerificationDigitalState::High => {
+                    if let Some(min_v) = limit.min_v {
+                        return Ok(min_v);
+                    }
+                }
+                VerificationDigitalState::Low => {
+                    if let Some(max_v) = limit.max_v {
+                        return Ok(max_v);
+                    }
+                }
+            }
+        }
+    }
+
+    Err(format!(
+        "verification channel `{channel_id}` needs low/high thresholds or a compatible voltage limit"
+    ))
+}
+
+fn timing_window(
+    config: &TestVerificationConfig,
+    window_id: Option<&str>,
+) -> Result<(Option<f64>, Option<f64>), String> {
+    let Some(window_id) = window_id else {
+        return Ok((None, None));
+    };
+    let window = config
+        .timing_windows
+        .iter()
+        .find(|window| window.id == window_id)
+        .ok_or_else(|| format!("unknown timing window `{window_id}`"))?;
+    Ok((Some(window.start_s), window.end_s))
+}
+
+fn signal_state(state: VerificationDigitalState) -> SignalState {
+    match state {
+        VerificationDigitalState::Low => SignalState::Low,
+        VerificationDigitalState::High => SignalState::High,
+    }
+}
+
+fn transient_event_kind(kind: VerificationTransientEventKind) -> TransientEventKind {
+    match kind {
+        VerificationTransientEventKind::TransientEvent => TransientEventKind::TransientEvent,
+        VerificationTransientEventKind::SpuriousTransition
+        | VerificationTransientEventKind::FalseTransition => TransientEventKind::SpuriousTransition,
+        VerificationTransientEventKind::ContactBounce => TransientEventKind::ContactBounce,
+        VerificationTransientEventKind::NoiseInducedTransition => {
+            TransientEventKind::NoiseInducedTransition
+        }
+        VerificationTransientEventKind::ThresholdCrossingEvent => {
+            TransientEventKind::ThresholdCrossingEvent
+        }
+    }
 }
 
 struct ExportArtifact {
@@ -1250,10 +2020,12 @@ fn help() -> String {
         "  ferrisoxide-signal plot --input <csv> --config examples/basic-config.toml --output annotated.svg",
         "  ferrisoxide-signal plot --input <csv> --time-column time --channels input_v --z-column temp_c --output waveform-3d.svg",
         "  ferrisoxide-signal export-rule-package --input <csv> --config examples/basic-dsl-config.toml --output-dir deployment --package-name switch-rule --package-version 1.0.0 --target controller_runtime",
+        "  ferrisoxide-signal simulate --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --format json",
         "",
         "ADC quantization syntax: --adc-quantize bits:min_v:max_v",
         "Plot output is SVG. Use --config to add 2D criteria evidence overlays; use --z-column for an optional third axis.",
         "Rule package export writes rules.toml, rules.json, and validation-report.json without overwriting existing artifacts.",
+        "Desktop simulation loads production control config, test verification config, a channel map, and fixture CSV input.",
         "Formats: text, json",
     ]
     .join("\n")
@@ -1441,6 +2213,43 @@ mod tests {
         assert!(output.contains("\"overall_outcome\": \"pass\""));
         assert!(output.contains("\"criterion_id\": \"REQ-001\""));
         assert!(output.contains("\"method\": \"response_latency\""));
+    }
+
+    #[test]
+    fn runs_desktop_simulation_workflow_with_fixture_input() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path =
+            format!("{manifest_dir}/../../tests/e2e/heated_actuator/input/passing_run.csv");
+        let control_config_path =
+            format!("{manifest_dir}/../../examples/control-config/production-control-config.toml");
+        let verification_config_path = format!(
+            "{manifest_dir}/../../examples/test-verification-config/test-verification-config.toml"
+        );
+        let channel_map_path =
+            format!("{manifest_dir}/../../examples/simulation/heated-actuator-channel-map.toml");
+
+        let output = run(vec![
+            "simulate".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--control-config".to_string(),
+            control_config_path,
+            "--verification-config".to_string(),
+            verification_config_path,
+            "--channel-map".to_string(),
+            channel_map_path,
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("desktop simulation workflow should run");
+
+        assert!(output.contains("\"kind\": \"desktop_simulation\""));
+        assert!(output.contains("\"simulation_trace\""));
+        assert!(output.contains("\"transition\": \"command_to_heating\""));
+        assert!(output.contains("\"transition\": \"feedback_reached\""));
+        assert!(output.contains("\"verification_evidence\""));
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        assert!(output.contains("\"criterion_id\": \"REQ-001\""));
     }
 
     #[test]
