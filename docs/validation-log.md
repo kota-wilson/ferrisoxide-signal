@@ -22,6 +22,69 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M12 Event Validation Transform MVP Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing event records, event validations, switch/bounce fixtures, and Schmitt no_std-compatible primitive
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no new dependencies, Python packages, global tools, GUI frameworks, live DAQ SDKs, HALs, RTOS SDKs, target toolchains, QEMU images, signing tools, runtime loaders, or hardware execution added.
+- GitHub milestone: #12, `v0.10.0: Event And Validation Transform MVP`
+- GitHub issues: #149 through #155
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-core event -- --nocapture` | Passed | Event pipeline, config, report outcome, and related event tests passed locally. |
+| `cargo test -p ferrisoxide-cli analyzes_config_with_m12_event_validation_transforms -- --nocapture` | Passed | CLI JSON report includes event records, event validations, event/validation output metadata, and pass outcome for the switch/bounce fixture. |
+| `cargo test -p ferrisoxide-rule-engine schmitt_trigger -- --nocapture` | Passed | no_std-compatible Schmitt state primitive covers hysteresis and invalid thresholds. |
+| `cargo fmt --check` | Passed | Formatting clean. |
+| `cargo test --workspace` | Passed | 197 workspace unit, integration, and doctest checks passed. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| Local Markdown link-target scan | Passed | Local Markdown links resolved. |
+| Stale current M12 wording scan | Passed | No stale "M12 pending/proposed" wording in active M12 docs/state artifacts. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `schmitt_trigger_states_use_hysteresis` | Confirms no_std-compatible Schmitt state transitions use on/off hysteresis. |
+| `schmitt_trigger_rejects_invalid_thresholds` | Confirms invalid Schmitt thresholds return structured errors. |
+| `schmitt_trigger_records_edges_and_prevents_chatter` | Confirms event records expose Schmitt transitions and edge extraction without chatter. |
+| `debounce_and_glitch_removal_reject_short_pulses` | Confirms short internal pulses are rejected and cleaned edge output remains. |
+| `bounce_detection_and_event_validations_link_evidence` | Confirms bounce count, missing/extra pulse, dwell-time, timeout, and linked event evidence. |
+| `event_pipeline_rejects_invalid_parameters` | Confirms missing traces and invalid hysteresis are rejected. |
+| `converts_m12_event_transform_and_validation_config` | Confirms TOML conversion for M12 event transforms and validations. |
+| `rejects_invalid_m12_event_config` | Confirms invalid event transform thresholds are rejected. |
+| `rejects_invalid_m12_event_validation_config` | Confirms invalid event validation direction and missing fields are rejected. |
+| `event_validation_failure_fails_overall_report` | Confirms failed event validations fail top-level report outcome. |
+| `analyzes_config_with_m12_event_validation_transforms` | Confirms CLI config path emits M12 event and validation JSON evidence. |
+
+### Gate Decision
+
+- Gate: Testing and V&V Gates for M12.
+- Decision: Pass locally.
+- Reason: Targeted tests and full workspace validation cover M12 event records, event validations, config conversion, report outcome behavior, example fixture behavior, and no_std-compatible Schmitt state logic without adding dependencies or hardware scope.
+- Residual risk: Protected PR CI, issue closure, milestone closure, and release/community closure remain pending.
+- Owner for residual risk: GitHub Maintainer Specialist / Project Coordinator.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M12 event and validation transform MVP.
+Files changed: `crates/ferrisoxide-core/src/event.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-rule-engine/src/lib.rs`, examples, report schema, event docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M12 pipeline report.
+Checks run: Targeted M12 tests plus `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale current M12 wording scan; `git diff --check`.
+Status: Pass locally; PR closure pending.
+Known gaps: Protected PR CI, issue closure, milestone closure, release/community closure, hardware evidence, and certification evidence remain pending.
+Next recommended step: Complete PR/milestone closure.
+
 ## M11 Pointwise And Windowed Transform MVP Validation Update
 
 Date: 2026-06-01

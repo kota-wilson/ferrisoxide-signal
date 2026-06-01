@@ -8,6 +8,11 @@ use crate::criteria::{
 };
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
+use crate::event::{
+    BounceDetectionTransform, DebounceTransform, DwellTimeValidation, EdgeDirectionFilter,
+    EdgeExtractionTransform, EventTransformStep, EventValidationStep, ExtraPulseValidation,
+    GlitchRemovalTransform, MissingPulseValidation, SchmittTriggerTransform, TimeoutValidation,
+};
 use crate::filter::{
     AdcQuantizer, BaselineSubtractTransform, ClampTransform, DcRemoveTransform, DeadbandTransform,
     FilterStep, GainTransform, InvertTransform, LowPassFilter, MovingAverageFilter,
@@ -24,6 +29,10 @@ pub struct AnalysisConfig {
     pub tolerances: TolerancePolicy,
     #[serde(default)]
     pub filters: Vec<FilterConfig>,
+    #[serde(default)]
+    pub event_transforms: Vec<EventTransformConfig>,
+    #[serde(default)]
+    pub event_validations: Vec<EventValidationConfig>,
     #[serde(default)]
     pub criteria: Vec<CriterionConfig>,
 }
@@ -51,11 +60,27 @@ impl AnalysisConfig {
             .collect()
     }
 
+    pub fn event_transforms(&self) -> Result<Vec<EventTransformStep>> {
+        self.event_transforms
+            .iter()
+            .map(EventTransformConfig::to_event_transform_step)
+            .collect()
+    }
+
+    pub fn event_validations(&self) -> Result<Vec<EventValidationStep>> {
+        self.event_validations
+            .iter()
+            .map(EventValidationConfig::to_event_validation_step)
+            .collect()
+    }
+
     pub fn validate(&self) -> Result<()> {
         self.tolerances.validate()?;
         for criterion in &self.criteria {
             criterion.validate_schema()?;
         }
+        self.event_transforms()?;
+        self.event_validations()?;
         Ok(())
     }
 }
@@ -83,6 +108,35 @@ pub struct FilterConfig {
     pub bits: Option<u8>,
     pub min_v: Option<f64>,
     pub max_v: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct EventTransformConfig {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub channel: String,
+    pub on_threshold_v: Option<f64>,
+    pub off_threshold_v: Option<f64>,
+    pub initial_state: Option<String>,
+    pub min_duration_s: Option<f64>,
+    pub max_duration_s: Option<f64>,
+    pub window_s: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct EventValidationConfig {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub channel: String,
+    pub direction: Option<String>,
+    pub expected_count: Option<usize>,
+    pub max_count: Option<usize>,
+    pub state: Option<String>,
+    pub min_duration_s: Option<f64>,
+    pub start_time_s: Option<f64>,
+    pub max_time_s: Option<f64>,
 }
 
 impl FilterConfig {
@@ -137,6 +191,209 @@ impl FilterConfig {
                 reason: format!("unsupported filter type `{}`", self.kind),
             }),
         }
+    }
+}
+
+impl EventTransformConfig {
+    fn to_event_transform_step(&self) -> Result<EventTransformStep> {
+        self.validate_common("event_transforms")?;
+        match self.kind.as_str() {
+            "schmitt_trigger" => {
+                let on_threshold_v = self.required_finite("on_threshold_v")?;
+                let off_threshold_v = self.required_finite("off_threshold_v")?;
+                if off_threshold_v >= on_threshold_v {
+                    return Err(WaveformError::InvalidParameter {
+                        name: "event_transforms.off_threshold_v".to_string(),
+                        reason: "must be lower than on_threshold_v".to_string(),
+                    });
+                }
+                Ok(EventTransformStep::SchmittTrigger(
+                    SchmittTriggerTransform {
+                        id: self.id.clone(),
+                        channel: self.channel.clone(),
+                        on_threshold_v,
+                        off_threshold_v,
+                        initial_state: self.required_state("initial_state")?,
+                    },
+                ))
+            }
+            "debounce" => Ok(EventTransformStep::Debounce(DebounceTransform {
+                id: self.id.clone(),
+                channel: self.channel.clone(),
+                min_duration_s: self.required_non_negative("min_duration_s")?,
+            })),
+            "glitch_removal" => Ok(EventTransformStep::GlitchRemoval(GlitchRemovalTransform {
+                id: self.id.clone(),
+                channel: self.channel.clone(),
+                max_duration_s: self.required_non_negative("max_duration_s")?,
+            })),
+            "edge_extraction" => Ok(EventTransformStep::EdgeExtraction(
+                EdgeExtractionTransform {
+                    id: self.id.clone(),
+                    channel: self.channel.clone(),
+                },
+            )),
+            "bounce_detection" => Ok(EventTransformStep::BounceDetection(
+                BounceDetectionTransform {
+                    id: self.id.clone(),
+                    channel: self.channel.clone(),
+                    window_s: self.required_non_negative("window_s")?,
+                },
+            )),
+            _ => Err(WaveformError::InvalidParameter {
+                name: "event_transforms.type".to_string(),
+                reason: format!("unsupported event transform type `{}`", self.kind),
+            }),
+        }
+    }
+
+    fn validate_common(&self, scope: &str) -> Result<()> {
+        if self.id.trim().is_empty() {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("{scope}.id"),
+                reason: "must not be empty".to_string(),
+            });
+        }
+        if self.channel.trim().is_empty() {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("{scope}.channel"),
+                reason: "must not be empty".to_string(),
+            });
+        }
+        Ok(())
+    }
+
+    fn required_finite(&self, field: &str) -> Result<f64> {
+        let value = match field {
+            "on_threshold_v" => self.on_threshold_v,
+            "off_threshold_v" => self.off_threshold_v,
+            _ => None,
+        }
+        .ok_or_else(|| missing_event_transform_field(field))?;
+        if value.is_finite() {
+            Ok(value)
+        } else {
+            Err(WaveformError::InvalidParameter {
+                name: format!("event_transforms.{field}"),
+                reason: "must be finite".to_string(),
+            })
+        }
+    }
+
+    fn required_non_negative(&self, field: &str) -> Result<f64> {
+        let value = match field {
+            "min_duration_s" => self.min_duration_s,
+            "max_duration_s" => self.max_duration_s,
+            "window_s" => self.window_s,
+            _ => None,
+        }
+        .ok_or_else(|| missing_event_transform_field(field))?;
+        validate_finite_non_negative(&format!("event_transforms.{field}"), value)?;
+        Ok(value)
+    }
+
+    fn required_state(&self, field: &str) -> Result<SignalState> {
+        let value = match field {
+            "initial_state" => self.initial_state.as_deref(),
+            _ => None,
+        }
+        .ok_or_else(|| missing_event_transform_field(field))?;
+        SignalState::from_config(value).ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("event_transforms.{field}"),
+            reason: format!("expected `high` or `low`, got `{value}`"),
+        })
+    }
+}
+
+impl EventValidationConfig {
+    fn to_event_validation_step(&self) -> Result<EventValidationStep> {
+        self.validate_common("event_validations")?;
+        match self.kind.as_str() {
+            "missing_pulse" => Ok(EventValidationStep::MissingPulse(MissingPulseValidation {
+                id: self.id.clone(),
+                channel: self.channel.clone(),
+                direction: self.required_direction()?,
+                expected_count: self.expected_count.unwrap_or(1),
+            })),
+            "extra_pulse" => Ok(EventValidationStep::ExtraPulse(ExtraPulseValidation {
+                id: self.id.clone(),
+                channel: self.channel.clone(),
+                direction: self.required_direction()?,
+                max_count: self
+                    .max_count
+                    .ok_or_else(|| missing_event_validation_field("max_count"))?,
+            })),
+            "dwell_time" => Ok(EventValidationStep::DwellTime(DwellTimeValidation {
+                id: self.id.clone(),
+                channel: self.channel.clone(),
+                state: self.required_state("state")?,
+                min_duration_s: self.required_non_negative("min_duration_s")?,
+            })),
+            "timeout" => Ok(EventValidationStep::Timeout(TimeoutValidation {
+                id: self.id.clone(),
+                channel: self.channel.clone(),
+                direction: self.required_direction()?,
+                start_time_s: self.start_time_s.unwrap_or(0.0),
+                max_time_s: self.required_non_negative("max_time_s")?,
+            })),
+            _ => Err(WaveformError::InvalidParameter {
+                name: "event_validations.type".to_string(),
+                reason: format!("unsupported event validation type `{}`", self.kind),
+            }),
+        }
+    }
+
+    fn validate_common(&self, scope: &str) -> Result<()> {
+        if self.id.trim().is_empty() {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("{scope}.id"),
+                reason: "must not be empty".to_string(),
+            });
+        }
+        if self.channel.trim().is_empty() {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("{scope}.channel"),
+                reason: "must not be empty".to_string(),
+            });
+        }
+        Ok(())
+    }
+
+    fn required_direction(&self) -> Result<EdgeDirectionFilter> {
+        let value = self
+            .direction
+            .as_deref()
+            .ok_or_else(|| missing_event_validation_field("direction"))?;
+        EdgeDirectionFilter::from_config(value).ok_or_else(|| WaveformError::InvalidParameter {
+            name: "event_validations.direction".to_string(),
+            reason: format!("expected `rising`, `falling`, or `any`, got `{value}`"),
+        })
+    }
+
+    fn required_state(&self, field: &str) -> Result<SignalState> {
+        let value = match field {
+            "state" => self.state.as_deref(),
+            _ => None,
+        }
+        .ok_or_else(|| missing_event_validation_field(field))?;
+        SignalState::from_config(value).ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("event_validations.{field}"),
+            reason: format!("expected `high` or `low`, got `{value}`"),
+        })
+    }
+
+    fn required_non_negative(&self, field: &str) -> Result<f64> {
+        let value = match field {
+            "min_duration_s" => self.min_duration_s,
+            "max_time_s" => self.max_time_s,
+            _ => None,
+        }
+        .ok_or_else(|| missing_event_validation_field(field))?;
+        validate_finite_non_negative(&format!("event_validations.{field}"), value)?;
+        if let Some(start_time_s) = self.start_time_s {
+            validate_finite_non_negative("event_validations.start_time_s", start_time_s)?;
+        }
+        Ok(value)
     }
 }
 
@@ -917,6 +1174,31 @@ fn missing_filter_field(field: &str) -> WaveformError {
     }
 }
 
+fn missing_event_transform_field(field: &str) -> WaveformError {
+    WaveformError::InvalidParameter {
+        name: format!("event_transforms.{field}"),
+        reason: "field is required for this event transform type".to_string(),
+    }
+}
+
+fn missing_event_validation_field(field: &str) -> WaveformError {
+    WaveformError::InvalidParameter {
+        name: format!("event_validations.{field}"),
+        reason: "field is required for this event validation type".to_string(),
+    }
+}
+
+fn validate_finite_non_negative(name: &str, value: f64) -> Result<()> {
+    if value.is_finite() && value >= 0.0 {
+        Ok(())
+    } else {
+        Err(WaveformError::InvalidParameter {
+            name: name.to_string(),
+            reason: "must be a finite non-negative value".to_string(),
+        })
+    }
+}
+
 fn default_time_unit() -> String {
     "s".to_string()
 }
@@ -952,6 +1234,8 @@ mod tests {
                 min_v: None,
                 max_v: None,
             }],
+            event_transforms: Vec::new(),
+            event_validations: Vec::new(),
             criteria: vec![CriterionConfig {
                 id: "max".to_string(),
                 kind: Some("maximum_voltage".to_string()),
@@ -1155,6 +1439,8 @@ threshold_v = 5.5
                 time_s: -0.001,
             },
             filters: Vec::new(),
+            event_transforms: Vec::new(),
+            event_validations: Vec::new(),
             criteria: Vec::new(),
         };
 
@@ -1879,6 +2165,168 @@ threshold_v = 5.5
                 Err(WaveformError::InvalidParameter { name, .. }) if name == expected_name
             ));
         }
+    }
+
+    #[test]
+    fn converts_m12_event_transform_and_validation_config() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[event_transforms]]
+id = "switch_state"
+type = "schmitt_trigger"
+channel = "switch_v"
+on_threshold_v = 3.0
+off_threshold_v = 2.0
+initial_state = "low"
+
+[[event_transforms]]
+id = "debounce"
+type = "debounce"
+channel = "switch_v"
+min_duration_s = 0.002
+
+[[event_transforms]]
+id = "glitch"
+type = "glitch_removal"
+channel = "switch_v"
+max_duration_s = 0.002
+
+[[event_transforms]]
+id = "edges"
+type = "edge_extraction"
+channel = "switch_v"
+
+[[event_transforms]]
+id = "bounce"
+type = "bounce_detection"
+channel = "switch_v"
+window_s = 0.004
+
+[[event_validations]]
+id = "must_rise"
+type = "missing_pulse"
+channel = "switch_v"
+direction = "rising"
+expected_count = 1
+
+[[event_validations]]
+id = "no_extra_rise"
+type = "extra_pulse"
+channel = "switch_v"
+direction = "rising"
+max_count = 1
+
+[[event_validations]]
+id = "high_dwell"
+type = "dwell_time"
+channel = "switch_v"
+state = "high"
+min_duration_s = 0.001
+
+[[event_validations]]
+id = "rise_timeout"
+type = "timeout"
+channel = "switch_v"
+direction = "rising"
+start_time_s = 0.0
+max_time_s = 0.002
+
+[[criteria]]
+id = "switch_max"
+type = "maximum_voltage"
+channel = "switch_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("M12 event config should deserialize");
+
+        assert_eq!(
+            config.event_transforms().expect("event transforms").len(),
+            5
+        );
+        assert_eq!(
+            config.event_validations().expect("event validations").len(),
+            4
+        );
+        config.validate().expect("M12 config should validate");
+    }
+
+    #[test]
+    fn rejects_invalid_m12_event_config() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[event_transforms]]
+id = "bad_state"
+type = "schmitt_trigger"
+channel = "switch_v"
+on_threshold_v = 2.0
+off_threshold_v = 2.0
+initial_state = "low"
+
+[[criteria]]
+id = "switch_max"
+type = "maximum_voltage"
+channel = "switch_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert!(matches!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter { name, .. }) if name == "event_transforms.off_threshold_v"
+        ));
+    }
+
+    #[test]
+    fn rejects_invalid_m12_event_validation_config() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[event_validations]]
+id = "bad_direction"
+type = "missing_pulse"
+channel = "switch_v"
+direction = "rise"
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert!(matches!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter { name, .. }) if name == "event_validations.direction"
+        ));
+
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[event_validations]]
+id = "missing_max_count"
+type = "extra_pulse"
+channel = "switch_v"
+direction = "rising"
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert!(matches!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter { name, .. }) if name == "event_validations.max_count"
+        ));
     }
 
     fn dsl_config_with_requirement(

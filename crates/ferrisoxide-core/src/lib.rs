@@ -5,6 +5,7 @@ pub mod config;
 pub mod criteria;
 pub mod csv;
 pub mod error;
+pub mod event;
 pub mod filter;
 pub mod model;
 pub mod report;

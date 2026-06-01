@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10 and M11 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11 with issues #140 through #146. M12 remains a local proposal.
+Status: M10 and M11 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11 with issues #140 through #146. M12 milestone #12 and issues #149 through #155 are approved and implemented locally pending PR closure.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This roadmap sequences the next three milestones:
 |---|---|---|---|
 | M10 | v0.8.0 | Transform architecture and capability metadata | Complete; PR #138 merged and milestone #10 closed |
 | M11 | v0.9.0 | Pointwise and windowed transform MVP | Complete in PR #147; milestone #11 closed |
-| M12 | v0.10.0 | Event and validation transform MVP | Proposed locally |
+| M12 | v0.10.0 | Event and validation transform MVP | Implemented locally; PR closure pending |
 
 ## Sequencing Rationale
 
@@ -80,6 +80,7 @@ Exit evidence:
 - Event records link sample index, timestamp, channel, thresholds, and state transitions.
 - Validation results link back to event records.
 - Known-answer switch/bounce fixtures prove expected event and validation behavior.
+- Event validation failures contribute to top-level report failure.
 
 ## Future-Gated Work
 
@@ -102,11 +103,11 @@ The following remain outside M10 through M12 unless a fresh proposal and approva
 | Intake Gate | Pass | User supplied analog-transform taxonomy and asked to move forward with next milestones. | Project Coordinator |
 | Roadmap Gate | Pass locally | This document sequences M10, M11, and M12 from the taxonomy and current project state. | Project Orchestrator |
 | Requirements Gate | Pass for proposal | WRA-RQ-070 through WRA-RQ-086 are proposed in the milestone proposals and project requirements. | Software Architect |
-| Scope Gate | Pass locally | The roadmap keeps implementation beyond approved M11, additional GitHub issue creation beyond M11, dependencies, live DAQ, HAL/RTOS, and certification claims behind later approval. | Project Coordinator |
+| Scope Gate | Pass locally | The roadmap keeps implementation beyond approved M12, dependencies, live DAQ, HAL/RTOS, and certification claims behind later approval. | Project Coordinator |
 | Human Approval Gate | Pass for M10 issue creation and implementation | User approved M10 issue creation and later approved external PR/issue/milestone actions on 2026-06-01. | Project Coordinator |
 | Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created, then closed through PR #138 and milestone closure. | GitHub Maintainer Specialist |
-| Issue Planning Gate | Pass for M11 | GitHub milestone #11 and issues #140 through #146 were created and later closed by PR #147; M12 remains a local placeholder. | GitHub Maintainer Specialist |
-| Implementation Gate | Pass for M11 | M11 implementation merged in PR #147; M12 code implementation has not started. | Core Software Engineer |
+| Issue Planning Gate | Pass for M12 | GitHub milestone #12 and issues #149 through #155 were created after approval. | GitHub Maintainer Specialist |
+| Implementation Gate | Pass locally for M12 | M12 implementation is local with event records, validation records, examples, docs, and targeted tests; protected PR closure remains pending. | Core Software Engineer |
 | Release Gate | Pass for M11 | PR #147 merged after required `rust` CI passed; squash commit `793a2ab1323526b2695fa7b59a1246f2e29d9c43`. | GitHub Maintainer Specialist |
 | Community Gate | Pass for M11 | Issues #140 through #146 are closed and milestone #11 is closed with 8 closed items and 0 open items. | Project Coordinator |
 
@@ -116,6 +117,6 @@ Role: Project Coordinator / Product Architect
 Goal: Convert the transform taxonomy into a staged local milestone roadmap.
 Files changed: This roadmap plus M10, M11, M12, issue-planning, requirements, traceability, risk, orchestration, and state files.
 Checks run: Documentation and traceability inspection.
-Status: M10 and M11 complete; M12 remains a local proposal.
-Known gaps: M12 GitHub milestone and issue creation remains pending.
-Next recommended step: Hold before M12 issue creation until explicit approval.
+Status: M10 and M11 complete; M12 implemented locally pending PR closure.
+Known gaps: M12 protected PR CI, issue closure, milestone closure, and release/community closure remain pending.
+Next recommended step: Complete M12 validation and PR closure.

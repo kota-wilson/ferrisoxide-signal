@@ -13,8 +13,10 @@ This document describes the MVP JSON report shape used by golden tests and valid
 | `input_name` | string | Input path or display name passed to the report. |
 | `waveform_metadata` | object | Source, unit, count, time-axis, lineage, and transform context for the analyzed waveform. |
 | `evidence_context` | object | Report-level engineering-validation context, evidence source, tolerance policy, and confidence notes. |
-| `overall_outcome` | `pass` or `fail` | `fail` when any criterion fails. |
+| `overall_outcome` | `pass` or `fail` | `fail` when any criterion or event validation fails. |
 | `measurements` | array | Reusable measurement evidence records with stable IDs. |
+| `event_records` | array, omitted when empty | Event evidence records emitted by configured event transforms. |
+| `event_validations` | array, omitted when empty | Pass/fail evidence emitted by configured event validation transforms. |
 | `results` | array | Per-criterion evidence rows. |
 
 ## Waveform Metadata Fields
@@ -48,6 +50,8 @@ M10-006 implements the additive `waveform_metadata.transform_steps` field descri
 - Update exact golden reports whenever structured transform metadata intentionally changes.
 
 Current transform records cover `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, `invert`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, and `moving_median`. Each record includes `sequence_index`, `history_label`, `name`, `category`, channel behavior, parameters with units, sample-rate requirement, statefulness, causality, phase effect, streaming/offline flags, runtime profile, capability status, and evidence level.
+
+M12 event reports reuse the same metadata shape inside `event_records[].transform_metadata` and `event_validations[].transform_metadata`. Event transforms use `output_channels.kind = event_records`; validation transforms use `output_channels.kind = validation_records`.
 
 ## Evidence Context Fields
 
@@ -104,6 +108,44 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 | `timestamp` | number | Evidence timestamp in seconds. |
 | `reason` | string | Human-readable decision reason. |
 
+## Event Record Fields
+
+`event_records` is emitted only when the configured analysis produces event evidence.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Stable report-local event ID. |
+| `transform` | string | Transform that emitted the event, such as `schmitt_trigger`, `edge_extraction`, `debounce`, `glitch_removal`, or `bounce_detection`. |
+| `kind` | string | Event type: `state_transition`, `edge`, `rejected_pulse`, or `bounce`. |
+| `channel` | string | Source channel. |
+| `sample_index` | integer | Evidence sample index. |
+| `timestamp` | number | Evidence timestamp in seconds. |
+| `state` | string | Event state, such as `high` or `low`. |
+| `previous_state` | string or omitted | Previous state when applicable. |
+| `direction` | string or omitted | `rising` or `falling` when applicable. |
+| `on_threshold_v` / `off_threshold_v` | number or omitted | Schmitt thresholds used to produce the state trace. |
+| `duration_s` | number or omitted | Duration for rejected-pulse or bounce evidence. |
+| `count` | integer or omitted | Count for aggregate event evidence such as bounce. |
+| `source_event_ids` | array | Event IDs used as source evidence. |
+| `transform_metadata` | object | Structured metadata for the transform that emitted this event. |
+
+## Event Validation Fields
+
+`event_validations` is emitted only when configured event validations run. A failed event validation contributes to top-level `overall_outcome = fail`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `requirement_id` | string | Configured validation ID. |
+| `validation` | string | Validation type: `missing_pulse`, `extra_pulse`, `dwell_time`, or `timeout`. |
+| `outcome` | `pass` or `fail` | Validation decision. |
+| `channel` | string | Channel evaluated. |
+| `measured_value` | number | Observed event count or duration. |
+| `required_value` | number | Required count or duration. |
+| `unit` | string | `events` or `s`. |
+| `linked_event_ids` | array | Event records used as direct evidence when applicable. |
+| `reason` | string | Human-readable decision reason. |
+| `transform_metadata` | object | Structured metadata for the validation transform. |
+
 ## Stability
 
 Golden tests in `tests/golden/` compare JSON output exactly. Any intentional schema change should update this document, the golden files, and release notes together.
@@ -120,6 +162,10 @@ For equivalent configs:
 - `results[]` records the pass/fail decision with measured value, required value, tolerance, sample index, timestamp, channel, and reason.
 
 The current parity tests compare representative DSL reports against legacy reports and existing golden JSON exactly. For `state_transition_count`, the DSL requirement unit is `count`, while the report evidence unit remains `transitions` for existing report compatibility.
+
+## M12 Event Validation Note
+
+M12 adds `event_records` and `event_validations` as additive top-level fields. Existing reports without event config omit both fields. Event validation failures affect `overall_outcome`, while ordinary `results[]` remains the existing criteria-evidence array.
 
 ## M6-003 Migration Note
 
