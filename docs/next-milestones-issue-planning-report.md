@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 milestone #12 and issues #149 through #155 are closed through PR #156. M13 milestone #13 is open with issues #158 through #163 after user approval to continue.
+Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 milestone #12 and issues #149 through #155 are closed through PR #156. M13 milestone #13 and issues #158 through #163 are closed through PR #164.
 
 ## Scope
 
@@ -17,7 +17,7 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | M10 | v0.8.0 | `docs/v0.8.0-transform-architecture-milestone-proposal.md` | Complete; PR #138 merged and milestone #10 closed |
 | M11 | v0.9.0 | `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` | GitHub milestone #11 closed |
 | M12 | v0.10.0 | `docs/v0.10.0-event-validation-transform-milestone-proposal.md` | GitHub milestone #12 closed |
-| M13 | v0.11.0 | `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` | GitHub milestone #13 open with issues #158 through #163 |
+| M13 | v0.11.0 | `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` | GitHub milestone #13 closed |
 
 ## M10 GitHub Issues
 
@@ -80,8 +80,11 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | Human Approval Gate | Pass for M13 planning and issue creation | User approved continuing after M12 closure on 2026-06-01. | Project Coordinator |
 | Issue Planning Gate | Pass for M13 | GitHub milestone #13 and issues #158 through #163 created. | GitHub Maintainer Specialist |
 | Implementation Gate | Pass for M12 | M12 event/validation implementation, examples, and docs merged in PR #156. | Core Software Engineer |
+| Implementation Gate | Pass for M13 | M13 runtime-profile validation implementation, docs, and tests merged in PR #164. | Core Software Engineer |
 | Release Gate | Pass for M12 | PR #156 merged after required `rust` CI passed; squash commit `a4885578de9d136cd8df213e1da489a7232cf702`. | GitHub Maintainer Specialist |
 | Community Gate | Pass for M12 | Issues #149 through #155 closed and milestone #12 closed with 8 closed items and 0 open items. | Project Coordinator |
+| Release Gate | Pass for M13 | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | GitHub Maintainer Specialist |
+| Community Gate | Pass for M13 | Issues #158 through #163 closed and milestone #13 closed with 6 closed items and 0 open items. | Project Coordinator |
 | Release Gate | Pass for M11 | PR #147 merged after required `rust` CI passed; squash commit `793a2ab1323526b2695fa7b59a1246f2e29d9c43`. | GitHub Maintainer Specialist |
 | Community Gate | Pass for M11 | Issues #140 through #146 are closed and milestone #11 is closed with 8 closed items and 0 open items. | Project Coordinator |
 
@@ -102,6 +105,6 @@ Role: Project Orchestrator / GitHub Maintainer Specialist
 Goal: Convert next milestone proposals into local issue placeholders.
 Files changed: This report, milestone proposals, requirements, traceability, risk, orchestration, README, architecture, and project state.
 Checks run: Documentation and traceability inspection.
-Status: M10, M11, and M12 complete; M13 milestone #13 is open with issues #158 through #163 and local validation complete.
-Known gaps: No GitHub release tag was published for M12; M13 PR, CI, issue closure, and milestone closure remain pending.
-Next recommended step: Open PR, merge after CI, close issues #158 through #163, and close milestone #13.
+Status: M10, M11, M12, and M13 complete.
+Known gaps: No GitHub release tag was published for M13; runtime loaders, hardware evidence, certification evidence, and M14+ work remain separately gated.
+Next recommended step: Hold before M14 or new scope until explicit approval.

@@ -204,6 +204,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Updated by M13 planning after M12 implementation in PR #156; milestone #12 is closed.
-Known gaps: Runtime-profile validator implementation, bounded-buffer embedded event runtime, and high-pass baseline correction remain future work until M13 or later issues close them.
-Next recommended step: Implement M13 runtime-profile validation using this capability model.
+Status: Updated by M13 implementation in PR #164; milestone #13 is closed.
+Known gaps: Bounded-buffer embedded event runtime and high-pass baseline correction remain future gated work.
+Next recommended step: Use the M13 runtime-profile validator before future transform package or runtime exposure.

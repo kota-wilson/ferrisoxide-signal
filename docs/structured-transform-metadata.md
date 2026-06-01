@@ -191,5 +191,5 @@ Goal: Complete M10-002 / issue #133 by defining the structured transform metadat
 Files changed: `docs/structured-transform-metadata.md`
 Checks run: Documentation and schema compatibility review.
 Status: Complete through PR #138; issue #133 and milestone #10 are closed.
-Known gaps: Embedded/no_std transform exposure remains future gated work. M13 adds local runtime-profile validation code for current metadata.
+Known gaps: Embedded/no_std transform exposure remains future gated work. M13 adds runtime-profile validation code for current metadata through PR #164.
 Next recommended step: Use this design with the M13 validator as the compatibility baseline for future transform additions and package/runtime exposure.

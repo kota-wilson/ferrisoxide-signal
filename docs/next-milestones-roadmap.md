@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10, M11, and M12 complete. M13 is proposed after explicit user approval to continue. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12 with issues #149 through #155.
+Status: M10, M11, M12, and M13 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12; PR #164 merged M13 and closed milestone #13 with issues #158 through #163.
 
 ## Purpose
 
@@ -15,7 +15,7 @@ This roadmap sequences the transform milestones:
 | M10 | v0.8.0 | Transform architecture and capability metadata | Complete; PR #138 merged and milestone #10 closed |
 | M11 | v0.9.0 | Pointwise and windowed transform MVP | Complete in PR #147; milestone #11 closed |
 | M12 | v0.10.0 | Event and validation transform MVP | Complete in PR #156; milestone #12 closed |
-| M13 | v0.11.0 | Transform runtime-profile validation | GitHub milestone #13 open with issues #158 through #163 |
+| M13 | v0.11.0 | Transform runtime-profile validation | Complete in PR #164; milestone #13 closed |
 
 ## Sequencing Rationale
 
@@ -131,7 +131,10 @@ The following remain outside M10 through M12 unless a fresh proposal and approva
 | Human Approval Gate | Pass for M10 issue creation and implementation | User approved M10 issue creation and later approved external PR/issue/milestone actions on 2026-06-01. | Project Coordinator |
 | Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created, then closed through PR #138 and milestone closure. | GitHub Maintainer Specialist |
 | Issue Planning Gate | Pass for M12 | GitHub milestone #12 and issues #149 through #155 were created after approval. | GitHub Maintainer Specialist |
-| M13 Planning Gate | Pass | M13 proposal and issue-planning report define WRA-RQ-087 through WRA-RQ-092; GitHub milestone #13 and issues #158 through #163 created after user approval. | Project Coordinator |
+| M13 Planning Gate | Pass | M13 proposal and issue-planning report define WRA-RQ-087 through WRA-RQ-092; GitHub milestone #13 and issues #158 through #163 created after user approval, then closed by PR #164. | Project Coordinator |
+| Implementation Gate | Pass for M13 | M13 implementation merged in PR #164 with runtime-profile validator, timing evidence, tests, docs, and traceability. | Core Software Engineer |
+| Release Gate | Pass for M13 | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | GitHub Maintainer Specialist |
+| Community Gate | Pass for M13 | Issues #158 through #163 closed and milestone #13 closed with 6 closed items and 0 open items. | Project Coordinator |
 | Implementation Gate | Pass for M12 | M12 implementation merged in PR #156 with event records, validation records, examples, docs, and tests. | Core Software Engineer |
 | Release Gate | Pass for M12 | PR #156 merged after required `rust` CI passed; squash commit `a4885578de9d136cd8df213e1da489a7232cf702`. | GitHub Maintainer Specialist |
 | Community Gate | Pass for M12 | Issues #149 through #155 closed and milestone #12 closed with 8 closed items and 0 open items. | Project Coordinator |
@@ -144,6 +147,6 @@ Role: Project Coordinator / Product Architect
 Goal: Convert the transform taxonomy into a staged local milestone roadmap.
 Files changed: This roadmap plus M10, M11, M12, issue-planning, requirements, traceability, risk, orchestration, and state files.
 Checks run: Documentation and traceability inspection.
-Status: M10, M11, and M12 complete; M13 milestone #13 is open with issues #158 through #163 and local validation complete.
-Known gaps: No GitHub release tag was published for M12; M13 PR, CI, issue closure, and milestone closure remain pending.
-Next recommended step: Open PR, merge after CI, close issues #158 through #163, and close milestone #13.
+Status: M10, M11, M12, and M13 complete.
+Known gaps: No GitHub release tag was published for M13; live DAQ, runtime loaders, hardware validation, certification evidence, and M14+ work remain separately gated.
+Next recommended step: Hold before M14 or new scope until explicit approval.
