@@ -151,7 +151,7 @@ Platform split
 ## Transform Assumptions
 
 - Raw waveform data is preserved.
-- Current implemented transforms are moving average, moving median, first-order low-pass, ideal ADC quantization, offset, gain, invert, clamp, deadband, DC removal, and baseline subtraction.
+- Current implemented transforms are moving average, moving median, first-order low-pass, ideal ADC quantization, offset, gain, invert, clamp, deadband, DC removal, baseline subtraction, event transforms, and event validation transforms.
 - Current user-facing config keeps the legacy `[[filters]]` table name, but architecture documents these as transform capabilities.
 - Implemented filters and ADC quantization return derived waveform outputs.
 - Derived waveform metadata records legacy `transform_history` and structured `transform_steps` so reports can show which data was evaluated.
@@ -162,7 +162,7 @@ Platform split
 - Edge behavior, latency, and sample-rate assumptions must be documented before filter algorithms are considered production-stable.
 - Future transform work is organized by the planning taxonomy in `docs/analog-transform-taxonomy.md`; not every named transform is implemented.
 - The transform taxonomy is not a support matrix; implemented/planned/research/gated status lives in `docs/transform-capability-model.md`.
-- Next transform work is proposed as M12 event/validation transforms in `docs/next-milestones-roadmap.md`; M12 implementation requires its own GitHub issue-creation and approval gates.
+- M12 event/validation transforms are implemented locally pending protected PR closure; further transform work requires its own GitHub issue-creation and approval gates.
 - Transform category, metadata, runtime profile, support-status, and evidence-level vocabulary is defined in `docs/transform-capability-model.md`.
 - Structured transform report metadata is defined in `docs/structured-transform-metadata.md`; existing `transform_history` remains the compatibility field, and `transform_steps` is emitted only when non-empty.
 - Current transform mappings to structured metadata values are defined in `docs/current-transform-metadata-mapping.md`.
@@ -171,7 +171,7 @@ Platform split
 - Time-axis validation and tolerance semantics are documented in `docs/time-axis-and-tolerances.md`.
 - Embedded adapters are bounded by `ferrisoxide-embedded`; `ferrisoxide-signal` remains runtime-independent.
 - Measurement primitives are bounded by `ferrisoxide-measurements`; `ferrisoxide-core` applies criteria policy and report wording.
-- Reports expose top-level measurement records and per-result `measurement_id` links so measured evidence and pass/fail decisions remain auditable separately.
+- Reports expose top-level measurement records, event records, event validation records, per-result `measurement_id` links, and linked event IDs so measured/event evidence and pass/fail decisions remain auditable separately.
 - Plotting is a desktop-only SVG renderer in `ferrisoxide-plot`; 2D evidence overlays reuse report measurement evidence; `ferrisoxide-core` and `ferrisoxide-signal` do not depend on Plotters.
 - Criteria DSL direction is documented in `docs/criteria-dsl.md`; existing `[[criteria]]` entries remain the runtime compatibility baseline.
 - Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; the initial package format is documented in `docs/rule-package-format.md`; `ferrisoxide-rule-engine` now owns shared `no_std` rule semantics for desktop and embedded-compatible paths.

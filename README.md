@@ -584,7 +584,7 @@ Use config files for repeatable engineering evidence. Use CLI flags for quick lo
 
 ## Transforms, Filters, And ADC Quantization
 
-FerrisOxide currently implements ordered pre-criteria transforms for smoothing, filtering, quantization, pointwise correction, and baseline handling. They are exposed through the existing `[[filters]]` config table for compatibility, but the architecture treats them as transform capabilities that produce derived waveform data and preserve the raw input.
+FerrisOxide currently implements ordered pre-criteria transforms for smoothing, filtering, quantization, pointwise correction, baseline handling, and event/validation analysis. Waveform transforms are exposed through the existing `[[filters]]` config table for compatibility. Event analysis uses additive `[[event_transforms]]` and `[[event_validations]]` tables. The architecture treats all of them as transform capabilities with auditable derived evidence while preserving raw input.
 
 The broader transform taxonomy is planning input, not implemented support. See [analog transform taxonomy](docs/analog-transform-taxonomy.md), [transform capability model](docs/transform-capability-model.md), [structured transform metadata](docs/structured-transform-metadata.md), [current transform metadata mapping](docs/current-transform-metadata-mapping.md), and [transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md) for vocabulary, support-status, metadata, and runtime-boundary direction.
 
@@ -601,6 +601,10 @@ The broader transform taxonomy is planning input, not implemented support. See [
 | Moving median | `moving_median` | Smooth spikes with a trailing median window. |
 | First-order low-pass | `low_pass` | Apply a simple low-pass smoothing model over a strictly increasing time axis. |
 | Ideal ADC quantization | `adc_quantize` | Clip and snap analog values to ideal ADC code levels before criteria evaluation. |
+| Schmitt trigger | `schmitt_trigger` in `[[event_transforms]]` | Convert analog samples into a hysteretic state trace and state-transition records. |
+| Edge extraction | `edge_extraction` in `[[event_transforms]]` | Emit rising/falling edge records from a state trace. |
+| Bounce detection | `bounce_detection` in `[[event_transforms]]` | Emit aggregate bounce evidence with count, duration, and linked source transitions. |
+| Event validation | `missing_pulse`, `extra_pulse`, `dwell_time`, `timeout` in `[[event_validations]]` | Emit pass/fail validation records linked to event evidence. |
 
 Timing and unit assumptions remain transform-specific:
 
@@ -610,6 +614,7 @@ Timing and unit assumptions remain transform-specific:
 - ADC quantization uses a configured voltage range and outputs volts; it is not a calibrated physical ADC model.
 - DC removal is offline-only because it subtracts the mean of the full waveform.
 - First-order high-pass baseline correction remains planned, not implemented.
+- Event validations contribute to report-level pass/fail outcome and remain software-only evidence.
 - Portable rule-package export still supports the earlier portable filter subset (`moving_average`, `low_pass`, and `adc_quantize`) until transform package semantics are separately designed.
 
 Example ADC quantization config:
@@ -638,7 +643,40 @@ type = "moving_median"
 window_samples = 3
 ```
 
-Run it:
+Example M12 event validation config:
+
+```toml
+[[event_transforms]]
+id = "switch_state"
+type = "schmitt_trigger"
+channel = "switch_v"
+on_threshold_v = 3.0
+off_threshold_v = 2.0
+initial_state = "low"
+
+[[event_transforms]]
+id = "switch_edges"
+type = "edge_extraction"
+channel = "switch_v"
+
+[[event_validations]]
+id = "must_rise"
+type = "missing_pulse"
+channel = "switch_v"
+direction = "rising"
+expected_count = 1
+```
+
+Run the switch/bounce fixture:
+
+```bash
+cargo run -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze \
+  --input examples/switch-bounce-waveform.csv \
+  --config examples/m12-event-validation-config.toml \
+  --format json
+```
+
+Run the ADC example:
 
 ```bash
 cargo run --quiet --bin ferrisoxide-signal -- analyze \
@@ -1237,6 +1275,7 @@ Start here:
 - [Transform capability model](docs/transform-capability-model.md)
 - [Structured transform metadata](docs/structured-transform-metadata.md)
 - [Current transform metadata mapping](docs/current-transform-metadata-mapping.md)
+- [Event validation transforms](docs/event-validation-transforms.md)
 - [Transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md)
 - [Next milestones roadmap](docs/next-milestones-roadmap.md)
 - [v0.8.0 transform architecture proposal](docs/v0.8.0-transform-architecture-milestone-proposal.md)

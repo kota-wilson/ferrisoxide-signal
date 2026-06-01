@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10-001 / issue #132 architecture artifact. This document defines vocabulary and capability boundaries; it does not implement new transform algorithms.
+Status: M10-001 / issue #132 architecture artifact updated by M12 local implementation. This document defines vocabulary and capability boundaries; current implementation status is limited to rows marked `implemented`.
 
 ## Purpose
 
@@ -18,7 +18,7 @@ In scope for this document:
 - Transform capability metadata fields.
 - Runtime profile names and meanings.
 - Capability status and evidence-level vocabulary.
-- A capability matrix separating implemented behavior, proposed M12 work, and future-gated work.
+- A capability matrix separating implemented behavior, planned work, research-only work, and future-gated work.
 - Code-design vocabulary for later implementation.
 
 Out of scope for this document:
@@ -135,8 +135,8 @@ This matrix records M10-001 vocabulary boundaries. Later issues own implementati
 | Baseline MVP | `dc_remove`, `baseline_subtract` | `BaselineTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
 | Moving median MVP | `moving_median` | `WindowedTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
 | High-pass baseline correction | first-order high-pass baseline correction | `StatefulTransform` | `planned` | `documented_only` | `desktop`; deferred from M11 pending separate timing behavior issue |
-| Event MVP | Schmitt trigger, debounce, glitch removal, edges, bounce | `EventTransform`, `PulseEventTransform`, `StatefulTransform` | `planned` | `documented_only` | `desktop`; `pi5_no_std_candidate` only after parity evidence |
-| Event validation MVP | missing pulse, extra pulse, dwell-time, timeout | `ValidationTransform` | `planned` | `documented_only` | `desktop`; `pi5_no_std_candidate` only after parity evidence |
+| Event MVP | Schmitt trigger, debounce, glitch removal, edges, bounce | `EventTransform`, `PulseEventTransform`, `StatefulTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` through CLI JSON report coverage | `desktop`; Schmitt primitive is no_std-compatible in the rule engine, broader event reporting remains desktop-only |
+| Event validation MVP | missing pulse, extra pulse, dwell-time, timeout | `ValidationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` through CLI JSON report coverage | `desktop`; embedded validation runtime requires later bounded-buffer design |
 | Spectral analysis | FFT, PSD, coherence, THD, ENOB | `FrequencyTransform` | `research` | `documented_only` | `future_gated` |
 | Time-frequency analysis | STFT, spectrogram, wavelets | `TimeFrequencyTransform` | `research` | `documented_only` | `future_gated` |
 | Resampling and timing repair | decimation, interpolation, clock-drift correction | `TimingTransform` | `research` | `documented_only` | `future_gated` |
@@ -204,6 +204,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Updated by M11 implementation in PR #147; milestone #11 is closed.
-Known gaps: Runtime-profile validator code, M12 event/validation transform implementation, and high-pass baseline correction remain future gated work.
-Next recommended step: Hold before M12 issue creation until explicit approval.
+Status: Updated by M12 local implementation; protected PR closure remains pending.
+Known gaps: Runtime-profile validator code, bounded-buffer embedded event runtime, high-pass baseline correction, protected M12 PR CI, issue closure, and milestone closure remain future or pending work.
+Next recommended step: Complete M12 validation and PR closure.

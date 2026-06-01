@@ -111,6 +111,8 @@ Suggested `output_channels.kind` values:
 - `feature_records`
 - `validation_records`
 
+M12 implements `event_records` for event evidence and `validation_records` for event validation evidence. Existing waveform transforms continue to use `derived_channels`.
+
 ## Initial Transform Metadata Expectations
 
 M10-003 owns final mappings for current transforms. This document records the direction those mappings should follow.
@@ -190,4 +192,4 @@ Files changed: `docs/structured-transform-metadata.md`
 Checks run: Documentation and schema compatibility review.
 Status: Complete through PR #138; issue #133 and milestone #10 are closed.
 Known gaps: Runtime profile validation code and embedded/no_std transform exposure remain future gated work.
-Next recommended step: Use this design as the compatibility baseline if M11 or M12 is approved.
+Next recommended step: Use this design as the compatibility baseline for future transform additions and runtime-profile validation.

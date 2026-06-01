@@ -2,11 +2,11 @@
 
 Date: 2026-06-01
 
-Status: Current mapping artifact updated by M11 issues #140 through #146.
+Status: Current mapping artifact updated by M12 issues #149 through #155.
 
 ## Purpose
 
-FerrisOxide currently implements these transform steps in `crates/ferrisoxide-core/src/filter.rs`:
+FerrisOxide currently implements waveform transform steps in `crates/ferrisoxide-core/src/filter.rs`:
 
 - `moving_average`
 - `low_pass`
@@ -20,7 +20,9 @@ FerrisOxide currently implements these transform steps in `crates/ferrisoxide-co
 - `baseline_subtract`
 - `moving_median`
 
-This document defines the structured metadata values these transforms emit in `waveform_metadata.transform_steps`.
+M12 also implements event and validation transform metadata in `crates/ferrisoxide-core/src/event.rs` for `event_records[].transform_metadata` and `event_validations[].transform_metadata`.
+
+This document defines the structured metadata values these transforms emit in reports.
 
 ## Compatibility Rule
 
@@ -46,13 +48,31 @@ Structured metadata must keep `history_label` equal to the matching `transform_h
 |---|---|
 | `sequence_index` | Zero-based position in the applied filter/transform chain. |
 | `input_channels.kind` | `all_channels` for all current transforms. |
-| `output_channels.kind` | `derived_channels` for all current transforms. |
-| `output_channels.preserves_names` | `true` for all current transforms. |
+| `output_channels.kind` | `derived_channels` for waveform transforms, `event_records` for event transforms, and `validation_records` for event validation transforms. |
+| `output_channels.preserves_names` | `true` for waveform transforms and `false` for event/validation record outputs. |
 | `runtime_profiles` | `["desktop"]` for current implementation support. |
 | `capability_status` | `implemented` for all current transforms. |
 | `evidence_level` | `golden_report_tested` for all current transforms because current behavior is covered by unit/fixture/golden report paths. |
 
 No current transform is exposed as Raspberry Pi 5 no_std or Pico 2 runtime support by this mapping. Those profiles require later explicit code, target, and parity evidence.
+
+The Schmitt state primitive in `ferrisoxide-rule-engine` is no_std-compatible, but the M12 report-oriented event pipeline remains desktop-only until a later bounded-buffer runtime exists.
+
+## M12 Event And Validation Transforms
+
+| Transform | `name` | `category` | `output_channels.kind` | `parameters` | `sample_rate_required` | `stateful` | `causal` | `phase_effect` | `streaming_supported` | `offline_only` |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Schmitt trigger | `schmitt_trigger` | `StatefulTransform` | `event_records` | `on_threshold_v`, `off_threshold_v` in `V` | true | true | true | `nonlinear` | false | true |
+| Debounce | `debounce` | `StatefulTransform` | `event_records` | `min_duration_s` in `s` | true | true | true | `nonlinear` | false | true |
+| Glitch removal | `glitch_removal` | `StatefulTransform` | `event_records` | `max_duration_s` in `s` | true | true | true | `nonlinear` | false | true |
+| Edge extraction | `edge_extraction` | `EventTransform` | `event_records` | none | true | false | true | `nonlinear` | false | true |
+| Bounce detection | `bounce_detection` | `StatefulTransform` | `event_records` | `window_s` in `s` | true | true | true | `nonlinear` | false | true |
+| Missing pulse validation | `missing_pulse` | `ValidationTransform` | `validation_records` | `expected_count` in `events` | true | false | true | `nonlinear` | false | true |
+| Extra pulse validation | `extra_pulse` | `ValidationTransform` | `validation_records` | `max_count` in `events` | true | false | true | `nonlinear` | false | true |
+| Dwell-time validation | `dwell_time` | `ValidationTransform` | `validation_records` | `min_duration_s` in `s` | true | false | true | `nonlinear` | false | true |
+| Timeout validation | `timeout` | `ValidationTransform` | `validation_records` | `start_time_s`, `max_time_s` in `s` | true | false | true | `nonlinear` | false | true |
+
+Event metadata is nested under event and validation evidence rather than `waveform_metadata.transform_steps`, because event transforms do not create derived waveform channels.
 
 ## M11 Pointwise, Baseline, And Windowed Transforms
 
@@ -277,6 +297,6 @@ Role: Systems Engineer / Software Architect
 Goal: Complete M10-003 / issue #134 by mapping current implemented transforms to structured metadata values.
 Files changed: `docs/current-transform-metadata-mapping.md`
 Checks run: Documentation and compatibility review.
-Status: Complete through PR #138; issue #134 and milestone #10 are closed.
-Known gaps: Runtime profile validation code and embedded/no_std transform exposure remain future gated work.
-Next recommended step: Use this mapping if future transform additions or runtime-profile validation code are approved.
+Status: Complete through PR #138 and updated by M12 local implementation for event/validation metadata.
+Known gaps: Runtime profile validation code and bounded embedded event exposure remain future gated work.
+Next recommended step: Use this mapping for M12 PR review and future runtime-profile validation code.

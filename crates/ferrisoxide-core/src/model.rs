@@ -52,6 +52,12 @@ pub enum TransformCategory {
     Baseline,
     #[serde(rename = "WindowedTransform")]
     Windowed,
+    #[serde(rename = "StatefulTransform")]
+    Stateful,
+    #[serde(rename = "EventTransform")]
+    Event,
+    #[serde(rename = "ValidationTransform")]
+    Validation,
     #[serde(rename = "FrequencyFilterTransform")]
     FrequencyFilter,
     #[serde(rename = "QuantizationTransform")]
@@ -81,6 +87,8 @@ impl TransformInputChannels {
 #[serde(rename_all = "snake_case")]
 pub enum TransformOutputChannelKind {
     DerivedChannels,
+    EventRecords,
+    ValidationRecords,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -94,6 +102,20 @@ impl TransformOutputChannels {
         Self {
             kind: TransformOutputChannelKind::DerivedChannels,
             preserves_names: true,
+        }
+    }
+
+    pub fn event_records() -> Self {
+        Self {
+            kind: TransformOutputChannelKind::EventRecords,
+            preserves_names: false,
+        }
+    }
+
+    pub fn validation_records() -> Self {
+        Self {
+            kind: TransformOutputChannelKind::ValidationRecords,
+            preserves_names: false,
         }
     }
 }

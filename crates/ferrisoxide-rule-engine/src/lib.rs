@@ -197,6 +197,71 @@ pub struct RuleChannel<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SchmittTriggerSpec {
+    pub on_threshold_v: f64,
+    pub off_threshold_v: f64,
+    pub initial_state: SignalState,
+}
+
+impl SchmittTriggerSpec {
+    pub fn validate(self) -> Result<()> {
+        if !self.on_threshold_v.is_finite() {
+            return Err(RuleEngineError::InvalidParameter {
+                name: "on_threshold_v".to_string(),
+                reason: "must be finite".to_string(),
+            });
+        }
+        if !self.off_threshold_v.is_finite() {
+            return Err(RuleEngineError::InvalidParameter {
+                name: "off_threshold_v".to_string(),
+                reason: "must be finite".to_string(),
+            });
+        }
+        if self.off_threshold_v >= self.on_threshold_v {
+            return Err(RuleEngineError::InvalidParameter {
+                name: "off_threshold_v".to_string(),
+                reason: "must be lower than on_threshold_v".to_string(),
+            });
+        }
+        Ok(())
+    }
+}
+
+pub fn evaluate_schmitt_states(
+    time: &[f64],
+    samples: &[f64],
+    spec: SchmittTriggerSpec,
+) -> Result<Vec<SignalState>> {
+    spec.validate()?;
+    validate_time_and_samples(time, samples)?;
+
+    let mut state = spec.initial_state;
+    let mut states = Vec::with_capacity(samples.len());
+    for sample in samples {
+        if !sample.is_finite() {
+            return Err(RuleEngineError::InvalidWaveform {
+                reason: "schmitt trigger requires finite samples".to_string(),
+            });
+        }
+        state = schmitt_next_state(state, *sample, spec);
+        states.push(state);
+    }
+    Ok(states)
+}
+
+pub fn schmitt_next_state(
+    current_state: SignalState,
+    sample: f64,
+    spec: SchmittTriggerSpec,
+) -> SignalState {
+    match current_state {
+        SignalState::Low if sample >= spec.on_threshold_v => SignalState::High,
+        SignalState::High if sample <= spec.off_threshold_v => SignalState::Low,
+        state => state,
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BorrowedRuleCriterion<'a> {
     pub id: &'a str,
     pub check: BorrowedRuleCriterionCheck<'a>,
@@ -738,6 +803,38 @@ fn validate_time_axis_for_criteria(
             return Err(RuleEngineError::InvalidWaveform {
                 reason: format!(
                     "time samples must be strictly increasing for duration criteria; sample {}={} is not greater than sample {}={}",
+                    index + 1,
+                    pair[1],
+                    index,
+                    pair[0]
+                ),
+            });
+        }
+    }
+    Ok(())
+}
+
+fn validate_time_and_samples(time: &[f64], samples: &[f64]) -> Result<()> {
+    if time.is_empty() || samples.is_empty() {
+        return Err(RuleEngineError::EmptyInput);
+    }
+    if time.len() != samples.len() {
+        return Err(RuleEngineError::InvalidWaveform {
+            reason: "time and sample lengths must match".to_string(),
+        });
+    }
+    for (index, timestamp) in time.iter().enumerate() {
+        if !timestamp.is_finite() {
+            return Err(RuleEngineError::InvalidWaveform {
+                reason: format!("time sample {index} must be finite"),
+            });
+        }
+    }
+    for (index, pair) in time.windows(2).enumerate() {
+        if pair[1] <= pair[0] {
+            return Err(RuleEngineError::InvalidWaveform {
+                reason: format!(
+                    "time samples must be strictly increasing for event transforms; sample {}={} is not greater than sample {}={}",
                     index + 1,
                     pair[1],
                     index,
@@ -2950,5 +3047,50 @@ mod tests {
                 channel: "missing_v"
             }
         );
+    }
+
+    #[test]
+    fn schmitt_trigger_states_use_hysteresis() {
+        let time = [0.0, 0.001, 0.002, 0.003, 0.004];
+        let samples = [0.0, 2.5, 3.2, 2.4, 1.9];
+        let states = evaluate_schmitt_states(
+            &time,
+            &samples,
+            SchmittTriggerSpec {
+                on_threshold_v: 3.0,
+                off_threshold_v: 2.0,
+                initial_state: SignalState::Low,
+            },
+        )
+        .expect("schmitt states should evaluate");
+
+        assert_eq!(
+            states.as_slice(),
+            &[
+                SignalState::Low,
+                SignalState::Low,
+                SignalState::High,
+                SignalState::High,
+                SignalState::Low,
+            ]
+        );
+    }
+
+    #[test]
+    fn schmitt_trigger_rejects_invalid_thresholds() {
+        let time = [0.0, 0.001];
+        let samples = [0.0, 5.0];
+        let error = evaluate_schmitt_states(
+            &time,
+            &samples,
+            SchmittTriggerSpec {
+                on_threshold_v: 2.0,
+                off_threshold_v: 2.0,
+                initial_state: SignalState::Low,
+            },
+        )
+        .expect_err("invalid hysteresis should fail");
+
+        assert!(matches!(error, RuleEngineError::InvalidParameter { .. }));
     }
 }

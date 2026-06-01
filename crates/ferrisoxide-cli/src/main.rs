@@ -16,6 +16,7 @@ use ferrisoxide_core::criteria::{
     ResponseLatencySpec, RunSelectionConfig, SignalState, TransientEventKind, TransientEventWindow,
 };
 use ferrisoxide_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
+use ferrisoxide_core::event::evaluate_event_pipeline;
 use ferrisoxide_core::filter::{
     apply_filter_chain, AdcQuantizer, Filter, FilterStep, LowPassFilter, MovingAverageFilter,
 };
@@ -77,41 +78,50 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
     let input_path = value_after(args, "--input").ok_or("missing --input <path>")?;
     let output_format = value_after(args, "--format").unwrap_or("text");
     let config = load_config(args)?;
-    let (options, filters, criteria, tolerances, metadata) = match config {
-        Some(config) => (
-            config.csv_options(),
-            config
-                .filters()
-                .map_err(|error| format!("invalid config filters: {error}"))?,
-            config
-                .criteria()
-                .map_err(|error| format!("invalid config criteria: {error}"))?,
-            config.tolerances,
-            config.metadata,
-        ),
-        None => {
-            let time_column = value_after(args, "--time-column").unwrap_or("time");
-            let channels =
-                value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?;
-            let channel_columns = channels
-                .split(',')
-                .map(str::trim)
-                .filter(|channel| !channel.is_empty())
-                .map(str::to_string)
-                .collect::<Vec<_>>();
-            if channel_columns.is_empty() {
-                return Err("--channels must include at least one channel".to_string());
-            }
+    let (options, filters, event_transforms, event_validations, criteria, tolerances, metadata) =
+        match config {
+            Some(config) => (
+                config.csv_options(),
+                config
+                    .filters()
+                    .map_err(|error| format!("invalid config filters: {error}"))?,
+                config
+                    .event_transforms()
+                    .map_err(|error| format!("invalid config event transforms: {error}"))?,
+                config
+                    .event_validations()
+                    .map_err(|error| format!("invalid config event validations: {error}"))?,
+                config
+                    .criteria()
+                    .map_err(|error| format!("invalid config criteria: {error}"))?,
+                config.tolerances,
+                config.metadata,
+            ),
+            None => {
+                let time_column = value_after(args, "--time-column").unwrap_or("time");
+                let channels =
+                    value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?;
+                let channel_columns = channels
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|channel| !channel.is_empty())
+                    .map(str::to_string)
+                    .collect::<Vec<_>>();
+                if channel_columns.is_empty() {
+                    return Err("--channels must include at least one channel".to_string());
+                }
 
-            (
-                CsvParseOptions::new(time_column, channel_columns),
-                parse_filters(args)?,
-                parse_criteria(args)?,
-                TolerancePolicy::default(),
-                MetadataContext::default(),
-            )
-        }
-    };
+                (
+                    CsvParseOptions::new(time_column, channel_columns),
+                    parse_filters(args)?,
+                    Vec::new(),
+                    Vec::new(),
+                    parse_criteria(args)?,
+                    TolerancePolicy::default(),
+                    MetadataContext::default(),
+                )
+            }
+        };
 
     let input = fs::read_to_string(input_path)
         .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
@@ -126,6 +136,9 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
     waveform = apply_filter_chain(&waveform, &filters)
         .map_err(|error| format!("filter pipeline failed: {error}"))?;
 
+    let event_evaluation =
+        evaluate_event_pipeline(&waveform, &event_transforms, &event_validations)
+            .map_err(|error| format!("event analysis failed: {error}"))?;
     let evaluation = evaluate_criteria_with_measurements(&waveform, &criteria, tolerances)
         .map_err(|error| format!("analysis failed: {error}"))?;
     let report = AnalysisReport {
@@ -133,6 +146,8 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(tolerances),
         measurements: evaluation.measurements,
+        event_records: event_evaluation.records,
+        event_validations: event_evaluation.validations,
         results: evaluation.results,
     };
 
@@ -452,6 +467,8 @@ fn run_desktop_simulation_workflow(
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(TolerancePolicy::default()),
         measurements: evaluation.measurements,
+        event_records: Vec::new(),
+        event_validations: Vec::new(),
         results: evaluation.results,
     };
 
@@ -1155,6 +1172,15 @@ fn analyze_configured_input(
     let criteria = config
         .criteria()
         .map_err(|error| format!("invalid config criteria: {error}"))?;
+    let event_transforms = config
+        .event_transforms()
+        .map_err(|error| format!("invalid config event transforms: {error}"))?;
+    let event_validations = config
+        .event_validations()
+        .map_err(|error| format!("invalid config event validations: {error}"))?;
+    let event_evaluation =
+        evaluate_event_pipeline(&waveform, &event_transforms, &event_validations)
+            .map_err(|error| format!("event analysis failed: {error}"))?;
     let evaluation = evaluate_criteria_with_measurements(&waveform, &criteria, config.tolerances)
         .map_err(|error| format!("analysis failed: {error}"))?;
     let report = AnalysisReport {
@@ -1162,6 +1188,8 @@ fn analyze_configured_input(
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
         measurements: evaluation.measurements,
+        event_records: event_evaluation.records,
+        event_validations: event_evaluation.validations,
         results: evaluation.results,
     };
 
@@ -2171,6 +2199,39 @@ mod tests {
         assert!(output.contains("\"category\": \"BaselineTransform\""));
         assert!(output.contains("\"category\": \"WindowedTransform\""));
         assert!(output.contains("\"phase_effect\": \"nonlinear\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m12_event_validation_transforms() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../examples/switch-bounce-waveform.csv");
+        let config_path = format!("{manifest_dir}/../../examples/m12-event-validation-config.toml");
+
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M12 event validation config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        assert!(output.contains("\"event_records\""));
+        assert!(output.contains("\"event_validations\""));
+        assert!(output.contains("\"transform\": \"schmitt_trigger\""));
+        assert!(output.contains("\"kind\": \"bounce\""));
+        assert!(output.contains("\"validation\": \"missing_pulse\""));
+        assert!(output.contains("\"validation\": \"extra_pulse\""));
+        assert!(output.contains("\"validation\": \"dwell_time\""));
+        assert!(output.contains("\"validation\": \"timeout\""));
+        assert!(output.contains("\"category\": \"EventTransform\""));
+        assert!(output.contains("\"category\": \"StatefulTransform\""));
+        assert!(output.contains("\"category\": \"ValidationTransform\""));
+        assert!(output.contains("\"kind\": \"event_records\""));
+        assert!(output.contains("\"kind\": \"validation_records\""));
     }
 
     fn unique_plot_path(name: &str) -> String {

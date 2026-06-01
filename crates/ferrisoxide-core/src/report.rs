@@ -1,5 +1,6 @@
 use crate::analysis::{AnalysisResult, MeasurementRecord, Outcome};
 use crate::error::{Result, WaveformError};
+use crate::event::{EventRecord, EventValidationResult};
 use crate::model::{TolerancePolicy, WaveformMetadata};
 use serde::Serialize;
 
@@ -9,6 +10,8 @@ pub struct AnalysisReport {
     pub waveform_metadata: WaveformMetadata,
     pub evidence_context: ReportEvidenceContext,
     pub measurements: Vec<MeasurementRecord>,
+    pub event_records: Vec<EventRecord>,
+    pub event_validations: Vec<EventValidationResult>,
     pub results: Vec<AnalysisResult>,
 }
 
@@ -46,6 +49,10 @@ impl AnalysisReport {
             .results
             .iter()
             .any(|result| result.outcome == Outcome::Fail)
+            || self
+                .event_validations
+                .iter()
+                .any(|validation| validation.outcome == Outcome::Fail)
         {
             Outcome::Fail
         } else {
@@ -113,6 +120,51 @@ impl AnalysisReport {
             ));
         }
 
+        if !self.event_records.is_empty() {
+            output.push_str("Event Records:\n");
+            for event in &self.event_records {
+                output.push_str(&format!(
+                    "- {}: transform={} kind={:?} channel={} state={} sample_index={} timestamp={:.6}",
+                    event.id,
+                    event.transform,
+                    event.kind,
+                    event.channel,
+                    event.state,
+                    event.sample_index,
+                    event.timestamp
+                ));
+                if let Some(direction) = &event.direction {
+                    output.push_str(&format!(" direction={direction}"));
+                }
+                if let Some(duration_s) = event.duration_s {
+                    output.push_str(&format!(" duration={duration_s:.9} s"));
+                }
+                if let Some(count) = event.count {
+                    output.push_str(&format!(" count={count}"));
+                }
+                output.push('\n');
+            }
+        }
+
+        if !self.event_validations.is_empty() {
+            output.push_str("Event Validations:\n");
+            for validation in &self.event_validations {
+                output.push_str(&format!(
+                    "- {}: {:?} validation={:?} channel={} measured={:.6} {} required={:.6} {} linked_events={} reason={}\n",
+                    validation.requirement_id,
+                    validation.outcome,
+                    validation.validation,
+                    validation.channel,
+                    validation.measured_value,
+                    validation.unit,
+                    validation.required_value,
+                    validation.unit,
+                    validation.linked_event_ids.join(","),
+                    validation.reason
+                ));
+            }
+        }
+
         output.push_str("Criteria:\n");
 
         for result in &self.results {
@@ -143,6 +195,8 @@ impl AnalysisReport {
             evidence_context: &self.evidence_context,
             overall_outcome: self.overall_outcome(),
             measurements: &self.measurements,
+            event_records: &self.event_records,
+            event_validations: &self.event_validations,
             results: &self.results,
         };
         serde_json::to_string_pretty(&document).map_err(|error| {
@@ -160,14 +214,21 @@ struct JsonReport<'a> {
     evidence_context: &'a ReportEvidenceContext,
     overall_outcome: Outcome,
     measurements: &'a [MeasurementRecord],
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
+    event_records: &'a [EventRecord],
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
+    event_validations: &'a [EventValidationResult],
     results: &'a [AnalysisResult],
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::event::EventValidationKind;
     use crate::filter::{Filter, MovingAverageFilter};
-    use crate::model::{Channel, Unit, Waveform};
+    use crate::model::{
+        Channel, TransformCategory, TransformPhaseEffect, TransformStepMetadata, Unit, Waveform,
+    };
 
     fn metadata() -> WaveformMetadata {
         Waveform::new(
@@ -198,6 +259,8 @@ mod tests {
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
             measurements: vec![measurement()],
+            event_records: Vec::new(),
+            event_validations: Vec::new(),
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
@@ -234,6 +297,8 @@ mod tests {
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
             measurements: vec![measurement()],
+            event_records: Vec::new(),
+            event_validations: Vec::new(),
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
@@ -264,6 +329,44 @@ mod tests {
     }
 
     #[test]
+    fn event_validation_failure_fails_overall_report() {
+        let report = AnalysisReport {
+            input_name: "fixture.csv".to_string(),
+            waveform_metadata: metadata(),
+            evidence_context: ReportEvidenceContext::default(),
+            measurements: vec![measurement()],
+            event_records: Vec::new(),
+            event_validations: vec![EventValidationResult {
+                requirement_id: "no_extra_rise".to_string(),
+                validation: EventValidationKind::ExtraPulse,
+                outcome: Outcome::Fail,
+                channel: "input_v".to_string(),
+                measured_value: 2.0,
+                required_value: 1.0,
+                unit: "events".to_string(),
+                linked_event_ids: Vec::new(),
+                reason: "expected no more than 1 rising pulse event(s), observed 2".to_string(),
+                transform_metadata: TransformStepMetadata::implemented_desktop(
+                    "extra_pulse(channel=input_v,direction=rising,max_count=1)",
+                    "extra_pulse",
+                    TransformCategory::Validation,
+                    Vec::new(),
+                    true,
+                    false,
+                    TransformPhaseEffect::Nonlinear,
+                ),
+            }],
+            results: Vec::new(),
+        };
+
+        assert_eq!(report.overall_outcome(), Outcome::Fail);
+        let rendered = report.render_json_pretty().expect("json should render");
+        assert!(rendered.contains("\"overall_outcome\": \"fail\""));
+        assert!(rendered.contains("\"event_validations\""));
+        assert!(rendered.contains("\"validation\": \"extra_pulse\""));
+    }
+
+    #[test]
     fn renders_structured_transform_metadata_when_present() {
         let waveform = Waveform::new(
             vec![0.0, 0.001],
@@ -278,6 +381,8 @@ mod tests {
             waveform_metadata: derived.metadata,
             evidence_context: ReportEvidenceContext::default(),
             measurements: Vec::new(),
+            event_records: Vec::new(),
+            event_validations: Vec::new(),
             results: Vec::new(),
         };
 
