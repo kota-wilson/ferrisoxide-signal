@@ -4,11 +4,11 @@ Last updated: 2026-06-01
 
 ## Current Objective
 
-Advance FerrisOxide M13 transform runtime-profile validation after M12 event and validation transform MVP closure and user approval to continue. M10-001 / issue #132 through M10-006 / issue #137 are closed through PR #138; M11 issues #140 through #146 are closed through PR #147; M12 issues #149 through #155 are closed through PR #156, and milestone #12 is closed. M13 GitHub milestone #13 and issues #158 through #163 are open; local implementation and focused tests are complete; no dependencies, live DAQ, HAL/RTOS, hardware, or certification work has started.
+Hold after completing FerrisOxide M13 transform runtime-profile validation through PR, issue, milestone, and closure-record updates. M10-001 / issue #132 through M10-006 / issue #137 are closed through PR #138; M11 issues #140 through #146 are closed through PR #147; M12 issues #149 through #155 are closed through PR #156; M13 issues #158 through #163 are closed through PR #164; PR #165 records M13 release/community closure; and milestone #13 is closed. No dependencies, live DAQ, HAL/RTOS, hardware, certification work, or M14 implementation has started.
 
 ## Current Stage
 
-The M10-M12 transform sequence is complete, and M13 is implemented and validated locally pending PR. `docs/next-milestones-roadmap.md` defines the sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` covers WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` covers WRA-RQ-081 through WRA-RQ-086, `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` covers WRA-RQ-087 through WRA-RQ-092, and `docs/next-milestones-issue-planning-report.md` tracks M10, M11, M12 closure plus M13 issue planning. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. GitHub milestone #11 is closed with M11-001 through M11-007 as closed issues #140 through #146 and merged PR #147. GitHub milestone #12 is closed with M12-001 through M12-007 as closed issues #149 through #155 and merged PR #156. GitHub milestone #13 is open with M13-001 through M13-006 as issues #158 through #163. M13 adds `crates/ferrisoxide-core/src/runtime_profile.rs` with structured runtime-profile validation, timing-evidence checks, waveform metadata rejection tests, and event/validation metadata rejection tests. The current gate is PR, CI, issue closure, and milestone closure.
+The M10-M13 transform sequence is complete. `docs/next-milestones-roadmap.md` defines the sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` covers WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` covers WRA-RQ-081 through WRA-RQ-086, `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` covers WRA-RQ-087 through WRA-RQ-092, and `docs/next-milestones-issue-planning-report.md` tracks M10 through M13 closure. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. GitHub milestone #11 is closed with M11-001 through M11-007 as closed issues #140 through #146 and merged PR #147. GitHub milestone #12 is closed with M12-001 through M12-007 as closed issues #149 through #155 and merged PR #156. GitHub milestone #13 is closed with M13-001 through M13-006 as closed issues #158 through #163 and merged PR #164; PR #165 records release/community closure artifacts. M13 adds `crates/ferrisoxide-core/src/runtime_profile.rs` with structured runtime-profile validation, timing-evidence checks, waveform metadata rejection tests, and event/validation metadata rejection tests. The next gate is explicit approval before M14 or new scope.
 
 Historical closure context:
 
@@ -143,22 +143,22 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Status: Accepted for local milestone planning in `docs/analog-transform-taxonomy.md`, `docs/next-milestones-roadmap.md`, and the M10-M13 proposals; M10 GitHub issues #132 through #137 are closed through PR #138.
 - Decision: Sequence transform work as M10 architecture first, M11 pointwise/windowed transforms second, M12 event/validation transforms third, and M13 runtime-profile validation fourth.
   Owner: Project Coordinator / Software Architect
-  Status: Accepted; M12 is complete through PR #156, milestone #12 is closed, and M13 milestone #13 is open after user approval to continue.
+  Status: Accepted; M13 is complete through PR #164, and milestone #13 is closed.
 
 ## Next Responsible Role
 
 Role: Project Coordinator / Software Architect
 
-Expected deliverable: Implement M13 issues #158 through #163, validate, open/merge PR, and close milestone #13.
+Expected deliverable: Hold before M14 or new scope until explicit approval.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/ferrisoxide`.
-- Current milestone: #13, `v0.11.0: Transform Runtime Profile Validation`, is open with issues #158 through #163 and implemented/validated locally pending PR. Milestone #12, `v0.10.0: Event And Validation Transform MVP`, is closed with issues #149 through #155 closed by PR #156. M7, M8, M9, M10, and M11 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
+- Current milestone: #13, `v0.11.0: Transform Runtime Profile Validation`, is closed with issues #158 through #163 closed by PR #164. Milestone #12, `v0.10.0: Event And Validation Transform MVP`, is closed with issues #149 through #155 closed by PR #156. M7, M8, M9, M10, and M11 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Open PR, wait for required `rust` CI, merge, close issues #158 through #163, and close milestone #13 without expanding into new algorithms, deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, M14+ work, or hardware/certification evidence.
+- Next gate: Explicit approval before M14 or new scope. New algorithms, deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, M14+ work, and hardware/certification evidence remain separately gated.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, new third-party dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, binary package serialization, cryptographic signing, live controller simulation, live DAQ integration, unit shorthand parsing, expanded annotated SVG features, or external brand expansion without a fresh issue/gate.
 
 ## Granularity Status
@@ -178,7 +178,7 @@ Expected deliverable: Implement M13 issues #158 through #163, validate, open/mer
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-086; WRA-RQ-087 through WRA-RQ-092 are proposed for M13. Milestones #9, #10, #11, and #12 are closed.
+- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-092. Milestones #9, #10, #11, #12, and #13 are closed.
 
 ## Gate Decisions
 
@@ -421,6 +421,9 @@ Expected deliverable: Implement M13 issues #158 through #163, validate, open/mer
 | M13 Runtime Profile Validation Architecture Gate | Pass locally | M13 uses M10 transform metadata and runtime-profile vocabulary without changing report/config schema. | Abstraction Review Engineer |
 | M13 Runtime Profile Validation Human Approval Gate | Pass for planning and issue creation | User approved continuing after M12 closure on 2026-06-01 | Project Coordinator |
 | M13 Runtime Profile Validation Issue Planning Gate | Pass | GitHub milestone #13 and issues #158 through #163 created. | GitHub Maintainer Specialist |
+| M13 Runtime Profile Validation Implementation Gate | Pass | Runtime-profile validator, timing evidence, waveform/event metadata tests, docs, and traceability merged in PR #164. | Core Software Engineer |
+| M13 Runtime Profile Validation Release Gate | Pass | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | GitHub Maintainer Specialist |
+| M13 Runtime Profile Validation Community Gate | Pass | Issues #158 through #163 closed; milestone #13 closed with 6 closed items and 0 open items. | Project Coordinator |
 
 ## Update Rules
 

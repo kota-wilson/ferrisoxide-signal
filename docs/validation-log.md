@@ -38,6 +38,8 @@ git diff --check
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 local Markdown link-target scan
+PR #164 protected rust CI
+milestone #13 closure verification
 ```
 
 ### Result
@@ -49,13 +51,15 @@ local Markdown link-target scan
 - `cargo test --workspace`: Pass; 203 workspace unit, integration, and doctest checks passed.
 - `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
 - Local Markdown link-target scan over changed Markdown files: Pass.
+- PR #164 protected `rust` CI: Pass.
+- Milestone #13 closure verification: Pass; issues #158 through #163 closed, milestone #13 closed with 6 closed issues and 0 open issues.
 
 ### Scope Notes
 
 - No new dependencies.
 - No report/config schema migration.
 - No live DAQ, HAL/RTOS SDK, target hardware execution, real-time, hardware qualification, or certification claim.
-- PR, required `rust` CI, issue closure, and milestone closure remain pending.
+- No release tag was published; runtime loaders, hardware evidence, certification evidence, and M14+ work remain separately gated.
 
 ## M12 Event Validation Transform MVP Validation Update
 

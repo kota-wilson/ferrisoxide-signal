@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Advance M13 transform runtime-profile validation after M12 event and validation transform MVP closure and user approval to continue.
+Current objective: Hold after completing M13 transform runtime-profile validation through validation, PR, issue closure, and milestone closure.
 
-Current stage: M12 is complete through PR #156; issues #149 through #155 and milestone #12 are closed. M13 GitHub milestone #13 and issues #158 through #163 are open; local implementation and full validation are complete, with PR pending.
+Current stage: M13 is complete through PR #164; issues #158 through #163 and milestone #13 are closed.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -35,7 +35,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs, merged PR #138, closed issues #132 through #137, closed milestone #10 | Complete |
 | M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted and user requested next milestone | Pointwise, baseline, moving median, metadata, raw-preservation tests, docs, PR #147, closed issues #140 through #146, closed milestone #11 | Complete |
 | M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted, M11 compatibility path established, and user approved M12 | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures, docs, PR #156, closed issues #149 through #155, closed milestone #12 | Complete |
-| M13 / v0.11.0 | Transform runtime-profile validation | Software Architect / Core Software Engineer / V&V Engineer | M12 closed and user approved continuing | Runtime-profile validator API, timing-evidence checks, waveform/event metadata rejection tests, docs guardrails, PR, closed issues, closed milestone | Implemented and validated locally; PR pending |
+| M13 / v0.11.0 | Transform runtime-profile validation | Software Architect / Core Software Engineer / V&V Engineer | M12 closed and user approved continuing | Runtime-profile validator API, timing-evidence checks, waveform/event metadata rejection tests, docs guardrails, PR #164, closed issues #158 through #163, closed milestone #13 | Complete |
 
 ## Zoom-Level Plan
 
@@ -69,7 +69,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-024 | Implement M12 event/validation transform MVP | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #149 through #155, M10/M11 metadata model | `crates/ferrisoxide-core/src/event.rs`, config/report/CLI integration, rule-engine Schmitt primitive, examples, docs, traceability, and pipeline report | Implementation/Release Gate | Complete through PR #156 |
 | WRA-TASK-025 | Create M13 runtime-profile validation proposal | Software Architect / Project Coordinator | M10/M12 known gaps, transform metadata model, user approval to continue | `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md`; WRA-RQ-087 through WRA-RQ-092 | Requirements Gate | Complete |
 | WRA-TASK-026 | Approve M13 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M13 proposal and placeholders M13-001 through M13-006 | GitHub milestone #13 and issues #158 through #163 | Human Approval Gate | Complete |
-| WRA-TASK-027 | Implement M13 runtime-profile validator | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #158 through #163, M10 metadata model, M12 event metadata | `crates/ferrisoxide-core/src/runtime_profile.rs`, docs, tests, traceability, and pipeline report | Implementation/Release Gate | Implemented and validated locally; PR pending |
+| WRA-TASK-027 | Implement M13 runtime-profile validator | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #158 through #163, M10 metadata model, M12 event metadata | `crates/ferrisoxide-core/src/runtime_profile.rs`, docs, tests, traceability, and pipeline report | Implementation/Release Gate | Complete through PR #164 |
 
 ## Approval Gates
 
@@ -108,20 +108,19 @@ You are the Project Orchestrator / Core Software Engineer.
 
 Purpose
 
-Advance M13 transform runtime-profile validation after M12 completion and user approval.
+Hold after M13 transform runtime-profile validation closure and wait for explicit approval before M14 or new scope.
 
 Responsibilities
 
 - Keep changes inside this project.
 - Do not add third-party crates without dependency approval.
-- Create only the approved M13 GitHub milestone/issues from the local proposal.
+- Do not create additional GitHub milestones/issues beyond M13 without approval.
 - Do not start M14 or hardware/runtime work without explicit user approval.
 - Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
 
-- M13 runtime-profile validation proposal, issue planning, requirements, traceability, risk, docs, implementation, tests, PR, and milestone closure.
-- Runtime-profile validation rejects unsupported transform exposure without adding live DAQ, HAL/RTOS, target hardware, dependencies, or certification claims.
+- M13 runtime-profile validation is implemented, validated, merged in PR #164, and closed with milestone #13.
 - Handoff note.
 
 Expected format to receive deliverables
