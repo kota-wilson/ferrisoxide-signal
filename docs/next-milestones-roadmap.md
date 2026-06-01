@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10, M11, M12, and M13 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12; PR #164 merged M13 and closed milestone #13 with issues #158 through #163.
+Status: M10, M11, M12, and M13 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12; PR #164 merged M13 and closed milestone #13 with issues #158 through #163; PR #165 records M13 release/community closure.
 
 ## Purpose
 
@@ -147,6 +147,6 @@ Role: Project Coordinator / Product Architect
 Goal: Convert the transform taxonomy into a staged local milestone roadmap.
 Files changed: This roadmap plus M10, M11, M12, issue-planning, requirements, traceability, risk, orchestration, and state files.
 Checks run: Documentation and traceability inspection.
-Status: M10, M11, M12, and M13 complete.
+Status: M10, M11, M12, and M13 complete; PR #165 records M13 release/community closure.
 Known gaps: No GitHub release tag was published for M13; live DAQ, runtime loaders, hardware validation, certification evidence, and M14+ work remain separately gated.
 Next recommended step: Hold before M14 or new scope until explicit approval.

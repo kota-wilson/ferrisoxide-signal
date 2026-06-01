@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 milestone #12 and issues #149 through #155 are closed through PR #156. M13 milestone #13 and issues #158 through #163 are closed through PR #164.
+Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 milestone #12 and issues #149 through #155 are closed through PR #156. M13 milestone #13 and issues #158 through #163 are closed through PR #164; PR #165 records M13 release/community closure.
 
 ## Scope
 
@@ -105,6 +105,6 @@ Role: Project Orchestrator / GitHub Maintainer Specialist
 Goal: Convert next milestone proposals into local issue placeholders.
 Files changed: This report, milestone proposals, requirements, traceability, risk, orchestration, README, architecture, and project state.
 Checks run: Documentation and traceability inspection.
-Status: M10, M11, M12, and M13 complete.
+Status: M10, M11, M12, and M13 complete; PR #165 records M13 release/community closure.
 Known gaps: No GitHub release tag was published for M13; runtime loaders, hardware evidence, certification evidence, and M14+ work remain separately gated.
 Next recommended step: Hold before M14 or new scope until explicit approval.

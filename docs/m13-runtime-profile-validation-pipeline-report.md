@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: Complete through PR #164; issues #158 through #163 and milestone #13 are closed.
+Status: Complete through PR #164; issues #158 through #163 and milestone #13 are closed. Closure record: PR #165.
 
 ## Scope
 
@@ -48,7 +48,7 @@ Out of scope:
 | Evaluation | Pass | Requirements, traceability, tests, docs, and pipeline report map issues #158 through #163 to evidence. | Future package/runtime exposure still needs separate gates. | Evaluation Engineer |
 | Release | Pass | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | No GitHub release tag was published. | GitHub Maintainer Specialist |
 | Community | Pass | Issues #158 through #163 closed and milestone #13 closed with 6 closed items and 0 open items. | None. | Project Coordinator |
-| Retrospective | Pass | This report records M13 residual risks and non-goals after milestone closure. | Future runtime/package exposure needs a fresh plan. | Project Coordinator |
+| Retrospective | Pass | This report records M13 residual risks and non-goals after milestone closure; PR #165 records the release/community closure artifact updates. | Future runtime/package exposure needs a fresh plan. | Project Coordinator |
 
 ## Issue Mapping
 
@@ -87,6 +87,6 @@ Role: Core Software Engineer / V&V Engineer
 Goal: Implement M13 runtime-profile validation.
 Files changed: Core runtime-profile validator, metadata vocabulary, docs, requirements, traceability, risk, orchestration, and state artifacts.
 Checks run: `cargo fmt`; `cargo test -p ferrisoxide-core runtime_profile -- --nocapture`; `cargo fmt --check`; `git diff --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan.
-Status: Complete through PR #164, closed issues #158 through #163, and closed milestone #13.
+Status: Complete through PR #164, closed issues #158 through #163, closed milestone #13, and closure record PR #165.
 Known gaps: No GitHub release tag was published; runtime loaders, hardware evidence, certification evidence, and M14+ work remain separately gated.
 Next recommended step: Hold before M14 or new scope until explicit approval.
