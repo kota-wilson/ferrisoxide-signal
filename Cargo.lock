@@ -51,9 +51,14 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 name = "ferrisoxide-cli"
 version = "0.1.0"
 dependencies = [
+ "ferrisoxide-control-schema",
  "ferrisoxide-core",
+ "ferrisoxide-daq",
  "ferrisoxide-plot",
  "ferrisoxide-rule-schema",
+ "ferrisoxide-simulator",
+ "ferrisoxide-verification-schema",
+ "serde",
  "serde_json",
  "toml",
 ]
