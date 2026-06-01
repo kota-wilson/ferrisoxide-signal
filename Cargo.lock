@@ -68,6 +68,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrisoxide-controller-io"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "ferrisoxide-core"
 version = "0.1.0"
 dependencies = [
