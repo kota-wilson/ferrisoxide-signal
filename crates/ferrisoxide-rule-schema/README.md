@@ -2,6 +2,8 @@
 
 `ferrisoxide-rule-schema` owns the versioned portable FerrisOxide Rule Package model.
 
+Architecture details and data flow are documented in [architecture.md](architecture.md).
+
 It is a schema, validation, manifest, and deterministic checksum-evidence crate only. It deliberately does not parse CSV, evaluate rules, render reports, plot SVGs, export deployment packages, talk to DAQ/controller I/O, bind hardware HALs, or claim hardware qualification/certification suitability. Its checksum helper is non-cryptographic artifact drift evidence, not signing or security certification.
 
 ## Current Scope

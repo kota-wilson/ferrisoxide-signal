@@ -2,6 +2,8 @@
 
 `ferrisoxide-signal` contains no_std signal-analysis primitives for embedded and RTOS-oriented adapters.
 
+Architecture details and data flow are documented in [architecture.md](architecture.md).
+
 This crate intentionally excludes:
 
 - CSV parsing.

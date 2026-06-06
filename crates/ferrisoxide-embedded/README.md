@@ -2,6 +2,8 @@
 
 `ferrisoxide-embedded` is the adapter-boundary crate for future ARM64, RTOS, and board-specific integrations.
 
+Architecture details and data flow are documented in [architecture.md](architecture.md).
+
 It is `#![no_std]` and wraps `ferrisoxide-signal` with small traits for:
 
 - sample sources,

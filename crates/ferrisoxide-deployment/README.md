@@ -2,6 +2,8 @@
 
 `ferrisoxide-deployment` defines the reviewable deployment package manifest and qualification evidence report formats for controller-in-the-loop workflows.
 
+Architecture details and data flow are documented in [architecture.md](architecture.md).
+
 The crate is intentionally schema- and validation-focused. It does not export packages, sign artifacts, load RTOS configs, talk to hardware, bind HALs, or claim hardware qualification/certification status.
 
 Current scope:
