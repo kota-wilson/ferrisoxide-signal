@@ -2,6 +2,8 @@
 
 `ferrisoxide-rule-engine` owns the shared rule execution semantics for desktop and embedded-compatible callers.
 
+Architecture details and data flow are documented in [architecture.md](architecture.md).
+
 The crate is `#![no_std]`. Its full evidence API uses `alloc` for desktop-style owned result records, while its borrowed summary API evaluates caller-provided rule data without owned criterion/result strings and without heap allocation on basic pass/fail paths. It deliberately avoids CSV parsing, TOML parsing, report rendering, plotting, file I/O, DAQ/controller I/O, hardware HALs, RTOS SDKs, and certification claims.
 
 ## Current Scope

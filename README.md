@@ -1459,6 +1459,7 @@ Start here:
 
 - [Architecture](docs/architecture.md)
 - [FerrisOxide system overview diagram](docs/architecture/ferrisoxide-overview.md)
+- [Crate architecture audit](docs/architecture/crate-architecture-audit.md)
 - [MVP usage sketch](docs/usage-mvp.md)
 - [Report schema](docs/report-schema.md)
 - [Config reference](docs/config-reference.md)

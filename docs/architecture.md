@@ -4,7 +4,7 @@ Date: 2026-05-30
 
 ## Summary
 
-The system is a Rust Cargo workspace with a reusable core library and a small CLI. The architecture separates raw data ingestion, waveform modeling, derived waveform transformations, criteria evaluation, and report rendering so future GUI or language bindings can reuse the core without depending on CLI concerns.
+The system is a Rust Cargo workspace with a reusable core library, shared workflow orchestration layer, command-line binaries, and an optional native GUI crate. The architecture separates raw data ingestion, waveform modeling, derived waveform transformations, criteria evaluation, report rendering, plotting, workflow orchestration, and user-facing shells so CLI and GUI surfaces can reuse the same core behavior without owning analysis semantics.
 
 Current status: This proposal has been implemented through the validated MVP feature baseline. Current implementation details and remaining open issues are tracked in `requirements.md`, `traceability-matrix.md`, and `project-state.md`.
 
@@ -23,6 +23,8 @@ Current status: This proposal has been implemented through the validated MVP fea
 |---|---|---|---|
 | `ferrisoxide-core` | `crates/ferrisoxide-core` | Data model, CSV parser interface, filters, criteria, analysis results, report model. | Library API for CLI, future GUI, and bindings. |
 | `ferrisoxide-cli` | `crates/ferrisoxide-cli` | Command-line argument handling and orchestration. | `ferrisoxide-signal` binary. |
+| `ferrisoxide-workflow` | `crates/ferrisoxide-workflow` | Shared desktop workflow orchestration for CLI and GUI callers. | Source inspection, config scaffold, analysis, plotting, rule-package export, simulation, batch, templates, and evaluation bundle APIs. |
+| `ferrisoxide-gui` | `crates/ferrisoxide-gui` | Optional native egui workflow shell and GUI session state. | Source, Config, Run, Results, and Plot page state plus native app behind the `native` feature. |
 | `ferrisoxide-controller-io` | `crates/ferrisoxide-controller-io` | Host-checkable controller input/output abstraction for portable controller logic. | Input/output port descriptors, value model, input provider trait, output sink trait, fake host implementation, safe-output reset, and structured I/O errors. |
 | `ferrisoxide-control-schema` | `crates/ferrisoxide-control-schema` | Versioned production control config schema for controller-in-the-loop workflows. | Config metadata, target profile, approval metadata, timing, inputs, outputs, thresholds, modes, state machines, timing rules, actions, fault responses, parse helpers, and structured validation errors. |
 | `ferrisoxide-daq` | `crates/ferrisoxide-daq` | Fixture/test-double DAQ input abstraction for controller-in-the-loop workflows. | DAQ channel descriptors, sample frames, fixture source, sample-source trait, deterministic frame collection, and structured DAQ errors. |
@@ -62,7 +64,28 @@ Each crate-local `architecture.md` file must include:
 
 Crate-local diagrams must stay focused on that crate only and must not duplicate the full-system flowchart. When a new major crate is added or an existing major crate materially changes its responsibility, public API, boundary, or data flow, its crate-local `architecture.md` must be added or updated before the PR is merge-ready. The crate README should link to the crate-local architecture document when a README exists, and this workspace architecture map should reference major crate architecture documents as they are backfilled.
 
-Existing FerrisOxide crates predate this rule. Backfilling crate-local architecture files for current major crates is a documentation follow-up and should be tracked separately; new major crates must not bypass this rule.
+Current FerrisOxide crate-local architecture backfill is complete for all 16 workspace crates. Future major crates must not bypass this rule.
+
+The current backfill audit is documented in `docs/architecture/crate-architecture-audit.md`.
+
+| Crate | Architecture document |
+|---|---|
+| `ferrisoxide-cli` | `crates/ferrisoxide-cli/architecture.md` |
+| `ferrisoxide-control-schema` | `crates/ferrisoxide-control-schema/architecture.md` |
+| `ferrisoxide-controller-io` | `crates/ferrisoxide-controller-io/architecture.md` |
+| `ferrisoxide-core` | `crates/ferrisoxide-core/architecture.md` |
+| `ferrisoxide-daq` | `crates/ferrisoxide-daq/architecture.md` |
+| `ferrisoxide-deployment` | `crates/ferrisoxide-deployment/architecture.md` |
+| `ferrisoxide-embedded` | `crates/ferrisoxide-embedded/architecture.md` |
+| `ferrisoxide-gui` | `crates/ferrisoxide-gui/architecture.md` |
+| `ferrisoxide-measurements` | `crates/ferrisoxide-measurements/architecture.md` |
+| `ferrisoxide-plot` | `crates/ferrisoxide-plot/architecture.md` |
+| `ferrisoxide-rule-engine` | `crates/ferrisoxide-rule-engine/architecture.md` |
+| `ferrisoxide-rule-schema` | `crates/ferrisoxide-rule-schema/architecture.md` |
+| `ferrisoxide-signal` | `crates/ferrisoxide-signal/architecture.md` |
+| `ferrisoxide-simulator` | `crates/ferrisoxide-simulator/architecture.md` |
+| `ferrisoxide-verification-schema` | `crates/ferrisoxide-verification-schema/architecture.md` |
+| `ferrisoxide-workflow` | `crates/ferrisoxide-workflow/architecture.md` |
 
 ## Module Map
 

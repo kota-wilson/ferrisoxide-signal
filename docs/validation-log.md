@@ -22,6 +22,39 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; optional native GUI dependencies `eframe`, `egui_plot`, and `rfd`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, `ferrisoxide-workflow`, `ferrisoxide-gui`, and `ferrisoxide-cli`.
 
+## Current Crate Architecture Backfill Validation Update
+
+Date: 2026-06-06
+
+Stage: Documentation audit and WRA-RQ-140 current-crate backfill
+
+Scope:
+
+- Audit the current workspace crate graph, public entrypoints, source modules, and crate responsibilities.
+- Add focused crate-local `architecture.md` files with Mermaid flowcharts for all 16 current workspace crates.
+- Add `docs/architecture/crate-architecture-audit.md` as the source audit and index for the crate backfill.
+- Update architecture, README, requirements, traceability, documentation review, risk, orchestration, and project state files to show the current-crate backfill is complete.
+- Preserve explicit non-goals for live DAQ, hardware HAL/RTOS runtime binding, runtime-loader execution, package signing, release publication, installers, and certification evidence.
+
+Commands:
+
+- `cargo metadata --no-deps --format-version 1 | jq -r '.packages | length'`: Pass; 16 workspace packages.
+- `find crates -maxdepth 2 -name architecture.md -print | wc -l`: Pass; 16 crate-local architecture files.
+- `rg -l '```mermaid' crates/*/architecture.md | wc -l`: Pass; 16 crate-local Mermaid diagrams.
+- Section completeness scan for `## Public Boundary`, `## Flowchart`, `## Important Error Paths`, and `## Validation` across `crates/*/architecture.md`: Pass; no missing sections.
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Local Markdown link-target scan over 218 FerrisOxide Markdown files and 112 local links: Pass; no broken local links.
+- `cargo test --workspace`: Pass.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+
+Result:
+
+- Every current workspace crate has a crate-local architecture document with a crate-focused Mermaid flowchart.
+- The crate architecture audit documents the source basis, current responsibilities, internal dependencies, and architecture document path for each crate.
+- WRA-RQ-140 status is now implemented for current crates; future major crate additions or material responsibility/API/data-flow changes must update the relevant diagram before merge readiness.
+
 ## Architecture Diagram Hierarchy Rule Validation Update
 
 Date: 2026-06-06

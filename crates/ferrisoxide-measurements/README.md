@@ -2,6 +2,8 @@
 
 `ferrisoxide-measurements` contains reusable signal-measurement primitives for the FerrisOxide Signal workspace.
 
+Architecture details and data flow are documented in [architecture.md](architecture.md).
+
 The crate is `#![no_std]`, allocation-free, and has no third-party dependencies. It works on caller-owned time and sample slices so desktop criteria, future reports, evidence plots, and future adapters can reuse the same measured facts without pulling in CSV parsing, file I/O, plotting, or report rendering.
 
 ## Current Measurements

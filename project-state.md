@@ -4,7 +4,7 @@ Last updated: 2026-06-06
 
 ## Current Objective
 
-Refine WRA-RQ-140 into a diagram hierarchy: one root FerrisOxide overview flowchart plus focused crate-local Mermaid architecture diagrams for every major workspace crate.
+Complete the WRA-RQ-140 current-crate architecture backfill: one root FerrisOxide overview flowchart plus focused crate-local Mermaid architecture diagrams for every current major workspace crate.
 
 M10 through M14 are complete through merged PR evidence. M15-M20 are complete through config reference, artifact contract, local batch workflow, transform-package compatibility, validation corpus index, MVP-exit pipeline report, readiness report, and post-MVP roadmap artifacts. M21-M24 are complete through portable linear pointwise package export, shared borrowed-slice runtime-compatible semantics, positive/negative package fixtures, and a runtime-loader design gate.
 
@@ -12,7 +12,7 @@ M25 is complete through the source-of-truth transform catalog, CLI catalog outpu
 
 M36 is complete through catalog, UX, compatibility, validation-corpus, benchmark-readiness, release-readiness, community, retrospective, stale-reference closure artifacts, and PR #175 mainline merge evidence. M37-M42 are complete and merged through PR #177 as the desktop workflow path with source intake/inspect, channel labeling/config scaffolding, transform/criteria authoring templates, evaluation bundles, and workflow validation corpus coverage. M43-M53 plus WRA-RQ-139 are complete and merged through PR #190 as the optional native egui workflow shell with shared workflow APIs, GUI source/config/run/results/plot panels, Source-page CSV file selection/header loading/unit selectors, channel-based Config builder, Run-page output directory picker, Plot-page channel selectors, render-only scalable Plot-page handling, dependency review, macOS GUI CI, and closed GitHub milestone #15 / closed issues #179-#189. No release tag, crate publication, installer, live DAQ, HAL/RTOS, hardware, runtime-loader, certification work, or public announcement was added by this update.
 
-WRA-RQ-140 is accepted as a documentation rule in `AGENTS.md`, `docs/architecture.md`, and `docs/architecture/ferrisoxide-overview.md`: the root overview file owns the high-level FerrisOxide system flowchart, while every new major workspace crate and every material responsibility, public API, boundary, or data-flow change to a major crate must include a focused crate-local `architecture.md` with a Mermaid component/data-flow diagram before merge readiness. Crate diagrams must cover inputs, internal processing stages, outputs, public APIs, and important error paths without duplicating the full system diagram. Existing major crates predate the rule, so crate-local architecture backfill remains an explicit documentation follow-up.
+WRA-RQ-140 is implemented for the current workspace in `AGENTS.md`, `docs/architecture.md`, `docs/architecture/ferrisoxide-overview.md`, `docs/architecture/crate-architecture-audit.md`, and all 16 current crate-local `architecture.md` files: the root overview file owns the high-level FerrisOxide system flowchart, while each current major workspace crate now has a focused crate-local Mermaid component/data-flow diagram. Crate diagrams cover inputs, internal processing stages, outputs, public APIs, and important error paths without duplicating the full system diagram. Future new major crates and material responsibility, public API, boundary, or data-flow changes must update the relevant diagram before merge readiness.
 
 ## Current Stage
 
@@ -126,7 +126,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Owner: Performance Engineer / V&V Engineer / Documentation Engineer
 - Risk: The native GUI shell may be mistaken for a packaged GUI product, live DAQ, realtime hardware acquisition, runtime loader, release artifact, or certification implementation.
   Owner: Product Architect / Project Coordinator / Documentation Engineer
-- Risk: Existing major crates may lack focused crate-local architecture diagrams until WRA-RQ-140 backfill is completed.
+- Risk: Future major crate changes may drift from focused crate-local architecture diagrams if WRA-RQ-140 is not enforced during review.
   Owner: Documentation Engineer / Software Architect
 
 ## Pending Decisions
@@ -193,7 +193,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Status: Implemented, validated, and merged through PR #190 in `ferrisoxide-workflow`, `ferrisoxide-gui`, `docs/egui-workflow-shell-roadmap.md`, and `docs/m43-m48-egui-workflow-shell-pipeline-report.md`; the Source page now includes local CSV file selection, explicit header loading, and unit selectors; the Config page includes Source-derived channel sections, dropdown-driven filter/action and criterion rows, numeric-only value fields, generated/opened TOML preview, and native open/save behavior; the Run page includes native output-directory selection; and the Plot page includes derived-channel plot selectors plus render-only scalable plotting, while GUI packaging, live/realtime DAQ, vendor SDKs, hardware acquisition, runtime-loader execution, release publication, and certification evidence remain separately gated.
 - Decision: Require a system overview plus focused crate-local architecture documentation for every major workspace crate.
   Owner: Documentation Engineer / Software Architect
-  Status: Accepted in WRA-RQ-140, `AGENTS.md`, `docs/architecture.md`, and `docs/architecture/ferrisoxide-overview.md`; new major crates and material crate responsibility, public API, boundary, or data-flow changes must include `crates/<crate-name>/architecture.md` with a focused Mermaid component/data-flow diagram before merge readiness. Existing crate backfill remains a follow-up documentation task.
+  Status: Implemented for all current workspace crates in WRA-RQ-140, `AGENTS.md`, `docs/architecture.md`, `docs/architecture/ferrisoxide-overview.md`, `docs/architecture/crate-architecture-audit.md`, and `crates/*/architecture.md`; new major crates and material crate responsibility, public API, boundary, or data-flow changes must include or update `crates/<crate-name>/architecture.md` with a focused Mermaid component/data-flow diagram before merge readiness.
 
 ## Next Responsible Role
 
@@ -228,7 +228,7 @@ Expected deliverable: Select any future GUI, live DAQ, runtime, release, packagi
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-139 and the accepted WRA-RQ-140 architecture diagram hierarchy rule. Milestones #9, #10, #11, #12, #13, #14, and #15 are closed in GitHub; M15-M36 are complete and merged through PR #175; M37-M42 are complete and merged through PR #177; M43-M53 plus WRA-RQ-139 are complete and merged through PR #190.
+- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-139 and the implemented WRA-RQ-140 architecture diagram hierarchy/current-crate backfill. Milestones #9, #10, #11, #12, #13, #14, and #15 are closed in GitHub; M15-M36 are complete and merged through PR #175; M37-M42 are complete and merged through PR #177; M43-M53 plus WRA-RQ-139 are complete and merged through PR #190.
 
 ## Gate Decisions
 
